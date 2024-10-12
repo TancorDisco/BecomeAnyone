@@ -3,7 +3,7 @@ package ru.sweetbun.BecomeAnyone.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.sweetbun.BecomeAnyone.entity.User;
+import ru.sweetbun.BecomeAnyone.DTO.UserDTO;
 import ru.sweetbun.BecomeAnyone.service.UserService;
 
 @RestController
@@ -18,12 +18,13 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody User user) {
-        return userService.register(user);
+    public ResponseEntity<?> registerUser(@RequestBody UserDTO userDTO) {
+        return ResponseEntity.ok(userService.register(userDTO));
     }
 
-    @GetMapping("/login")
+    @PostMapping("/login")
     public ResponseEntity<?> loginUser() {
-        return userService.login();
+        //TODO внедрить JWT
+        return ResponseEntity.ok("Logged in successfully");
     }
 }

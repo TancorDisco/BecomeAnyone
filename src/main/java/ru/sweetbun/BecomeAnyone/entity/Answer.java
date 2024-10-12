@@ -7,18 +7,26 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "roles")
+@Table(name = "answers")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Role {
+public class Answer {
 
     @Id
-    @Column(name = "role_id")
+    @Column(name = "answer_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "role_name", unique = true)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "question_id")
+    private Question question;
+
+    @Column(name = "answer_text")
     @NotEmpty
-    private String name;
+    private String answerText;
+
+    @Column
+    @NotEmpty
+    private boolean isCorrect;
 }
