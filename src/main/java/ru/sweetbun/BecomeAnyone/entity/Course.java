@@ -1,7 +1,7 @@
 package ru.sweetbun.BecomeAnyone.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -26,11 +26,9 @@ public class Course {
     @JoinColumn(name = "teacher_id")
     private User teacher;
 
-    @NotEmpty
     @Column(name = "title")
     private String title;
 
-    @NotEmpty
     @Column(name = "description")
     private String description;
 
@@ -43,6 +41,7 @@ public class Course {
     @Column(name = "created_at")
     private LocalDate createdAt;
 
+    @JsonManagedReference
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Module> modules = new ArrayList<>();
 

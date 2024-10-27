@@ -5,8 +5,6 @@ import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import ru.sweetbun.BecomeAnyone.DTO.ProfileDTO;
-import ru.sweetbun.BecomeAnyone.entity.Profile;
 
 @SpringBootApplication
 public class BecomeAnyoneApplication {

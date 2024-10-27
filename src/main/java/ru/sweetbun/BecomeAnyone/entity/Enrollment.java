@@ -1,16 +1,16 @@
 package ru.sweetbun.BecomeAnyone.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import ru.sweetbun.BecomeAnyone.entity.enums.EnrollmentStatus;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
+@Builder
 @Entity
 @Table(name = "enrollments")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Enrollment {
@@ -34,6 +34,7 @@ public class Enrollment {
     @OneToOne(mappedBy = "enrollment", cascade = CascadeType.ALL)
     private Progress progress;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status")
-    private String status;
+    private EnrollmentStatus status;
 }

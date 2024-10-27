@@ -2,6 +2,7 @@ package ru.sweetbun.BecomeAnyone.service;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import ru.sweetbun.BecomeAnyone.DTO.CourseDTO;
@@ -12,6 +13,8 @@ import ru.sweetbun.BecomeAnyone.repository.CourseRepository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 @Service
 public class CourseService {
@@ -45,17 +48,25 @@ public class CourseService {
                 .orElseThrow(() -> new ResourceNotFoundException(Course.class.getSimpleName(), id));
     }
 
-    public List<Course> getAllCourses() {
-        return courseRepository.findAll();
+    public List<Course> getAllCourses(Long teacherId, String q) {
+        Specification<Course> spec = Stream.of(
+                Optional.ofNullable(teacherId).map(id -> CourseRepository.hasTeacher(userService.getUserById(id))),
+                Optional.ofNullable(q).filter(title -> !title.isEmpty()).map(CourseRepository::hasTitle)
+        )
+                .flatMap(Optional::stream)
+                .reduce(Specification::and)
+                .orElse(null);
+        return courseRepository.findAll(spec);
     }
 
     public Course updateCourse(CourseDTO courseDTO, Long id) {
         Course course = getCourseById(id);
-        course = modelMapper.map(courseDTO, Course.class);
+        modelMapper.map(courseDTO, course);
         return courseRepository.save(course);
     }
 
     public void deleteCourseById(Long id) {
+        getCourseById(id);
         courseRepository.deleteById(id);
     }
 }

@@ -6,6 +6,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import ru.sweetbun.BecomeAnyone.DTO.EnrollmentDTO;
 import ru.sweetbun.BecomeAnyone.entity.Enrollment;
+import ru.sweetbun.BecomeAnyone.entity.enums.EnrollmentStatus;
 import ru.sweetbun.BecomeAnyone.exception.ResourceNotFoundException;
 import ru.sweetbun.BecomeAnyone.repository.EnrollmentRepository;
 
@@ -31,14 +32,14 @@ public class EnrollmentService {
         this.userService = userService;
     }
 
-    public Enrollment createEnrollment(EnrollmentDTO enrollmentDTO, Long courseId) {
-        Enrollment enrollment = modelMapper.map(enrollmentDTO, Enrollment.class);
-        enrollment.setCourse(courseService.getCourseById(courseId));
+    public Enrollment createEnrollment(Long courseId) {
         var username = SecurityContextHolder.getContext().getAuthentication().getName();
-        enrollment.setStudent(userService.getUserByUsername(username));
-        enrollment.setEnrollmentDate(LocalDate.now());
-        enrollment.setStatus("IN PROGRESS");
-
+        Enrollment enrollment = Enrollment.builder()
+                .student(userService.getUserByUsername(username))
+                .course(courseService.getCourseById(courseId))
+                .enrollmentDate(LocalDate.now())
+                .status(EnrollmentStatus.NOT_STARTED)
+                .build();
         return enrollmentRepository.save(enrollment);
     }
 
@@ -47,8 +48,9 @@ public class EnrollmentService {
                 .orElseThrow(() -> new ResourceNotFoundException(Enrollment.class.getSimpleName(), id));
     }
 
-    public List<Enrollment> getAllEnrollments() {
-        return enrollmentRepository.findAll();
+    public List<Enrollment> getAllEnrollmentsByStudent() {
+        var username = SecurityContextHolder.getContext().getAuthentication().getName();
+        return enrollmentRepository.findAllByStudent(userService.getUserByUsername(username));
     }
 
     public Enrollment updateEnrollment(EnrollmentDTO enrollmentDTO, Long id) {
@@ -57,7 +59,13 @@ public class EnrollmentService {
         return enrollmentRepository.save(enrollment);
     }
 
-    public void deleteEnrollmentById(Long id) {
-        enrollmentRepository.deleteById(id);
+    public void deleteEnrollment(Long courseId) {
+        List<Enrollment> enrollments = getAllEnrollmentsByStudent();
+        for (var enrollment : enrollments) {
+            if (enrollment.getCourse().getId().equals(courseId)) {
+                enrollmentRepository.delete(enrollment);
+                break;
+            }
+        }
     }
 }

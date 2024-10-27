@@ -1,5 +1,6 @@
 package ru.sweetbun.BecomeAnyone.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
@@ -21,6 +22,7 @@ public class Lesson {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @JsonBackReference
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "module_id")
     private Module module;
@@ -32,8 +34,7 @@ public class Lesson {
     @Column(name = "content")
     private String content;
 
-    @Column(name = "order_num")
-    @NotEmpty
+    @Column(name = "order_num", nullable = false)
     private Integer orderNum;
 
     @OneToMany(mappedBy = "lesson", cascade = CascadeType.ALL, orphanRemoval = true)
