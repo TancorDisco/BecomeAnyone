@@ -13,4 +13,6 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
     List<Lesson> findAllByModule(Module module);
 
     List<Lesson> findAllByModuleOrderByOrderNumAsc(Module module);
+
+    List<Lesson> findByOrderNumGreaterThan(int orderNum);
 }

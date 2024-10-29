@@ -3,7 +3,8 @@ package ru.sweetbun.BecomeAnyone.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.sweetbun.BecomeAnyone.DTO.CourseDTO;
+import ru.sweetbun.BecomeAnyone.DTO.CreateCourseDTO;
+import ru.sweetbun.BecomeAnyone.DTO.UpdateCourseDTO;
 import ru.sweetbun.BecomeAnyone.service.CourseService;
 
 @RestController
@@ -18,8 +19,8 @@ public class CourseController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createCourse(@RequestBody CourseDTO courseDTO) {
-        return ResponseEntity.ok(courseService.createCourse(courseDTO));
+    public ResponseEntity<?> createCourse(@RequestBody CreateCourseDTO createCourseDTO) {
+        return ResponseEntity.ok(courseService.createCourse(createCourseDTO));
     }
 
     @GetMapping
@@ -34,8 +35,8 @@ public class CourseController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<?> updateCourse(@PathVariable Long id, @RequestBody CourseDTO courseDTO) {
-        return ResponseEntity.ok(courseService.updateCourse(courseDTO, id));
+    public ResponseEntity<?> updateCourse(@PathVariable Long id, @RequestBody UpdateCourseDTO updateCourseDTO) {
+        return ResponseEntity.ok(courseService.updateCourse(updateCourseDTO, id));
     }
 
     @DeleteMapping("/{id}")

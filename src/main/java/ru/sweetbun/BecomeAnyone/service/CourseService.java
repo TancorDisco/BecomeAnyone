@@ -2,21 +2,28 @@ package ru.sweetbun.BecomeAnyone.service;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import ru.sweetbun.BecomeAnyone.DTO.CourseDTO;
+import org.springframework.transaction.annotation.Transactional;
+import ru.sweetbun.BecomeAnyone.DTO.CreateCourseDTO;
+import ru.sweetbun.BecomeAnyone.DTO.CreateModuleDTO;
+import ru.sweetbun.BecomeAnyone.DTO.UpdateCourseDTO;
+import ru.sweetbun.BecomeAnyone.DTO.UpdateModuleDTO;
 import ru.sweetbun.BecomeAnyone.entity.Course;
 import ru.sweetbun.BecomeAnyone.entity.User;
 import ru.sweetbun.BecomeAnyone.exception.ResourceNotFoundException;
 import ru.sweetbun.BecomeAnyone.repository.CourseRepository;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 @Service
+@Transactional
 public class CourseService {
 
     private final CourseRepository courseRepository;
@@ -25,22 +32,32 @@ public class CourseService {
 
     private final UserService userService;
 
+    private final ModuleService moduleService;
+
     @Autowired
-    public CourseService(CourseRepository courseRepository, ModelMapper modelMapper, UserService userService) {
+    public CourseService(CourseRepository courseRepository, ModelMapper modelMapper, UserService userService,
+                         @Lazy ModuleService moduleService) {
         this.courseRepository = courseRepository;
         this.modelMapper = modelMapper;
         this.userService = userService;
+        this.moduleService = moduleService;
     }
 
-    public Course createCourse(CourseDTO courseDTO) {
+    public Course createCourse(CreateCourseDTO createCourseDTO) {
         var username = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userService.getUserByUsername(username);
 
-        Course course = modelMapper.map(courseDTO, Course.class);
+        List<CreateModuleDTO> moduleDTOS = createCourseDTO.getModules();
+        createCourseDTO.setModules(new ArrayList<>());
+        Course course = modelMapper.map(createCourseDTO, Course.class);
         course.setCreatedAt(LocalDate.now());
         course.setTeacher(user);
 
-        return courseRepository.save(course);
+        Course savedCourse = courseRepository.save(course);
+        if (!moduleDTOS.isEmpty()) {
+            moduleService.createModules(moduleDTOS, savedCourse);
+        }
+        return savedCourse;
     }
 
     public Course getCourseById(Long id) {
@@ -59,9 +76,12 @@ public class CourseService {
         return courseRepository.findAll(spec);
     }
 
-    public Course updateCourse(CourseDTO courseDTO, Long id) {
+    public Course updateCourse(UpdateCourseDTO updateCourseDTO, Long id) {
         Course course = getCourseById(id);
-        modelMapper.map(courseDTO, course);
+        List<UpdateModuleDTO> moduleDTOS = updateCourseDTO.getModules();
+        updateCourseDTO.setModules(new ArrayList<>());
+        modelMapper.map(updateCourseDTO, course);
+        course.setModules(moduleService.updateModules(moduleDTOS, course));
         return courseRepository.save(course);
     }
 

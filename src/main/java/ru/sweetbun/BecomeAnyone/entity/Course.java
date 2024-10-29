@@ -26,7 +26,7 @@ public class Course {
     @JoinColumn(name = "teacher_id")
     private User teacher;
 
-    @Column(name = "title")
+    @Column(name = "title", nullable = false)
     private String title;
 
     @Column(name = "description")
@@ -42,7 +42,7 @@ public class Course {
     private LocalDate createdAt;
 
     @JsonManagedReference
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
     private List<Module> modules = new ArrayList<>();
 
     /*@ManyToMany(mappedBy = "viewedCourses")

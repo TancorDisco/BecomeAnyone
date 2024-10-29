@@ -28,18 +28,16 @@ public class Module {
     @JoinColumn(name = "course_id")
     private Course course;
 
-    @Column(name = "title")
-    @NotEmpty
+    @Column(name = "title", nullable = false)
     private String title;
 
     @Column(name = "description")
-    @NotEmpty
     private String description;
 
-    @Column(name = "order_num", nullable = false)
+    @Column(name = "order_num")
     private Integer orderNum;
 
     @JsonManagedReference
-    @OneToMany(mappedBy = "module", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "module", cascade = CascadeType.ALL)
     private List<Lesson> lessons = new ArrayList<>();
 }

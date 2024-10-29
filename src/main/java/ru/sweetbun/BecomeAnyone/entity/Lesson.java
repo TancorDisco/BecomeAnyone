@@ -27,14 +27,13 @@ public class Lesson {
     @JoinColumn(name = "module_id")
     private Module module;
 
-    @Column(name = "title")
-    @NotEmpty
+    @Column(name = "title", nullable = false)
     private String title;
 
     @Column(name = "content")
     private String content;
 
-    @Column(name = "order_num", nullable = false)
+    @Column(name = "order_num")
     private Integer orderNum;
 
     @OneToMany(mappedBy = "lesson", cascade = CascadeType.ALL, orphanRemoval = true)
