@@ -1,14 +1,19 @@
 package ru.sweetbun.BecomeAnyone.DTO;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.*;
 
 import java.util.List;
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
 @AllArgsConstructor
-public class QuestionDTO {
+@Builder
+public class QuestionDTO<T extends AnswerDTO> {
 
     private String questionText;
-    private List<AnswerDTO> answers;
+    private boolean hasSeveralCorrectAnswers;
+    private String explanation;
+    private String imageUrl;
+    private List<T> answers;
 }

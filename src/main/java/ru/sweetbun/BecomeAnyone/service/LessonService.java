@@ -44,7 +44,7 @@ public class LessonService {
     public void createLessons(List<CreateLessonDTO> lessonDTOS, Module module) {
         List<Lesson> lessons = lessonDTOS.stream()
                 .map(lessonDTO -> createLesson(lessonDTO, module))
-                .collect(Collectors.toList());
+                .toList();
         lessonRepository.saveAll(lessons);
     }
 
@@ -73,7 +73,6 @@ public class LessonService {
     public List<Lesson> updateLessons(List<UpdateLessonInCourseDTO> lessonDTOS, Module module) {
         Map<Long, Lesson> currentLessonsMap = module.getLessons().stream()
                 .collect(Collectors.toMap(Lesson::getId, Function.identity()));
-
         List<Lesson> updatedLessons = new ArrayList<>();
 
         for (UpdateLessonInCourseDTO lessonDTO : lessonDTOS) {

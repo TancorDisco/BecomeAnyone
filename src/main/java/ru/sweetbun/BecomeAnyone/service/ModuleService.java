@@ -105,8 +105,7 @@ public class ModuleService {
     }
 
     private Module updateLessonsForModule(List<UpdateLessonInCourseDTO> lessonDTOS, Module module) {
-        List<Lesson> lessons = lessonService.updateLessons(lessonDTOS, module);
-        module.setLessons(lessons);
+        module.setLessons(lessonService.updateLessons(lessonDTOS, module));
         return moduleRepository.save(module);
     }
 

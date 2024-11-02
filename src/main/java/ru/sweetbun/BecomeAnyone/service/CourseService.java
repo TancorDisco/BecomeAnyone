@@ -10,14 +10,12 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.sweetbun.BecomeAnyone.DTO.CreateCourseDTO;
 import ru.sweetbun.BecomeAnyone.DTO.CreateModuleDTO;
 import ru.sweetbun.BecomeAnyone.DTO.UpdateCourseDTO;
-import ru.sweetbun.BecomeAnyone.DTO.UpdateModuleInCourseDTO;
 import ru.sweetbun.BecomeAnyone.entity.Course;
 import ru.sweetbun.BecomeAnyone.entity.User;
 import ru.sweetbun.BecomeAnyone.exception.ResourceNotFoundException;
 import ru.sweetbun.BecomeAnyone.repository.CourseRepository;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -77,10 +75,8 @@ public class CourseService {
 
     public Course updateCourse(UpdateCourseDTO updateCourseDTO, Long id) {
         Course course = getCourseById(id);
-        List<UpdateModuleInCourseDTO> moduleDTOS = updateCourseDTO.getModules();
-        updateCourseDTO.setModules(new ArrayList<>());
         modelMapper.map(updateCourseDTO, course);
-        course.setModules(moduleService.updateModules(moduleDTOS, course));
+        course.setModules(moduleService.updateModules(updateCourseDTO.getModules(), course));
         return courseRepository.save(course);
     }
 

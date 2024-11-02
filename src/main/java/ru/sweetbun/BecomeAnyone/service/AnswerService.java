@@ -2,29 +2,54 @@ package ru.sweetbun.BecomeAnyone.service;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-import ru.sweetbun.BecomeAnyone.DTO.AnswerDTO;
+import org.springframework.transaction.annotation.Transactional;
+import ru.sweetbun.BecomeAnyone.DTO.CreateAnswerDTO;
+import ru.sweetbun.BecomeAnyone.DTO.UpdateAnswerDTO;
 import ru.sweetbun.BecomeAnyone.entity.Answer;
+import ru.sweetbun.BecomeAnyone.entity.Question;
 import ru.sweetbun.BecomeAnyone.exception.ResourceNotFoundException;
 import ru.sweetbun.BecomeAnyone.repository.AnswerRepository;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
+@Transactional
 @Service
 public class AnswerService {
 
     private final AnswerRepository answerRepository;
     private final ModelMapper modelMapper;
+    private final QuestionService questionService;
 
     @Autowired
-    public AnswerService(AnswerRepository answerRepository, ModelMapper modelMapper) {
+    public AnswerService(AnswerRepository answerRepository, ModelMapper modelMapper, @Lazy QuestionService questionService) {
         this.answerRepository = answerRepository;
         this.modelMapper = modelMapper;
+        this.questionService = questionService;
     }
 
-    public Answer createAnswer(AnswerDTO answerDTO) {
-        Answer answer = modelMapper.map(answerDTO, Answer.class);
-        return answerRepository.save(answer);
+    public Answer createAnswer(CreateAnswerDTO createAnswerDTO, Long questionId) {
+        Question question = questionService.getQuestionById(questionId);
+        return answerRepository.save(createAnswer(createAnswerDTO, question));
+    }
+
+    public void createAnswers(List<CreateAnswerDTO> answerDTOS, Question question) {
+        List<Answer> answers = answerDTOS.stream()
+                .map(answerDTO -> createAnswer(answerDTO, question))
+                .toList();
+        answerRepository.saveAll(answers);
+    }
+
+    private Answer createAnswer(CreateAnswerDTO createAnswerDTO, Question question) {
+        Answer answer = modelMapper.map(createAnswerDTO, Answer.class);
+        answer.setQuestion(question);
+        question.getAnswers().add(answer);
+        return answer;
     }
 
     public Answer getAnswerById(Long id) {
@@ -36,13 +61,38 @@ public class AnswerService {
         return answerRepository.findAll();
     }
 
-    public Answer updateAnswer(AnswerDTO answerDTO, Long id) {
+    public Answer updateAnswer(CreateAnswerDTO createAnswerDTO, Long id) {
         Answer answer = getAnswerById(id);
-        answer = modelMapper.map(answerDTO, Answer.class);
+        answer = modelMapper.map(createAnswerDTO, Answer.class);
         return answerRepository.save(answer);
     }
 
-    public void deleteAnswerById(Long id) {
+    public List<Answer> updateAnswers(List<UpdateAnswerDTO> answerDTOS, Question question) {
+        Map<Long, Answer> currentAnswersMap = question.getAnswers().stream()
+                .collect(Collectors.toMap(Answer::getId, Function.identity()));
+        List<Answer> updatedAnswers = new ArrayList<>();
+
+        for (UpdateAnswerDTO answerDTO : answerDTOS) {
+            Long answerDTOId = answerDTO.getId();
+            if (answerDTOId != null && currentAnswersMap.containsKey(answerDTOId)) {
+                Answer answer = currentAnswersMap.get(answerDTOId);
+                currentAnswersMap.remove(answerDTOId);
+                modelMapper.map(answerDTO, answer);
+                updatedAnswers.add(answer);
+            } else {
+                Answer newAnswer = modelMapper.map(answerDTO, Answer.class);
+                newAnswer.setQuestion(question);
+                Answer savedAnswer = answerRepository.save(newAnswer);
+                updatedAnswers.add(savedAnswer);
+            }
+        }
+        answerRepository.deleteAll(new ArrayList<>(currentAnswersMap.values()));
+        return updatedAnswers;
+    }
+
+    public String deleteAnswerById(Long id) {
+        getAnswerById(id);
         answerRepository.deleteById(id);
+        return "Answer has been deleted with id: " + id;
     }
 }

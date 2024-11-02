@@ -2,8 +2,8 @@ package ru.sweetbun.BecomeAnyone.service;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.sweetbun.BecomeAnyone.DTO.TestDTO;
 import ru.sweetbun.BecomeAnyone.entity.Lesson;
 import ru.sweetbun.BecomeAnyone.entity.Test;
@@ -12,6 +12,7 @@ import ru.sweetbun.BecomeAnyone.repository.TestRepository;
 
 import java.util.List;
 
+@Transactional
 @Service
 public class TestService {
 
