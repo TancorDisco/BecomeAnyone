@@ -12,5 +12,4 @@ public class UpdateLessonDTO {
 
     private String title;
     private String content;
-    private List<Test> tests;
 }

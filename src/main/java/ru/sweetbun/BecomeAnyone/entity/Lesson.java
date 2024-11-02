@@ -1,6 +1,7 @@
 package ru.sweetbun.BecomeAnyone.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
@@ -36,6 +37,7 @@ public class Lesson {
     @Column(name = "order_num")
     private Integer orderNum;
 
+    @JsonManagedReference
     @OneToMany(mappedBy = "lesson", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Test> tests = new ArrayList<>();
 }
