@@ -6,8 +6,8 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.sweetbun.BecomeAnyone.DTO.CreateLessonDTO;
-import ru.sweetbun.BecomeAnyone.DTO.LessonDTO;
 import ru.sweetbun.BecomeAnyone.DTO.UpdateLessonDTO;
+import ru.sweetbun.BecomeAnyone.DTO.UpdateLessonInCourseDTO;
 import ru.sweetbun.BecomeAnyone.entity.Lesson;
 import ru.sweetbun.BecomeAnyone.entity.Module;
 import ru.sweetbun.BecomeAnyone.exception.ResourceNotFoundException;
@@ -36,23 +36,23 @@ public class LessonService {
         this.moduleService = moduleService;
     }
 
-    public Lesson createLesson(LessonDTO lessonDTO, Long moduleId) {
-        Lesson lesson = modelMapper.map(lessonDTO, Lesson.class);
+    public Lesson createLesson(CreateLessonDTO lessonDTO, Long moduleId) {
         Module module = moduleService.getModuleById(moduleId);
-        Lesson savedLesson = lessonRepository.save(lesson);
-        savedLesson.setModule(module);
-        module.getLessons().add(savedLesson);
-        return lessonRepository.save(savedLesson);
+        return lessonRepository.save(createLesson(lessonDTO, module));
     }
 
     public void createLessons(List<CreateLessonDTO> lessonDTOS, Module module) {
-        for (CreateLessonDTO lessonDTO : lessonDTOS) {
-            Lesson lesson = modelMapper.map(lessonDTO, Lesson.class);
-            Lesson savedLesson = lessonRepository.save(lesson);
-            savedLesson.setModule(module);
-            module.getLessons().add(lesson);
-            lessonRepository.save(savedLesson);
-        }
+        List<Lesson> lessons = lessonDTOS.stream()
+                .map(lessonDTO -> createLesson(lessonDTO, module))
+                .collect(Collectors.toList());
+        lessonRepository.saveAll(lessons);
+    }
+
+    private Lesson createLesson(CreateLessonDTO lessonDTO, Module module) {
+        Lesson lesson = modelMapper.map(lessonDTO, Lesson.class);
+        lesson.setModule(module);
+        module.getLessons().add(lesson);
+        return lesson;
     }
 
     public Lesson getLessonById(Long id) {
@@ -64,19 +64,19 @@ public class LessonService {
         return lessonRepository.findAllByModuleOrderByOrderNumAsc(moduleService.getModuleById(moduleId));
     }
 
-    public Lesson updateLesson(LessonDTO lessonDTO, Long id) {
+    public Lesson updateLesson(UpdateLessonDTO updateLessonDTO, Long id) {
         Lesson lesson = getLessonById(id);
-        modelMapper.map(lessonDTO, lesson);
+        modelMapper.map(updateLessonDTO, lesson);
         return lessonRepository.save(lesson);
     }
 
-    public List<Lesson> updateLessons(List<UpdateLessonDTO> lessonDTOS, Module module) {
+    public List<Lesson> updateLessons(List<UpdateLessonInCourseDTO> lessonDTOS, Module module) {
         Map<Long, Lesson> currentLessonsMap = module.getLessons().stream()
                 .collect(Collectors.toMap(Lesson::getId, Function.identity()));
 
         List<Lesson> updatedLessons = new ArrayList<>();
 
-        for (UpdateLessonDTO lessonDTO : lessonDTOS) {
+        for (UpdateLessonInCourseDTO lessonDTO : lessonDTOS) {
             Long lessonDTOId = lessonDTO.getId();
             if (lessonDTOId != null && currentLessonsMap.containsKey(lessonDTOId)) {
                 Lesson lesson = currentLessonsMap.get(lessonDTOId);
@@ -90,7 +90,7 @@ public class LessonService {
                 updatedLessons.add(savedLesson);
             }
         }
-        currentLessonsMap.values().forEach(lessonRepository::delete);
+        lessonRepository.deleteAll(new ArrayList<>(currentLessonsMap.values()));
         return updatedLessons;
     }
 

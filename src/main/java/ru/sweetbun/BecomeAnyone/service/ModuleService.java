@@ -1,7 +1,5 @@
 package ru.sweetbun.BecomeAnyone.service;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -32,9 +30,6 @@ public class ModuleService {
 
     private final CourseService courseService;
 
-    @PersistenceContext
-    private EntityManager entityManager;
-
     @Autowired
     public ModuleService(ModuleRepository moduleRepository, @Lazy LessonService lessonService, ModelMapper modelMapper,
                          @Lazy CourseService courseService) {
@@ -44,29 +39,29 @@ public class ModuleService {
         this.courseService = courseService;
     }
 
-    public Module createModule(ModuleDTO moduleDTO, Long courseId) {
-        Module module = modelMapper.map(moduleDTO, Module.class);
+    public Module createModule(CreateModuleDTO moduleDTO, Long courseId) {
         Course course = courseService.getCourseById(courseId);
-        Module savedModule = moduleRepository.save(module);
-        savedModule.setCourse(course);
-        course.getModules().add(savedModule);
-        return moduleRepository.save(savedModule);
+        return createModule(moduleDTO, course);
     }
 
     public void createModules(List<CreateModuleDTO> moduleDTOS, Course course) {
         for (CreateModuleDTO moduleDTO : moduleDTOS) {
             Module module = modelMapper.map(moduleDTO, Module.class);
+            module.setCourse(course);
+            course.getModules().add(module);
+            moduleRepository.save(module);
             List<CreateLessonDTO> lessonDTOS = moduleDTO.getLessons();
-            module.setLessons(new ArrayList<>());
-            Module savedModule = moduleRepository.save(module);
-
-            savedModule.setCourse(course);
-            course.getModules().add(savedModule);
-            moduleRepository.save(savedModule);
             if (!lessonDTOS.isEmpty()) {
-                lessonService.createLessons(lessonDTOS, savedModule);
+                lessonService.createLessons(lessonDTOS, module);
             }
         }
+    }
+
+    private Module createModule(CreateModuleDTO moduleDTO, Course course) {
+        Module module = modelMapper.map(moduleDTO, Module.class);
+        module.setCourse(course);
+        course.getModules().add(module);
+        return moduleRepository.save(module);
     }
 
     public Module getModuleById(Long id) {
@@ -78,40 +73,38 @@ public class ModuleService {
         return moduleRepository.findAllByCourseOrderByOrderNumAsc(courseService.getCourseById(courseId));
     }
 
-    public Module updateModule(ModuleDTO moduleDTO, Long id) {
+    public Module updateModule(UpdateModuleDTO updateModuleDTO, Long id) {
         Module module = getModuleById(id);
-        modelMapper.map(moduleDTO, module);
+        modelMapper.map(updateModuleDTO, module);
         return moduleRepository.save(module);
     }
 
-    public List<Module> updateModules(List<UpdateModuleDTO> moduleDTOS, Course course) {
+    public List<Module> updateModules(List<UpdateModuleInCourseDTO> moduleDTOS, Course course) {
         Map<Long, Module> currentModulesMap = course.getModules().stream()
                 .collect(Collectors.toMap(Module::getId, Function.identity()));
         List<Module> updatedModules = new ArrayList<>();
 
-        for (UpdateModuleDTO moduleDTO : moduleDTOS) {
+        for (UpdateModuleInCourseDTO moduleDTO : moduleDTOS) {
             Long moduleDTOId = moduleDTO.getId();
             if (moduleDTOId != null && currentModulesMap.containsKey(moduleDTOId)) {
                 Module module = currentModulesMap.get(moduleDTOId);
                 currentModulesMap.remove(moduleDTOId);
-                List<UpdateLessonDTO> lessonDTOS = moduleDTO.getLessons();
-                moduleDTO.setLessons(new ArrayList<>());
+                List<UpdateLessonInCourseDTO> lessonDTOS = moduleDTO.getLessons();
                 modelMapper.map(moduleDTO, module);
                 updatedModules.add(updateLessonsForModule(lessonDTOS, module));
             } else {
-                List<UpdateLessonDTO> lessonDTOS = moduleDTO.getLessons();
-                moduleDTO.setLessons(new ArrayList<>());
+                List<UpdateLessonInCourseDTO> lessonDTOS = moduleDTO.getLessons();
                 Module newModule = modelMapper.map(moduleDTO, Module.class);
                 newModule.setCourse(course);
                 Module savedModule = moduleRepository.save(newModule);
                 updatedModules.add(updateLessonsForModule(lessonDTOS, savedModule));
             }
         }
-        currentModulesMap.values().forEach(moduleRepository::delete);
+        moduleRepository.deleteAll(new ArrayList<>(currentModulesMap.values()));
         return updatedModules;
     }
 
-    private Module updateLessonsForModule(List<UpdateLessonDTO> lessonDTOS, Module module) {
+    private Module updateLessonsForModule(List<UpdateLessonInCourseDTO> lessonDTOS, Module module) {
         List<Lesson> lessons = lessonService.updateLessons(lessonDTOS, module);
         module.setLessons(lessons);
         return moduleRepository.save(module);

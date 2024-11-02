@@ -16,5 +16,5 @@ public class UpdateCourseDTO {
     private String description;
     private String requirements;
     private String coursePlan;
-    private List<UpdateModuleDTO> modules = new ArrayList<>();
+    private List<UpdateModuleInCourseDTO> modules = new ArrayList<>();
 }

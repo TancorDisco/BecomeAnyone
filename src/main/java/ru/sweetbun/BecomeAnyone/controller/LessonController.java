@@ -3,7 +3,8 @@ package ru.sweetbun.BecomeAnyone.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.sweetbun.BecomeAnyone.DTO.LessonDTO;
+import ru.sweetbun.BecomeAnyone.DTO.CreateLessonDTO;
+import ru.sweetbun.BecomeAnyone.DTO.UpdateLessonDTO;
 import ru.sweetbun.BecomeAnyone.service.LessonService;
 
 @RequestMapping("/courses/{courseId}/modules/{moduleId}/lessons")
@@ -18,7 +19,7 @@ public class LessonController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createLesson(@PathVariable("moduleId") Long moduleId, @RequestBody LessonDTO lessonDTO) {
+    public ResponseEntity<?> createLesson(@PathVariable("moduleId") Long moduleId, @RequestBody CreateLessonDTO lessonDTO) {
         return ResponseEntity.ok(lessonService.createLesson(lessonDTO, moduleId));
     }
 
@@ -33,8 +34,8 @@ public class LessonController {
     }
 
     @PatchMapping("{id}")
-    public ResponseEntity<?> updateLesson(@PathVariable("id") Long id, @RequestBody LessonDTO lessonDTO) {
-        return ResponseEntity.ok(lessonService.updateLesson(lessonDTO, id));
+    public ResponseEntity<?> updateLesson(@PathVariable("id") Long id, @RequestBody UpdateLessonDTO updateLessonDTO) {
+        return ResponseEntity.ok(lessonService.updateLesson(updateLessonDTO, id));
     }
 
     @DeleteMapping("{id}")

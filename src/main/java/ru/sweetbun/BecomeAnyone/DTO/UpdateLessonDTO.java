@@ -1,15 +1,16 @@
 package ru.sweetbun.BecomeAnyone.DTO;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import ru.sweetbun.BecomeAnyone.entity.Test;
 
-@Getter
-@Setter
-@NoArgsConstructor
+import java.util.List;
+
+@Data
 @AllArgsConstructor
-@Builder
 public class UpdateLessonDTO {
 
-    private Long id;
     private String title;
-    private int orderNum;
+    private String content;
+    private List<Test> tests;
 }
