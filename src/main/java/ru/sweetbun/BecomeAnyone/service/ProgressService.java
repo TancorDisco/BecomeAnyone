@@ -3,6 +3,7 @@ package ru.sweetbun.BecomeAnyone.service;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.sweetbun.BecomeAnyone.DTO.ProgressDTO;
 import ru.sweetbun.BecomeAnyone.entity.Progress;
 import ru.sweetbun.BecomeAnyone.exception.ResourceNotFoundException;
@@ -10,6 +11,7 @@ import ru.sweetbun.BecomeAnyone.repository.ProgressRepository;
 
 import java.util.List;
 
+@Transactional
 @Service
 public class ProgressService {
 
@@ -23,9 +25,8 @@ public class ProgressService {
         this.modelMapper = modelMapper;
     }
 
-    public Progress createProgress(ProgressDTO profileDTO) {
-        Progress progress = modelMapper.map(profileDTO, Progress.class);
-        return progressRepository.save(progress);
+    public Progress createProgress() {
+        return progressRepository.save(new Progress());
     }
 
     public Progress getProgressById(Long id) {
@@ -39,7 +40,7 @@ public class ProgressService {
 
     public Progress updateProgress(ProgressDTO progressDTO, Long id) {
         Progress progress = getProgressById(id);
-        progress = modelMapper.map(progressDTO, Progress.class);
+        modelMapper.map(progressDTO, progress);
         return progressRepository.save(progress);
     }
 

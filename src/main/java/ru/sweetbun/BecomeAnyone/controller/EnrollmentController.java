@@ -5,6 +5,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.sweetbun.BecomeAnyone.service.EnrollmentService;
 
+import static org.springframework.http.ResponseEntity.ok;
+
 @RestController
 @RequestMapping("/courses/{courseId}/enrollments")
 public class EnrollmentController {
@@ -18,12 +20,16 @@ public class EnrollmentController {
 
     @PostMapping
     public ResponseEntity<?> enrollInTheCourse(@PathVariable("courseId") Long courseId) {
-        return ResponseEntity.ok(enrollmentService.createEnrollment(courseId));
+        return ok(enrollmentService.createEnrollment(courseId));
+    }
+
+    @GetMapping
+    public ResponseEntity<?> getAllEnrollmentsByStudent() {
+        return ok(enrollmentService.getAllEnrollmentsByStudent());
     }
 
     @DeleteMapping
     public ResponseEntity<?> dropOutOfTheCourse(@PathVariable("courseId") Long courseId) {
-        enrollmentService.deleteEnrollment(courseId);
-        return ResponseEntity.ok("You have dropped out of the course with id: " + courseId);
+        return ok(enrollmentService.deleteEnrollment(courseId));
     }
 }

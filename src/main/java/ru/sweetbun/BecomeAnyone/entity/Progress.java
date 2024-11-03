@@ -1,5 +1,6 @@
 package ru.sweetbun.BecomeAnyone.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,9 +21,13 @@ public class Progress {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @JsonBackReference
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "enrollment_id")
     private Enrollment enrollment;
+
+    @Column(nullable = false)
+    private double completionPercentage = 0.0;
 
     @Column(name = "completed_lessons")
     private int completedLessons;

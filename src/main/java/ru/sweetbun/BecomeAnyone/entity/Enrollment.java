@@ -1,5 +1,6 @@
 package ru.sweetbun.BecomeAnyone.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import ru.sweetbun.BecomeAnyone.entity.enums.EnrollmentStatus;
@@ -31,6 +32,7 @@ public class Enrollment {
     @Column(name = "enrollment_date")
     private LocalDate enrollmentDate;
 
+    @JsonManagedReference
     @OneToOne(mappedBy = "enrollment", cascade = CascadeType.ALL)
     private Progress progress;
 
