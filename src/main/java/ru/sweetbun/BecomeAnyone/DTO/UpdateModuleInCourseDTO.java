@@ -10,7 +10,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class UpdateModuleInCourseDTO {
+public class UpdateModuleInCourseDTO implements ModuleDTO{
 
     private Long id;
     private String title;

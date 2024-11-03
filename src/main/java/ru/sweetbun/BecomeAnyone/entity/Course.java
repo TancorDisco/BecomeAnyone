@@ -38,8 +38,11 @@ public class Course {
     @Column(name = "course_plan")
     private String coursePlan;
 
-    @Column(name = "created_at")
+    @Column(nullable = false)
     private LocalDate createdAt;
+
+    @Column
+    private LocalDate updatedAt;
 
     @JsonManagedReference
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)

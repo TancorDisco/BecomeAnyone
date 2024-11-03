@@ -7,18 +7,20 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.sweetbun.BecomeAnyone.DTO.CreateCourseDTO;
+import ru.sweetbun.BecomeAnyone.DTO.CourseDTO;
 import ru.sweetbun.BecomeAnyone.DTO.CreateModuleDTO;
-import ru.sweetbun.BecomeAnyone.DTO.UpdateCourseDTO;
+import ru.sweetbun.BecomeAnyone.DTO.UpdateModuleInCourseDTO;
 import ru.sweetbun.BecomeAnyone.entity.Course;
 import ru.sweetbun.BecomeAnyone.entity.User;
 import ru.sweetbun.BecomeAnyone.exception.ResourceNotFoundException;
 import ru.sweetbun.BecomeAnyone.repository.CourseRepository;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
+
+import static java.time.LocalDate.now;
+import static java.util.Optional.ofNullable;
 
 @Service
 @Transactional
@@ -41,13 +43,13 @@ public class CourseService {
         this.moduleService = moduleService;
     }
 
-    public Course createCourse(CreateCourseDTO createCourseDTO) {
+    public Course createCourse(CourseDTO<CreateModuleDTO> courseDTO) {
         var username = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userService.getUserByUsername(username);
 
-        List<CreateModuleDTO> moduleDTOS = createCourseDTO.getModules();
-        Course course = modelMapper.map(createCourseDTO, Course.class);
-        course.setCreatedAt(LocalDate.now());
+        List<CreateModuleDTO> moduleDTOS = courseDTO.getModules();
+        Course course = modelMapper.map(courseDTO, Course.class);
+        course.setCreatedAt(now());
         course.setTeacher(user);
 
         Course savedCourse = courseRepository.save(course);
@@ -64,8 +66,8 @@ public class CourseService {
 
     public List<Course> getAllCourses(Long teacherId, String q) {
         Specification<Course> spec = Stream.of(
-                Optional.ofNullable(teacherId).map(id -> CourseRepository.hasTeacher(userService.getUserById(id))),
-                Optional.ofNullable(q).filter(title -> !title.isEmpty()).map(CourseRepository::hasTitle)
+                ofNullable(teacherId).map(id -> CourseRepository.hasTeacher(userService.getUserById(id))),
+                ofNullable(q).filter(title -> !title.isEmpty()).map(CourseRepository::hasTitle)
         )
                 .flatMap(Optional::stream)
                 .reduce(Specification::and)
@@ -73,10 +75,11 @@ public class CourseService {
         return courseRepository.findAll(spec);
     }
 
-    public Course updateCourse(UpdateCourseDTO updateCourseDTO, Long id) {
+    public Course updateCourse(CourseDTO<UpdateModuleInCourseDTO> courseDTO, Long id) {
         Course course = getCourseById(id);
-        modelMapper.map(updateCourseDTO, course);
-        course.setModules(moduleService.updateModules(updateCourseDTO.getModules(), course));
+        modelMapper.map(courseDTO, course);
+        course.setModules(moduleService.updateModules(courseDTO.getModules(), course));
+        course.setUpdatedAt(now());
         return courseRepository.save(course);
     }
 

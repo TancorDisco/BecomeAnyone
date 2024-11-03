@@ -32,10 +32,7 @@ public class ModelMapperConfig {
         modelMapper.createTypeMap(CreateModuleDTO.class, ru.sweetbun.BecomeAnyone.entity.Module.class)
                 .addMappings(mapper -> mapper.skip(Module::setLessons));
 
-        modelMapper.createTypeMap(CreateCourseDTO.class, Course.class)
-                .addMappings(mapper -> mapper.skip(Course::setModules));
-
-        modelMapper.createTypeMap(UpdateCourseDTO.class, Course.class)
+        modelMapper.createTypeMap(CourseDTO.class, Course.class)
                 .addMappings(mapper -> mapper.skip(Course::setModules));
 
         modelMapper.createTypeMap(QuestionDTO.class, Question.class)

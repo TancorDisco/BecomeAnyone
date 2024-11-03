@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class UpdateModuleDTO {
+public class UpdateModuleDTO implements ModuleDTO{
 
     private String title;
     private String description;

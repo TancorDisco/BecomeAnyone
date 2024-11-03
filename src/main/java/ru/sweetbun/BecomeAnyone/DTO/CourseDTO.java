@@ -5,16 +5,16 @@ import lombok.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@Setter
 @Getter
-@Builder
-@NoArgsConstructor
+@Setter
 @AllArgsConstructor
-public class UpdateCourseDTO {
+@NoArgsConstructor
+@Builder
+public class CourseDTO<T extends ModuleDTO> {
 
     private String title;
     private String description;
     private String requirements;
     private String coursePlan;
-    private List<UpdateModuleInCourseDTO> modules = new ArrayList<>();
+    private List<T> modules = new ArrayList<>();
 }

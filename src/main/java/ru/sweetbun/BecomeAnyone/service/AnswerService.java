@@ -33,9 +33,9 @@ public class AnswerService {
         this.questionService = questionService;
     }
 
-    public Answer createAnswer(CreateAnswerDTO createAnswerDTO, Long questionId) {
+    public Answer createAnswer(CreateAnswerDTO answerDTO, Long questionId) {
         Question question = questionService.getQuestionById(questionId);
-        return answerRepository.save(createAnswer(createAnswerDTO, question));
+        return answerRepository.save(createAnswer(answerDTO, question));
     }
 
     public void createAnswers(List<CreateAnswerDTO> answerDTOS, Question question) {
@@ -45,8 +45,8 @@ public class AnswerService {
         answerRepository.saveAll(answers);
     }
 
-    private Answer createAnswer(CreateAnswerDTO createAnswerDTO, Question question) {
-        Answer answer = modelMapper.map(createAnswerDTO, Answer.class);
+    private Answer createAnswer(CreateAnswerDTO answerDTO, Question question) {
+        Answer answer = modelMapper.map(answerDTO, Answer.class);
         answer.setQuestion(question);
         question.getAnswers().add(answer);
         return answer;
@@ -61,9 +61,9 @@ public class AnswerService {
         return answerRepository.findAll();
     }
 
-    public Answer updateAnswer(CreateAnswerDTO createAnswerDTO, Long id) {
+    public Answer updateAnswer(CreateAnswerDTO answerDTO, Long id) {
         Answer answer = getAnswerById(id);
-        answer = modelMapper.map(createAnswerDTO, Answer.class);
+        modelMapper.map(answerDTO, answer);
         return answerRepository.save(answer);
     }
 
