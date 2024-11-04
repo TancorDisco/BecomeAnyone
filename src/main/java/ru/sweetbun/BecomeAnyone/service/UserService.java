@@ -3,7 +3,6 @@ package ru.sweetbun.BecomeAnyone.service;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -14,6 +13,7 @@ import ru.sweetbun.BecomeAnyone.entity.Role;
 import ru.sweetbun.BecomeAnyone.entity.User;
 import ru.sweetbun.BecomeAnyone.exception.ResourceNotFoundException;
 import ru.sweetbun.BecomeAnyone.repository.UserRepository;
+import ru.sweetbun.BecomeAnyone.util.SecurityUtils;
 
 import java.util.List;
 
@@ -31,14 +31,17 @@ public class UserService {
 
     private final ProfileService profileService;
 
+    private final SecurityUtils securityUtils;
+
     @Autowired
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, ModelMapper modelMapper,
-                       RoleService roleService, ProfileService profileService) {
+                       RoleService roleService, ProfileService profileService, SecurityUtils securityUtils) {
         this.userRepository = userRepository;
         this.roleService = roleService;
         this.passwordEncoder = passwordEncoder;
         this.modelMapper = modelMapper;
         this.profileService = profileService;
+        this.securityUtils = securityUtils;
     }
 
     public User register(UserDTO userDTO) {
@@ -52,7 +55,7 @@ public class UserService {
 
     public User getUserById(Long id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(User.class.getSimpleName(), id));
+                .orElseThrow(() -> new ResourceNotFoundException(User.class, id));
     }
 
     public List<User> getAllUsers() {
@@ -75,13 +78,11 @@ public class UserService {
     }
 
     public User getUserProfile() {
-        var username = SecurityContextHolder.getContext().getAuthentication().getName();
-        return getUserByUsername(username);
+        return securityUtils.getCurrentUser();
     }
 
     public User createUserProfile(ProfileDTO profileDTO) {
-        var username = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = getUserByUsername(username);
+        User user = securityUtils.getCurrentUser();
 
         if (user.getProfile() != null) {
             throw new RuntimeException("Profile already exists for this user");
@@ -95,14 +96,10 @@ public class UserService {
     }
 
     public User updateUserProfile(ProfileDTO profileDTO) {
-        var username = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = getUserByUsername(username);
-
+        User user = securityUtils.getCurrentUser();
         Profile profile = profileService.updateProfile(profileDTO, user.getProfile().getId());
-
         user.setProfile(profile);
         profile.setUser(user);
-
         return userRepository.save(user);
     }
 }

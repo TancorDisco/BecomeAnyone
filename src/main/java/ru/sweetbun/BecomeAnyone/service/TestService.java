@@ -52,7 +52,7 @@ public class TestService {
 
     public Test getTestById(Long id) {
         return testRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(Test.class.getSimpleName(), id));
+                .orElseThrow(() -> new ResourceNotFoundException(Test.class, id));
     }
 
     public List<Test> getAllTestsByLesson(Long lessonId) {

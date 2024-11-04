@@ -30,7 +30,7 @@ public class SocialLinkService {
 
     public SocialLink getSocialLinkById(Long id) {
         return socialLinkRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(SocialLink.class.getSimpleName(), id));
+                .orElseThrow(() -> new ResourceNotFoundException(SocialLink.class, id));
     }
 
     public List<SocialLink> getAllSocialLinks() {

@@ -57,7 +57,7 @@ public class LessonService {
 
     public Lesson getLessonById(Long id) {
         return lessonRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(Lesson.class.getSimpleName(), id));
+                .orElseThrow(() -> new ResourceNotFoundException(Lesson.class, id));
     }
 
     public List<Lesson> getAllLessonsByModule(Long moduleId) {

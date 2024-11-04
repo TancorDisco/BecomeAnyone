@@ -66,7 +66,7 @@ public class ModuleService {
 
     public Module getModuleById(Long id) {
         return moduleRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(Module.class.getSimpleName(), id));
+                .orElseThrow(() -> new ResourceNotFoundException(Module.class, id));
     }
 
     public List<Module> getAllModulesByCourse(Long courseId) {

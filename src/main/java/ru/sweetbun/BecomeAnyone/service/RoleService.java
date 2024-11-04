@@ -30,7 +30,7 @@ public class RoleService {
 
     public Role getRoleById(Long id) {
         return roleRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(Role.class.getSimpleName(), id));
+                .orElseThrow(() -> new ResourceNotFoundException(Role.class, id));
     }
 
     public List<Role> getAllRoles() {
@@ -49,6 +49,6 @@ public class RoleService {
 
     public Role getRoleByName(String name) {
         return roleRepository.findByName(name)
-                .orElseThrow(() -> new ResourceNotFoundException(Role.class.getSimpleName(), name));
+                .orElseThrow(() -> new ResourceNotFoundException(Role.class, name));
     }
 }

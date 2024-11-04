@@ -3,7 +3,6 @@ package ru.sweetbun.BecomeAnyone.service;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.sweetbun.BecomeAnyone.DTO.EnrollmentDTO;
@@ -14,6 +13,7 @@ import ru.sweetbun.BecomeAnyone.entity.User;
 import ru.sweetbun.BecomeAnyone.entity.enums.EnrollmentStatus;
 import ru.sweetbun.BecomeAnyone.exception.ResourceNotFoundException;
 import ru.sweetbun.BecomeAnyone.repository.EnrollmentRepository;
+import ru.sweetbun.BecomeAnyone.util.SecurityUtils;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -28,25 +28,24 @@ public class EnrollmentService {
 
     private final CourseService courseService;
 
-    private final UserService userService;
-
     private final ProgressService progressService;
+
+    private final SecurityUtils securityUtils;
 
     @Autowired
     public EnrollmentService(EnrollmentRepository enrollmentRepository, ModelMapper modelMapper, CourseService courseService,
-                             UserService userService, @Lazy ProgressService progressService) {
+                             @Lazy ProgressService progressService, SecurityUtils securityUtils) {
         this.enrollmentRepository = enrollmentRepository;
         this.modelMapper = modelMapper;
         this.courseService = courseService;
-        this.userService = userService;
         this.progressService = progressService;
+        this.securityUtils = securityUtils;
     }
 
     public Enrollment createEnrollment(Long courseId) {
-        var username = SecurityContextHolder.getContext().getAuthentication().getName();
         Progress progress = progressService.createProgress();
         Enrollment enrollment = Enrollment.builder()
-                .student(userService.getUserByUsername(username))
+                .student(securityUtils.getCurrentUser())
                 .course(courseService.getCourseById(courseId))
                 .enrollmentDate(LocalDate.now())
                 .progress(progress)
@@ -58,12 +57,11 @@ public class EnrollmentService {
 
     public Enrollment getEnrollmentById(Long id) {
         return enrollmentRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(Enrollment.class.getSimpleName(), id));
+                .orElseThrow(() -> new ResourceNotFoundException(Enrollment.class, id));
     }
 
     public List<Enrollment> getAllEnrollmentsByStudent() {
-        var username = SecurityContextHolder.getContext().getAuthentication().getName();
-        return enrollmentRepository.findAllByStudent(userService.getUserByUsername(username));
+        return enrollmentRepository.findAllByStudent(securityUtils.getCurrentUser());
     }
 
     public Enrollment updateEnrollment(EnrollmentDTO enrollmentDTO, Long id) {
@@ -73,8 +71,7 @@ public class EnrollmentService {
     }
 
     public String deleteEnrollment(Long courseId) {
-        var username = SecurityContextHolder.getContext().getAuthentication().getName();
-        User student = userService.getUserByUsername(username);
+        User student = securityUtils.getCurrentUser();
         Course course = courseService.getCourseById(courseId);
         enrollmentRepository.deleteByStudentAndCourse(student, course);
         return "You have dropped out of the course with id: " + courseId;
@@ -82,6 +79,6 @@ public class EnrollmentService {
 
     public Enrollment getEnrollmentByStudentAndCourse(User student, Course course) {
         return enrollmentRepository.findByStudentAndCourse(student, course)
-                .orElseThrow(() -> new ResourceNotFoundException(Enrollment.class.getSimpleName(), student, course));
+                .orElseThrow(() -> new ResourceNotFoundException(Enrollment.class, student, course));
     }
 }

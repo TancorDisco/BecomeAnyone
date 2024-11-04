@@ -57,7 +57,7 @@ public class QuestionService {
 
     public Question getQuestionById(Long id) {
         return questionRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(Question.class.getSimpleName(), id));
+                .orElseThrow(() -> new ResourceNotFoundException(Question.class, id));
     }
 
     public List<Question> getAllQuestionsByTest(Long testId) {

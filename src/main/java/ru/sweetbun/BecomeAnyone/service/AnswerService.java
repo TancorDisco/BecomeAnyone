@@ -56,7 +56,7 @@ public class AnswerService {
 
     public Answer getAnswerById(Long id) {
         return answerRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(Answer.class.getSimpleName(), id));
+                .orElseThrow(() -> new ResourceNotFoundException(Answer.class, id));
     }
 
     public List<Answer> getAllAnswers() {

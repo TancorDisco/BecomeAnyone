@@ -31,7 +31,7 @@ public class ProfileService {
 
     public Profile getProfileById(Long id) {
         return profileRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(Profile.class.getSimpleName(), id));
+                .orElseThrow(() -> new ResourceNotFoundException(Profile.class, id));
     }
 
     public List<Profile> getAllProfiles() {

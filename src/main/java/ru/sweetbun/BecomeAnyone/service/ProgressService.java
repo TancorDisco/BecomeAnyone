@@ -31,7 +31,7 @@ public class ProgressService {
 
     public Progress getProgressById(Long id) {
         return progressRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(Progress.class.getSimpleName(), id));
+                .orElseThrow(() -> new ResourceNotFoundException(Progress.class, id));
     }
 
     public List<Progress> getAllProgress() {
