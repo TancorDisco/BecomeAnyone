@@ -7,12 +7,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.sweetbun.BecomeAnyone.DTO.CreateAnswerDTO;
 import ru.sweetbun.BecomeAnyone.DTO.UpdateAnswerDTO;
+import ru.sweetbun.BecomeAnyone.DTO.toCheck.AnswerToCheckDTO;
 import ru.sweetbun.BecomeAnyone.entity.Answer;
 import ru.sweetbun.BecomeAnyone.entity.Question;
 import ru.sweetbun.BecomeAnyone.exception.ResourceNotFoundException;
 import ru.sweetbun.BecomeAnyone.repository.AnswerRepository;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -94,5 +96,21 @@ public class AnswerService {
         getAnswerById(id);
         answerRepository.deleteById(id);
         return "Answer has been deleted with id: " + id;
+    }
+
+    public boolean checkAnswers(List<AnswerToCheckDTO> answersDTOS, List<Answer> answers) {
+        if (answersDTOS.size() != answers.size()) {
+            throw new IllegalArgumentException();
+        }
+        Map<Long, Answer> answerMap = new HashMap<>();
+        for (Answer answer : answers) {
+            answerMap.put(answer.getId(), answer);
+        }
+        for (AnswerToCheckDTO answerDTO : answersDTOS) {
+            Answer answer = answerMap.get(answerDTO.getId());
+            if (answer == null) throw new IllegalArgumentException();
+            if (answer.isCorrect() != answerDTO.isCorrect()) return false;
+        }
+        return true;
     }
 }

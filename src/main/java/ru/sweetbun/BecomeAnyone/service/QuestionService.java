@@ -9,6 +9,7 @@ import ru.sweetbun.BecomeAnyone.DTO.AnswerDTO;
 import ru.sweetbun.BecomeAnyone.DTO.CreateAnswerDTO;
 import ru.sweetbun.BecomeAnyone.DTO.QuestionDTO;
 import ru.sweetbun.BecomeAnyone.DTO.UpdateAnswerDTO;
+import ru.sweetbun.BecomeAnyone.DTO.toCheck.QuestionToCheckDTO;
 import ru.sweetbun.BecomeAnyone.entity.Answer;
 import ru.sweetbun.BecomeAnyone.entity.Question;
 import ru.sweetbun.BecomeAnyone.entity.Test;
@@ -16,7 +17,10 @@ import ru.sweetbun.BecomeAnyone.exception.ObjectMustContainException;
 import ru.sweetbun.BecomeAnyone.exception.ResourceNotFoundException;
 import ru.sweetbun.BecomeAnyone.repository.QuestionRepository;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Transactional
 @Service
@@ -31,8 +35,8 @@ public class QuestionService {
     private final ModelMapper modelMapper;
 
     @Autowired
-    public QuestionService(TestService testService, @Lazy AnswerService answerService, QuestionRepository questionRepository,
-                           ModelMapper modelMapper) {
+    public QuestionService(@Lazy TestService testService, @Lazy AnswerService answerService,
+                           QuestionRepository questionRepository, ModelMapper modelMapper) {
         this.testService = testService;
         this.answerService = answerService;
         this.questionRepository = questionRepository;
@@ -78,5 +82,24 @@ public class QuestionService {
     private void validateAnswers(List<? extends AnswerDTO> createAnswerDTOS) {
         if (createAnswerDTOS.isEmpty())
             throw new ObjectMustContainException(Question.class.getSimpleName(), Answer.class.getSimpleName());
+    }
+
+    public List<Question> checkQuestions(List<QuestionToCheckDTO> questionDTOS, List<Question> questions) {
+        if (questionDTOS.size() != questions.size()) {
+            throw new IllegalArgumentException("Size not equals");
+        }
+        Map<Long, Question> questionMap = new HashMap<>();
+        List<Question> wrongQuestions = new ArrayList<>();
+        for (Question question : questions) {
+            questionMap.put(question.getId(), question);
+        }
+        for (QuestionToCheckDTO questionDTO : questionDTOS) {
+            Question question = questionMap.get(questionDTO.getId());
+            if (question == null) throw new IllegalArgumentException("Question is null");
+            if (!answerService.checkAnswers(questionDTO.getAnswers(), question.getAnswers())) {
+                wrongQuestions.add(question);
+            }
+        }
+        return wrongQuestions;
     }
 }

@@ -79,4 +79,9 @@ public class EnrollmentService {
         enrollmentRepository.deleteByStudentAndCourse(student, course);
         return "You have dropped out of the course with id: " + courseId;
     }
+
+    public Enrollment getEnrollmentByStudentAndCourse(User student, Course course) {
+        return enrollmentRepository.findByStudentAndCourse(student, course)
+                .orElseThrow(() -> new ResourceNotFoundException(Enrollment.class.getSimpleName(), student, course));
+    }
 }

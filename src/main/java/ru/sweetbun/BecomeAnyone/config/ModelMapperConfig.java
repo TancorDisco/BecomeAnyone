@@ -5,10 +5,8 @@ import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ru.sweetbun.BecomeAnyone.DTO.*;
-import ru.sweetbun.BecomeAnyone.entity.Course;
-import ru.sweetbun.BecomeAnyone.entity.Lesson;
+import ru.sweetbun.BecomeAnyone.entity.*;
 import ru.sweetbun.BecomeAnyone.entity.Module;
-import ru.sweetbun.BecomeAnyone.entity.Question;
 
 @Configuration
 public class ModelMapperConfig {
@@ -37,6 +35,9 @@ public class ModelMapperConfig {
 
         modelMapper.createTypeMap(QuestionDTO.class, Question.class)
                 .addMappings(mapper -> mapper.skip(Question::setAnswers));
+
+        modelMapper.createTypeMap(Test.class, Test.class)
+                .addMappings(mapper -> mapper.skip(Test::setQuestions));
 
         return modelMapper;
     }

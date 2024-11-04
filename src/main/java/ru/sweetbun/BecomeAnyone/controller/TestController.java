@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.sweetbun.BecomeAnyone.DTO.TestDTO;
+import ru.sweetbun.BecomeAnyone.DTO.toCheck.TestToCheckDTO;
 import ru.sweetbun.BecomeAnyone.service.TestService;
 
 import static org.springframework.http.ResponseEntity.ok;
@@ -42,5 +43,11 @@ public class TestController {
     @DeleteMapping("{id}")
     public ResponseEntity<?> deleteTest(@PathVariable("id") Long id) {
         return ok(testService.deleteTestById(id));
+    }
+
+    @PostMapping("{id}/check")
+    public ResponseEntity<?> checkTest(@PathVariable("id") Long id, @RequestBody TestToCheckDTO testDTO,
+                                       @PathVariable("courseId") Long courseId) {
+        return ok(testService.checkTest(testDTO, id, courseId));
     }
 }

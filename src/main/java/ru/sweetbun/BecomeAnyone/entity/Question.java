@@ -3,7 +3,10 @@ package ru.sweetbun.BecomeAnyone.entity;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,11 +29,11 @@ public class Question {
     @JoinColumn(name = "test_id")
     private Test test;
 
-    @Column(name = "question_text", nullable = false)
+    @Column(nullable = false)
     private String questionText;
 
     @Column(nullable = false)
-    private boolean hasSeveralCorrectAnswers;
+    private boolean hasSeveralCorrectAnswers = false;
 
     @Column
     private String explanation;
@@ -41,4 +44,7 @@ public class Question {
     @JsonManagedReference
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL)
     private List<Answer> answers = new ArrayList<>();
+
+    /*@Transient
+    private boolean isAnswerRight;*/
 }

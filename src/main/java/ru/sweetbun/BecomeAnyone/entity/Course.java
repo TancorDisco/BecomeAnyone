@@ -47,7 +47,4 @@ public class Course {
     @JsonManagedReference
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
     private List<Module> modules = new ArrayList<>();
-
-    /*@ManyToMany(mappedBy = "viewedCourses")
-    private Set<User> students = new HashSet<>();*/
 }
