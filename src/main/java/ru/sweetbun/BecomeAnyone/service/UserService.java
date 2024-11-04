@@ -3,6 +3,7 @@ package ru.sweetbun.BecomeAnyone.service;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -35,7 +36,7 @@ public class UserService {
 
     @Autowired
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, ModelMapper modelMapper,
-                       RoleService roleService, ProfileService profileService, SecurityUtils securityUtils) {
+                       RoleService roleService, ProfileService profileService, @Lazy SecurityUtils securityUtils) {
         this.userRepository = userRepository;
         this.roleService = roleService;
         this.passwordEncoder = passwordEncoder;

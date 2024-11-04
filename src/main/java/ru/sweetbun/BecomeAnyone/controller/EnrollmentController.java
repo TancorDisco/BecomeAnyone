@@ -23,11 +23,6 @@ public class EnrollmentController {
         return ok(enrollmentService.createEnrollment(courseId));
     }
 
-    @GetMapping
-    public ResponseEntity<?> getAllEnrollmentsByStudent() {
-        return ok(enrollmentService.getAllEnrollmentsByStudent());
-    }
-
     @DeleteMapping
     public ResponseEntity<?> dropOutOfTheCourse(@PathVariable("courseId") Long courseId) {
         return ok(enrollmentService.deleteEnrollment(courseId));

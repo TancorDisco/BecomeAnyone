@@ -13,12 +13,9 @@ public class ProfileController {
 
     private final UserService userService;
 
-    private final EnrollmentService enrollmentService;
-
     @Autowired
     public ProfileController(UserService userService, EnrollmentService enrollmentService) {
         this.userService = userService;
-        this.enrollmentService = enrollmentService;
     }
 
     @GetMapping
@@ -34,10 +31,5 @@ public class ProfileController {
     @PatchMapping
     public ResponseEntity<?> updateUserProfile(@RequestBody ProfileDTO profileDTO) {
         return ResponseEntity.ok(userService.updateUserProfile(profileDTO));
-    }
-
-    @GetMapping("/enrollments")
-    public ResponseEntity<?> getAllEnrollmentsByStudent() {
-        return ResponseEntity.ok(enrollmentService.getAllEnrollmentsByStudent());
     }
 }

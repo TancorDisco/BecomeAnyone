@@ -8,7 +8,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import ru.sweetbun.BecomeAnyone.entity.User;
-import ru.sweetbun.BecomeAnyone.util.SecurityUtils;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -16,16 +15,16 @@ import java.util.stream.Collectors;
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
-    private final SecurityUtils securityUtils;
+    private final UserService userService;
 
     @Autowired
-    public CustomUserDetailsService(SecurityUtils securityUtils) {
-        this.securityUtils = securityUtils;
+    public CustomUserDetailsService(UserService userService) {
+        this.userService = userService;
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = securityUtils.getCurrentUser();
+        User user = userService.getUserByUsername(username);
 
         Set<GrantedAuthority> authorities = user.getRoles().stream()
                 .map((role) -> new SimpleGrantedAuthority(role.getName()))
