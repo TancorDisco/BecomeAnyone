@@ -1,22 +1,18 @@
 package ru.sweetbun.BecomeAnyone.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.sweetbun.BecomeAnyone.DTO.ProfileDTO;
-import ru.sweetbun.BecomeAnyone.service.EnrollmentService;
 import ru.sweetbun.BecomeAnyone.service.UserService;
 
+
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/profile")
 public class ProfileController {
 
     private final UserService userService;
-
-    @Autowired
-    public ProfileController(UserService userService, EnrollmentService enrollmentService) {
-        this.userService = userService;
-    }
 
     @GetMapping
     public ResponseEntity<?> getUserProfile() {

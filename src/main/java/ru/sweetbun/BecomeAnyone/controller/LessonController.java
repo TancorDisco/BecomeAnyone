@@ -1,22 +1,18 @@
 package ru.sweetbun.BecomeAnyone.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.sweetbun.BecomeAnyone.DTO.CreateLessonDTO;
 import ru.sweetbun.BecomeAnyone.DTO.UpdateLessonDTO;
 import ru.sweetbun.BecomeAnyone.service.LessonService;
 
+@RequiredArgsConstructor
 @RequestMapping("/courses/{courseId}/modules/{moduleId}/lessons")
 @RestController
 public class LessonController {
 
     private final LessonService lessonService;
-
-    @Autowired
-    public LessonController(LessonService lessonService) {
-        this.lessonService = lessonService;
-    }
 
     @PostMapping
     public ResponseEntity<?> createLesson(@PathVariable("moduleId") Long moduleId, @RequestBody CreateLessonDTO lessonDTO) {

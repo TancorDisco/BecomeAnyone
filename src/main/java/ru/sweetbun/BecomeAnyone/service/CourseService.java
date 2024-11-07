@@ -1,7 +1,7 @@
 package ru.sweetbun.BecomeAnyone.service;
 
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -22,6 +22,7 @@ import java.util.stream.Stream;
 import static java.time.LocalDate.now;
 import static java.util.Optional.ofNullable;
 
+@RequiredArgsConstructor
 @Service
 @Transactional
 public class CourseService {
@@ -29,19 +30,10 @@ public class CourseService {
     private final CourseRepository courseRepository;
 
     private final ModelMapper modelMapper;
-
+    @Lazy
     private final ModuleService moduleService;
 
     private final SecurityUtils securityUtils;
-
-    @Autowired
-    public CourseService(CourseRepository courseRepository, ModelMapper modelMapper,
-                         @Lazy ModuleService moduleService, SecurityUtils securityUtils) {
-        this.courseRepository = courseRepository;
-        this.modelMapper = modelMapper;
-        this.moduleService = moduleService;
-        this.securityUtils = securityUtils;
-    }
 
     public Course createCourse(CourseDTO<CreateModuleDTO> courseDTO) {
         User user = securityUtils.getCurrentUser();
