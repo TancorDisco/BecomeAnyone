@@ -1,12 +1,10 @@
 package ru.sweetbun.BecomeAnyone.service;
 
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.sweetbun.BecomeAnyone.entity.Course;
-import ru.sweetbun.BecomeAnyone.entity.Module;
 import ru.sweetbun.BecomeAnyone.entity.Progress;
 import ru.sweetbun.BecomeAnyone.entity.TestResult;
 import ru.sweetbun.BecomeAnyone.exception.ResourceNotFoundException;
@@ -14,24 +12,21 @@ import ru.sweetbun.BecomeAnyone.repository.ProgressRepository;
 
 import java.util.List;
 
-@Transactional
 @Service
 public class ProgressService {
 
     private final ProgressRepository progressRepository;
 
-    private final ModelMapper modelMapper;
-
     private final double acceptablePercentage;
 
     @Autowired
-    public ProgressService(ProgressRepository progressRepository, ModelMapper modelMapper,
+    public ProgressService(ProgressRepository progressRepository,
                            @Value("${test-result.percentage.acceptable}") double acceptablePercentage) {
         this.progressRepository = progressRepository;
-        this.modelMapper = modelMapper;
         this.acceptablePercentage = acceptablePercentage;
     }
 
+    @Transactional
     public Progress createProgress() {
         return progressRepository.save(new Progress());
     }
@@ -45,6 +40,7 @@ public class ProgressService {
         return progressRepository.findAll();
     }
 
+    @Transactional
     public void updateProgress(TestResult testResult, Course course) {
         Progress progress = testResult.getProgress();
 
@@ -59,7 +55,10 @@ public class ProgressService {
         }
     }
 
-    public void deleteProgressById(Long id) {
+    @Transactional
+    public long deleteProgressById(Long id) {
+        getProgressById(id);
         progressRepository.deleteById(id);
+        return id;
     }
 }

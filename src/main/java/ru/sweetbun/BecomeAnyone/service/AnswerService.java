@@ -1,7 +1,7 @@
 package ru.sweetbun.BecomeAnyone.service;
 
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,26 +20,23 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-@Transactional
+@RequiredArgsConstructor
 @Service
 public class AnswerService {
 
     private final AnswerRepository answerRepository;
+
     private final ModelMapper modelMapper;
+    @Lazy
     private final QuestionService questionService;
 
-    @Autowired
-    public AnswerService(AnswerRepository answerRepository, ModelMapper modelMapper, @Lazy QuestionService questionService) {
-        this.answerRepository = answerRepository;
-        this.modelMapper = modelMapper;
-        this.questionService = questionService;
-    }
-
+    @Transactional
     public Answer createAnswer(CreateAnswerDTO answerDTO, Long questionId) {
         Question question = questionService.getQuestionById(questionId);
         return answerRepository.save(createAnswer(answerDTO, question));
     }
 
+    @Transactional
     public void createAnswers(List<CreateAnswerDTO> answerDTOS, Question question) {
         List<Answer> answers = answerDTOS.stream()
                 .map(answerDTO -> createAnswer(answerDTO, question))
@@ -63,12 +60,14 @@ public class AnswerService {
         return answerRepository.findAll();
     }
 
+    @Transactional
     public Answer updateAnswer(CreateAnswerDTO answerDTO, Long id) {
         Answer answer = getAnswerById(id);
         modelMapper.map(answerDTO, answer);
         return answerRepository.save(answer);
     }
 
+    @Transactional
     public List<Answer> updateAnswers(List<UpdateAnswerDTO> answerDTOS, Question question) {
         Map<Long, Answer> currentAnswersMap = question.getAnswers().stream()
                 .collect(Collectors.toMap(Answer::getId, Function.identity()));
@@ -92,10 +91,11 @@ public class AnswerService {
         return updatedAnswers;
     }
 
-    public String deleteAnswerById(Long id) {
+    @Transactional
+    public long deleteAnswerById(Long id) {
         getAnswerById(id);
         answerRepository.deleteById(id);
-        return "Answer has been deleted with id: " + id;
+        return id;
     }
 
     public boolean checkAnswers(List<AnswerToCheckDTO> answersDTOS, List<Answer> answers) {

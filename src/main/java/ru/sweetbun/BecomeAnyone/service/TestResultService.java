@@ -9,7 +9,6 @@ import ru.sweetbun.BecomeAnyone.entity.*;
 import ru.sweetbun.BecomeAnyone.repository.TestResultRepository;
 import ru.sweetbun.BecomeAnyone.util.SecurityUtils;
 
-@Transactional
 @Service
 public class TestResultService {
 
@@ -38,6 +37,7 @@ public class TestResultService {
         this.acceptablePercentage = acceptablePercentage;
     }
 
+    @Transactional
     public TestResult createTestResult(Test test, double percent, Long courseId) {
         User user = securityUtils.getCurrentUser();
         Course course = courseService.getCourseById(courseId);

@@ -1,8 +1,9 @@
 package ru.sweetbun.BecomeAnyone.service;
 
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.sweetbun.BecomeAnyone.DTO.RoleDTO;
 import ru.sweetbun.BecomeAnyone.entity.Role;
 import ru.sweetbun.BecomeAnyone.exception.ResourceNotFoundException;
@@ -10,6 +11,7 @@ import ru.sweetbun.BecomeAnyone.repository.RoleRepository;
 
 import java.util.List;
 
+@RequiredArgsConstructor
 @Service
 public class RoleService {
 
@@ -17,12 +19,7 @@ public class RoleService {
 
     protected final ModelMapper modelMapper;
 
-    @Autowired
-    public RoleService(RoleRepository roleRepository, ModelMapper modelMapper) {
-        this.roleRepository = roleRepository;
-        this.modelMapper = modelMapper;
-    }
-
+    @Transactional
     public Role createRole(RoleDTO roleDTO) {
         Role role = modelMapper.map(roleDTO, Role.class);
         return roleRepository.save(role);
@@ -37,14 +34,18 @@ public class RoleService {
         return roleRepository.findAll();
     }
 
+    @Transactional
     public Role updateRole(RoleDTO roleDTO, Long id) {
         Role role = getRoleById(id);
         role = modelMapper.map(roleDTO, Role.class);
         return roleRepository.save(role);
     }
 
-    public void deleteRoleById(Long id) {
+    @Transactional
+    public long deleteRoleById(Long id) {
+        getRoleById(id);
         roleRepository.deleteById(id);
+        return id;
     }
 
     public Role getRoleByName(String name) {

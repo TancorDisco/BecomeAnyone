@@ -1,7 +1,7 @@
 package ru.sweetbun.BecomeAnyone.service;
 
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Transactional
+@RequiredArgsConstructor
 @Service
 public class TestService {
 
@@ -27,21 +27,12 @@ public class TestService {
     private final TestRepository testRepository;
 
     private final ModelMapper modelMapper;
-
+    @Lazy
     private final QuestionService questionService;
 
     private final TestResultService testResultService;
 
-    @Autowired
-    public TestService(LessonService lessonService, TestRepository testRepository, ModelMapper modelMapper,
-                       @Lazy QuestionService questionService, TestResultService testResultService) {
-        this.lessonService = lessonService;
-        this.testRepository = testRepository;
-        this.modelMapper = modelMapper;
-        this.questionService = questionService;
-        this.testResultService = testResultService;
-    }
-
+    @Transactional
     public Test createTest(TestDTO testDTO, Long lessonId) {
         Lesson lesson = lessonService.getLessonById(lessonId);
         Test test = modelMapper.map(testDTO, Test.class);
@@ -59,16 +50,18 @@ public class TestService {
         return testRepository.findAllTestsByLesson(lessonService.getLessonById(lessonId));
     }
 
+    @Transactional
     public Test updateTest(TestDTO testDTO, Long id) {
         Test test = getTestById(id);
         modelMapper.map(testDTO, test);
         return testRepository.save(test);
     }
 
-    public String deleteTestById(Long id) {
+    @Transactional
+    public long deleteTestById(Long id) {
         getTestById(id);
         testRepository.deleteById(id);
-        return "Test has been deleted with id: " + id;
+        return id;
     }
 
     public Map<String, Object> checkTest(TestToCheckDTO testDTO, Long id, Long courseId) {

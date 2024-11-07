@@ -1,7 +1,7 @@
 package ru.sweetbun.BecomeAnyone.service;
 
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,7 +18,7 @@ import ru.sweetbun.BecomeAnyone.util.SecurityUtils;
 import java.time.LocalDate;
 import java.util.List;
 
-@Transactional
+@RequiredArgsConstructor
 @Service
 public class EnrollmentService {
 
@@ -27,21 +27,12 @@ public class EnrollmentService {
     private final ModelMapper modelMapper;
 
     private final CourseService courseService;
-
+    @Lazy
     private final ProgressService progressService;
 
     private final SecurityUtils securityUtils;
 
-    @Autowired
-    public EnrollmentService(EnrollmentRepository enrollmentRepository, ModelMapper modelMapper, CourseService courseService,
-                             @Lazy ProgressService progressService, SecurityUtils securityUtils) {
-        this.enrollmentRepository = enrollmentRepository;
-        this.modelMapper = modelMapper;
-        this.courseService = courseService;
-        this.progressService = progressService;
-        this.securityUtils = securityUtils;
-    }
-
+    @Transactional
     public Enrollment createEnrollment(Long courseId) {
         Progress progress = progressService.createProgress();
         Enrollment enrollment = Enrollment.builder()
@@ -64,17 +55,19 @@ public class EnrollmentService {
         return enrollmentRepository.findAllByStudent(securityUtils.getCurrentUser());
     }
 
+    @Transactional
     public Enrollment updateEnrollment(EnrollmentDTO enrollmentDTO, Long id) {
         Enrollment enrollment = getEnrollmentById(id);
         modelMapper.map(enrollmentDTO, enrollment);
         return enrollmentRepository.save(enrollment);
     }
 
-    public String deleteEnrollment(Long courseId) {
+    @Transactional
+    public long deleteEnrollment(Long courseId) {
         User student = securityUtils.getCurrentUser();
         Course course = courseService.getCourseById(courseId);
         enrollmentRepository.deleteByStudentAndCourse(student, course);
-        return "You have dropped out of the course with id: " + courseId;
+        return courseId;
     }
 
     public Enrollment getEnrollmentByStudentAndCourse(User student, Course course) {

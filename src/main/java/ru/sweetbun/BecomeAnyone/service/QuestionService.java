@@ -1,7 +1,7 @@
 package ru.sweetbun.BecomeAnyone.service;
 
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,27 +22,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Transactional
+@RequiredArgsConstructor
 @Service
 public class QuestionService {
-
+    @Lazy
     private final TestService testService;
-
+    @Lazy
     private final AnswerService answerService;
 
     private final QuestionRepository questionRepository;
 
     private final ModelMapper modelMapper;
 
-    @Autowired
-    public QuestionService(@Lazy TestService testService, @Lazy AnswerService answerService,
-                           QuestionRepository questionRepository, ModelMapper modelMapper) {
-        this.testService = testService;
-        this.answerService = answerService;
-        this.questionRepository = questionRepository;
-        this.modelMapper = modelMapper;
-    }
-
+    @Transactional
     public Question createQuestion(QuestionDTO<CreateAnswerDTO> questionDTO, Long testId) {
         Test test = testService.getTestById(testId);
         List<CreateAnswerDTO> answerDTOS = questionDTO.answers();
@@ -64,6 +56,7 @@ public class QuestionService {
         return questionRepository.findAllQuestionsByTest(testService.getTestById(testId));
     }
 
+    @Transactional
     public Question updateQuestion(QuestionDTO<UpdateAnswerDTO> questionDTO, Long id) {
         Question question = getQuestionById(id);
         List<UpdateAnswerDTO> answerDTOS = questionDTO.answers();
@@ -73,10 +66,11 @@ public class QuestionService {
         return questionRepository.save(question);
     }
 
-    public String deleteQuestionById(Long id) {
+    @Transactional
+    public long deleteQuestionById(Long id) {
         getQuestionById(id);
         questionRepository.deleteById(id);
-        return "Question has been deleted with id: " + id;
+        return id;
     }
 
     private void validateAnswers(List<? extends AnswerDTO> createAnswerDTOS) {
