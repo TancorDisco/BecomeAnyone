@@ -32,14 +32,17 @@ public class TestService {
 
     private final TestResultService testResultService;
 
+    private final ProgressService progressService;
+
     @Autowired
     public TestService(LessonService lessonService, TestRepository testRepository, ModelMapper modelMapper,
-                       @Lazy QuestionService questionService, TestResultService testResultService) {
+                       @Lazy QuestionService questionService, TestResultService testResultService, ProgressService progressService) {
         this.lessonService = lessonService;
         this.testRepository = testRepository;
         this.modelMapper = modelMapper;
         this.questionService = questionService;
         this.testResultService = testResultService;
+        this.progressService = progressService;
     }
 
     public Test createTest(TestDTO testDTO, Long lessonId) {

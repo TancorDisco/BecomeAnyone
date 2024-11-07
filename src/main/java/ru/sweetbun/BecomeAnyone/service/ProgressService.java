@@ -2,10 +2,13 @@ package ru.sweetbun.BecomeAnyone.service;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.sweetbun.BecomeAnyone.DTO.ProgressDTO;
+import ru.sweetbun.BecomeAnyone.entity.Course;
+import ru.sweetbun.BecomeAnyone.entity.Module;
 import ru.sweetbun.BecomeAnyone.entity.Progress;
+import ru.sweetbun.BecomeAnyone.entity.TestResult;
 import ru.sweetbun.BecomeAnyone.exception.ResourceNotFoundException;
 import ru.sweetbun.BecomeAnyone.repository.ProgressRepository;
 
@@ -19,10 +22,14 @@ public class ProgressService {
 
     private final ModelMapper modelMapper;
 
+    private final double acceptablePercentage;
+
     @Autowired
-    public ProgressService(ProgressRepository progressRepository, ModelMapper modelMapper) {
+    public ProgressService(ProgressRepository progressRepository, ModelMapper modelMapper,
+                           @Value("${test-result.percentage.acceptable}") double acceptablePercentage) {
         this.progressRepository = progressRepository;
         this.modelMapper = modelMapper;
+        this.acceptablePercentage = acceptablePercentage;
     }
 
     public Progress createProgress() {
@@ -38,10 +45,18 @@ public class ProgressService {
         return progressRepository.findAll();
     }
 
-    public Progress updateProgress(ProgressDTO progressDTO, Long id) {
-        Progress progress = getProgressById(id);
-        modelMapper.map(progressDTO, progress);
-        return progressRepository.save(progress);
+    public void updateProgress(TestResult testResult, Course course) {
+        Progress progress = testResult.getProgress();
+
+        if (acceptablePercentage <= testResult.getPercent()) {
+            progress.setCompletedTests(progress.getCompletedTests()+1);
+            int testCount = course.getModules().stream()
+                    .flatMap(module -> module.getLessons().stream())
+                    .mapToInt(lesson -> lesson.getTests().size())
+                    .sum();
+            progress.setCompletionPercentage((double) progress.getCompletedTests() / testCount * 100);
+            progressRepository.save(progress);
+        }
     }
 
     public void deleteProgressById(Long id) {

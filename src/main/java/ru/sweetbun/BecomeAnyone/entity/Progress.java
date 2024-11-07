@@ -30,8 +30,8 @@ public class Progress {
     @Column(nullable = false)
     private double completionPercentage = 0.0;
 
-    @Column(name = "completed_lessons")
-    private int completedLessons;
+    @Column(name = "completed_tests")
+    private int completedTests = 0;
 
     @JsonManagedReference
     @OneToMany(mappedBy = "progress", cascade = CascadeType.ALL)
