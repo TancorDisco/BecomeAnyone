@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.sweetbun.BecomeAnyone.DTO.*;
 import ru.sweetbun.BecomeAnyone.entity.Course;
-import ru.sweetbun.BecomeAnyone.entity.Lesson;
 import ru.sweetbun.BecomeAnyone.entity.Module;
 import ru.sweetbun.BecomeAnyone.exception.ResourceNotFoundException;
 import ru.sweetbun.BecomeAnyone.repository.ModuleRepository;
@@ -50,7 +49,7 @@ public class ModuleService {
             module.setCourse(course);
             course.getModules().add(module);
             moduleRepository.save(module);
-            List<CreateLessonDTO> lessonDTOS = moduleDTO.getLessons();
+            List<CreateLessonDTO> lessonDTOS = moduleDTO.lessons();
             if (!lessonDTOS.isEmpty()) {
                 lessonService.createLessons(lessonDTOS, module);
             }
@@ -85,15 +84,15 @@ public class ModuleService {
         List<Module> updatedModules = new ArrayList<>();
 
         for (UpdateModuleInCourseDTO moduleDTO : moduleDTOS) {
-            Long moduleDTOId = moduleDTO.getId();
+            Long moduleDTOId = moduleDTO.id();
             if (moduleDTOId != null && currentModulesMap.containsKey(moduleDTOId)) {
                 Module module = currentModulesMap.get(moduleDTOId);
                 currentModulesMap.remove(moduleDTOId);
-                List<UpdateLessonInCourseDTO> lessonDTOS = moduleDTO.getLessons();
+                List<UpdateLessonInCourseDTO> lessonDTOS = moduleDTO.lessons();
                 modelMapper.map(moduleDTO, module);
                 updatedModules.add(updateLessonsForModule(lessonDTOS, module));
             } else {
-                List<UpdateLessonInCourseDTO> lessonDTOS = moduleDTO.getLessons();
+                List<UpdateLessonInCourseDTO> lessonDTOS = moduleDTO.lessons();
                 Module newModule = modelMapper.map(moduleDTO, Module.class);
                 newModule.setCourse(course);
                 Module savedModule = moduleRepository.save(newModule);

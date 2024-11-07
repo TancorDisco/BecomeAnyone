@@ -1,12 +1,8 @@
 package ru.sweetbun.BecomeAnyone.DTO;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+public record CreateAnswerDTO (
+        String answerText,
+        boolean isCorrect
 
-@Data
-@AllArgsConstructor
-public class CreateAnswerDTO implements AnswerDTO{
-
-    private String answerText;
-    private boolean isCorrect;
+) implements AnswerDTO {
 }

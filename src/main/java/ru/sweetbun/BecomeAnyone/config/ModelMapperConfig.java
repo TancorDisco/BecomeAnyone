@@ -5,8 +5,8 @@ import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ru.sweetbun.BecomeAnyone.DTO.*;
-import ru.sweetbun.BecomeAnyone.entity.*;
 import ru.sweetbun.BecomeAnyone.entity.Module;
+import ru.sweetbun.BecomeAnyone.entity.*;
 
 @Configuration
 public class ModelMapperConfig {

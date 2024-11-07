@@ -4,7 +4,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.sweetbun.BecomeAnyone.DTO.CourseDTO;
@@ -47,7 +46,7 @@ public class CourseService {
     public Course createCourse(CourseDTO<CreateModuleDTO> courseDTO) {
         User user = securityUtils.getCurrentUser();
 
-        List<CreateModuleDTO> moduleDTOS = courseDTO.getModules();
+        List<CreateModuleDTO> moduleDTOS = courseDTO.modules();
         Course course = modelMapper.map(courseDTO, Course.class);
         course.setCreatedAt(now());
         course.setTeacher(user);
@@ -78,7 +77,7 @@ public class CourseService {
     public Course updateCourse(CourseDTO<UpdateModuleInCourseDTO> courseDTO, Long id) {
         Course course = getCourseById(id);
         modelMapper.map(courseDTO, course);
-        course.setModules(moduleService.updateModules(courseDTO.getModules(), course));
+        course.setModules(moduleService.updateModules(courseDTO.modules(), course));
         course.setUpdatedAt(now());
         return courseRepository.save(course);
     }

@@ -32,17 +32,14 @@ public class TestService {
 
     private final TestResultService testResultService;
 
-    private final ProgressService progressService;
-
     @Autowired
     public TestService(LessonService lessonService, TestRepository testRepository, ModelMapper modelMapper,
-                       @Lazy QuestionService questionService, TestResultService testResultService, ProgressService progressService) {
+                       @Lazy QuestionService questionService, TestResultService testResultService) {
         this.lessonService = lessonService;
         this.testRepository = testRepository;
         this.modelMapper = modelMapper;
         this.questionService = questionService;
         this.testResultService = testResultService;
-        this.progressService = progressService;
     }
 
     public Test createTest(TestDTO testDTO, Long lessonId) {
@@ -78,7 +75,7 @@ public class TestService {
         Test test = getTestById(id);
         List<Question> questions = test.getQuestions();
         Test testToSend = modelMapper.map(test, Test.class);
-        List<Question> wrongQuestions = questionService.checkQuestions(testDTO.getQuestions(), questions);
+        List<Question> wrongQuestions = questionService.checkQuestions(testDTO.questions(), questions);
         testToSend.setQuestions(wrongQuestions);
         TestResult testResult = testResultService.createTestResult(test,
                 calculatePercent(wrongQuestions.size(), questions.size()), courseId);

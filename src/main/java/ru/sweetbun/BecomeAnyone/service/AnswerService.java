@@ -75,7 +75,7 @@ public class AnswerService {
         List<Answer> updatedAnswers = new ArrayList<>();
 
         for (UpdateAnswerDTO answerDTO : answerDTOS) {
-            Long answerDTOId = answerDTO.getId();
+            Long answerDTOId = answerDTO.id();
             if (answerDTOId != null && currentAnswersMap.containsKey(answerDTOId)) {
                 Answer answer = currentAnswersMap.get(answerDTOId);
                 currentAnswersMap.remove(answerDTOId);
@@ -100,14 +100,14 @@ public class AnswerService {
 
     public boolean checkAnswers(List<AnswerToCheckDTO> answersDTOS, List<Answer> answers) {
         if (answersDTOS.size() != answers.size()) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Incorrect test");
         }
         Map<Long, Answer> answerMap = new HashMap<>();
         for (Answer answer : answers) {
             answerMap.put(answer.getId(), answer);
         }
         for (AnswerToCheckDTO answerDTO : answersDTOS) {
-            Answer answer = answerMap.get(answerDTO.getId());
+            Answer answer = answerMap.get(answerDTO.id());
             if (answer == null) throw new IllegalArgumentException();
             if (answer.isCorrect() != answerDTO.isCorrect()) return false;
         }

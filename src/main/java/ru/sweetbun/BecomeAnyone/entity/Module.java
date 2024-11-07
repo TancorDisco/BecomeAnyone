@@ -35,7 +35,7 @@ public class Module {
     private String description;
 
     @Column(name = "order_num")
-    private Integer orderNum;
+    private int orderNum;
 
     @JsonManagedReference
     @OneToMany(mappedBy = "module", cascade = CascadeType.ALL)

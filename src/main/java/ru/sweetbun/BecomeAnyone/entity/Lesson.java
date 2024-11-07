@@ -35,7 +35,7 @@ public class Lesson {
     private String content;
 
     @Column(name = "order_num")
-    private Integer orderNum;
+    private int orderNum;
 
     @JsonManagedReference
     @OneToMany(mappedBy = "lesson", cascade = CascadeType.ALL, orphanRemoval = true)

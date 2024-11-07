@@ -76,7 +76,7 @@ public class LessonService {
         List<Lesson> updatedLessons = new ArrayList<>();
 
         for (UpdateLessonInCourseDTO lessonDTO : lessonDTOS) {
-            Long lessonDTOId = lessonDTO.getId();
+            Long lessonDTOId = lessonDTO.id();
             if (lessonDTOId != null && currentLessonsMap.containsKey(lessonDTOId)) {
                 Lesson lesson = currentLessonsMap.get(lessonDTOId);
                 currentLessonsMap.remove(lessonDTOId);

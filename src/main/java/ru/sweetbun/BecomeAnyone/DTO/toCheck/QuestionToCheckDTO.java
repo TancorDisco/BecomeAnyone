@@ -1,19 +1,14 @@
 package ru.sweetbun.BecomeAnyone.DTO.toCheck;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
 import java.util.List;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-public class QuestionToCheckDTO {
+public record QuestionToCheckDTO(
+        Long id,
+        boolean hasSeveralCorrectAnswers,
+        List<AnswerToCheckDTO> answers
+) {
 
-    private Long id;
-    private boolean hasSeveralCorrectAnswers;
-    private List<AnswerToCheckDTO> answers;
+    public QuestionToCheckDTO {
+        if (answers == null) answers = List.of();
+    }
 }

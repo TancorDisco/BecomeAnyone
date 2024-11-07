@@ -45,7 +45,7 @@ public class QuestionService {
 
     public Question createQuestion(QuestionDTO<CreateAnswerDTO> questionDTO, Long testId) {
         Test test = testService.getTestById(testId);
-        List<CreateAnswerDTO> answerDTOS = questionDTO.getAnswers();
+        List<CreateAnswerDTO> answerDTOS = questionDTO.answers();
         validateAnswers(answerDTOS);
         Question question = modelMapper.map(questionDTO, Question.class);
         question.setTest(test);
@@ -66,7 +66,7 @@ public class QuestionService {
 
     public Question updateQuestion(QuestionDTO<UpdateAnswerDTO> questionDTO, Long id) {
         Question question = getQuestionById(id);
-        List<UpdateAnswerDTO> answerDTOS = questionDTO.getAnswers();
+        List<UpdateAnswerDTO> answerDTOS = questionDTO.answers();
         validateAnswers(answerDTOS);
         modelMapper.map(questionDTO, question);
         question.setAnswers(answerService.updateAnswers(answerDTOS, question));
@@ -94,9 +94,9 @@ public class QuestionService {
             questionMap.put(question.getId(), question);
         }
         for (QuestionToCheckDTO questionDTO : questionDTOS) {
-            Question question = questionMap.get(questionDTO.getId());
+            Question question = questionMap.get(questionDTO.id());
             if (question == null) throw new IllegalArgumentException("Question is null");
-            if (!answerService.checkAnswers(questionDTO.getAnswers(), question.getAnswers())) {
+            if (!answerService.checkAnswers(questionDTO.answers(), question.getAnswers())) {
                 wrongQuestions.add(question);
             }
         }
