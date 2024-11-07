@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.*;
 import ru.sweetbun.BecomeAnyone.DTO.ProfileDTO;
 import ru.sweetbun.BecomeAnyone.service.UserService;
 
+import static org.springframework.http.ResponseEntity.ok;
+
 
 @RequiredArgsConstructor
 @RestController
@@ -16,16 +18,16 @@ public class ProfileController {
 
     @GetMapping
     public ResponseEntity<?> getUserProfile() {
-        return ResponseEntity.ok(userService.getUserProfile());
+        return ok(userService.getUserProfile());
     }
 
     @PostMapping
     public ResponseEntity<?> createUserProfile(@RequestBody ProfileDTO profileDTO) {
-        return ResponseEntity.ok(userService.createUserProfile(profileDTO));
+        return ok(userService.createUserProfile(profileDTO));
     }
 
     @PatchMapping
     public ResponseEntity<?> updateUserProfile(@RequestBody ProfileDTO profileDTO) {
-        return ResponseEntity.ok(userService.updateUserProfile(profileDTO));
+        return ok(userService.updateUserProfile(profileDTO));
     }
 }

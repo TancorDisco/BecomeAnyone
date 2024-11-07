@@ -1,7 +1,7 @@
 package ru.sweetbun.BecomeAnyone.service;
 
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,31 +18,23 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional
+@RequiredArgsConstructor
 public class ModuleService {
 
     private final ModuleRepository moduleRepository;
-
+    @Lazy
     private final LessonService lessonService;
 
     private final ModelMapper modelMapper;
-
+    @Lazy
     private final CourseService courseService;
-
-    @Autowired
-    public ModuleService(ModuleRepository moduleRepository, @Lazy LessonService lessonService, ModelMapper modelMapper,
-                         @Lazy CourseService courseService) {
-        this.moduleRepository = moduleRepository;
-        this.lessonService = lessonService;
-        this.modelMapper = modelMapper;
-        this.courseService = courseService;
-    }
 
     public Module createModule(CreateModuleDTO moduleDTO, Long courseId) {
         Course course = courseService.getCourseById(courseId);
         return createModule(moduleDTO, course);
     }
 
+    @Transactional
     public void createModules(List<CreateModuleDTO> moduleDTOS, Course course) {
         for (CreateModuleDTO moduleDTO : moduleDTOS) {
             Module module = modelMapper.map(moduleDTO, Module.class);
@@ -56,6 +48,7 @@ public class ModuleService {
         }
     }
 
+    @Transactional
     private Module createModule(CreateModuleDTO moduleDTO, Course course) {
         Module module = modelMapper.map(moduleDTO, Module.class);
         module.setCourse(course);
@@ -72,12 +65,14 @@ public class ModuleService {
         return moduleRepository.findAllByCourseOrderByOrderNumAsc(courseService.getCourseById(courseId));
     }
 
+    @Transactional
     public Module updateModule(UpdateModuleDTO updateModuleDTO, Long id) {
         Module module = getModuleById(id);
         modelMapper.map(updateModuleDTO, module);
         return moduleRepository.save(module);
     }
 
+    @Transactional
     public List<Module> updateModules(List<UpdateModuleInCourseDTO> moduleDTOS, Course course) {
         Map<Long, Module> currentModulesMap = course.getModules().stream()
                 .collect(Collectors.toMap(Module::getId, Function.identity()));
@@ -103,12 +98,14 @@ public class ModuleService {
         return updatedModules;
     }
 
+    @Transactional
     private Module updateLessonsForModule(List<UpdateLessonInCourseDTO> lessonDTOS, Module module) {
         module.setLessons(lessonService.updateLessons(lessonDTOS, module));
         return moduleRepository.save(module);
     }
 
-    public String deleteModuleById(Long id) {
+    @Transactional
+    public long deleteModuleById(Long id) {
         Module moduleToDelete = getModuleById(id);
         int orderNum = moduleToDelete.getOrderNum();
         moduleRepository.deleteById(id);
@@ -116,6 +113,6 @@ public class ModuleService {
         List<Module> modulesToUpdate = moduleRepository.findByOrderNumGreaterThan(orderNum);
         modulesToUpdate.forEach(module -> module.setOrderNum(module.getOrderNum() - 1));
         moduleRepository.saveAll(modulesToUpdate);
-        return "Module has been deleted with id: " + id;
+        return id;
     }
 }

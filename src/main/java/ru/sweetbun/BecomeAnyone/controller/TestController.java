@@ -1,6 +1,6 @@
 package ru.sweetbun.BecomeAnyone.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.sweetbun.BecomeAnyone.DTO.TestDTO;
@@ -9,16 +9,12 @@ import ru.sweetbun.BecomeAnyone.service.TestService;
 
 import static org.springframework.http.ResponseEntity.ok;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/courses/{courseId}/modules/{moduleId}/lessons/{lessonId}/tests")
 public class TestController {
 
     private final TestService testService;
-
-    @Autowired
-    public TestController(TestService testService) {
-        this.testService = testService;
-    }
 
     @PostMapping
     public ResponseEntity<?> createTest(@PathVariable("lessonId") Long lessonId, @RequestBody TestDTO testDTO) {

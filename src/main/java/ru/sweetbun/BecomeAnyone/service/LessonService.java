@@ -1,7 +1,7 @@
 package ru.sweetbun.BecomeAnyone.service;
 
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,28 +19,23 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-@Transactional
+@RequiredArgsConstructor
 @Service
 public class LessonService {
 
     private final LessonRepository lessonRepository;
 
     private final ModelMapper modelMapper;
-
+    @Lazy
     private final ModuleService moduleService;
 
-    @Autowired
-    public LessonService(LessonRepository lessonRepository, ModelMapper modelMapper, @Lazy ModuleService moduleService) {
-        this.lessonRepository = lessonRepository;
-        this.modelMapper = modelMapper;
-        this.moduleService = moduleService;
-    }
-
+    @Transactional
     public Lesson createLesson(CreateLessonDTO lessonDTO, Long moduleId) {
         Module module = moduleService.getModuleById(moduleId);
         return lessonRepository.save(createLesson(lessonDTO, module));
     }
 
+    @Transactional
     public void createLessons(List<CreateLessonDTO> lessonDTOS, Module module) {
         List<Lesson> lessons = lessonDTOS.stream()
                 .map(lessonDTO -> createLesson(lessonDTO, module))
@@ -64,12 +59,14 @@ public class LessonService {
         return lessonRepository.findAllByModuleOrderByOrderNumAsc(moduleService.getModuleById(moduleId));
     }
 
+    @Transactional
     public Lesson updateLesson(UpdateLessonDTO updateLessonDTO, Long id) {
         Lesson lesson = getLessonById(id);
         modelMapper.map(updateLessonDTO, lesson);
         return lessonRepository.save(lesson);
     }
 
+    @Transactional
     public List<Lesson> updateLessons(List<UpdateLessonInCourseDTO> lessonDTOS, Module module) {
         Map<Long, Lesson> currentLessonsMap = module.getLessons().stream()
                 .collect(Collectors.toMap(Lesson::getId, Function.identity()));
@@ -93,7 +90,8 @@ public class LessonService {
         return updatedLessons;
     }
 
-    public String deleteLessonById(Long id) {
+    @Transactional
+    public long deleteLessonById(Long id) {
         Lesson lessonToDelete = getLessonById(id);
         int orderNum = lessonToDelete.getOrderNum();
         lessonRepository.deleteById(id);
@@ -101,6 +99,6 @@ public class LessonService {
         List<Lesson> lessonsToUpdate = lessonRepository.findByOrderNumGreaterThan(orderNum);
         lessonsToUpdate.forEach(lesson -> lesson.setOrderNum(lesson.getOrderNum() - 1));
         lessonRepository.saveAll(lessonsToUpdate);
-        return "Lesson has been deleted with id: " + id;
+        return id;
     }
 }

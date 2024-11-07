@@ -24,7 +24,6 @@ import static java.util.Optional.ofNullable;
 
 @RequiredArgsConstructor
 @Service
-@Transactional
 public class CourseService {
 
     private final CourseRepository courseRepository;
@@ -35,6 +34,7 @@ public class CourseService {
 
     private final SecurityUtils securityUtils;
 
+    @Transactional
     public Course createCourse(CourseDTO<CreateModuleDTO> courseDTO) {
         User user = securityUtils.getCurrentUser();
 
@@ -66,6 +66,7 @@ public class CourseService {
         return courseRepository.findAll(spec);
     }
 
+    @Transactional
     public Course updateCourse(CourseDTO<UpdateModuleInCourseDTO> courseDTO, Long id) {
         Course course = getCourseById(id);
         modelMapper.map(courseDTO, course);
@@ -74,8 +75,10 @@ public class CourseService {
         return courseRepository.save(course);
     }
 
-    public void deleteCourseById(Long id) {
+    @Transactional
+    public long deleteCourseById(Long id) {
         getCourseById(id);
         courseRepository.deleteById(id);
+        return id;
     }
 }
