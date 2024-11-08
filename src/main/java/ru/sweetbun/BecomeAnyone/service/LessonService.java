@@ -40,24 +40,22 @@ public class LessonService {
         return updatedLessons;
     }
 
+    @Transactional
     public static List<Lesson> mergeLessons(List<UpdateLessonInCourseDTO> lessonDTOS, ModelMapper mapper,
                                             Map<Long, Lesson> currentLessonsMap, Module module) {
-        List<Lesson> updatedLessons = new ArrayList<>();
-
-        for (UpdateLessonInCourseDTO lessonDTO : lessonDTOS) {
+        return lessonDTOS.stream().map(lessonDTO -> {
             Long lessonDTOId = lessonDTO.id();
+            Lesson lesson;
+
             if (lessonDTOId != null && currentLessonsMap.containsKey(lessonDTOId)) {
-                Lesson lesson = currentLessonsMap.get(lessonDTOId);
-                currentLessonsMap.remove(lessonDTOId);
+                lesson = currentLessonsMap.remove(lessonDTOId);
                 mapper.map(lessonDTO, lesson);
-                updatedLessons.add(lesson);
             } else {
-                Lesson newLesson = mapper.map(lessonDTO, Lesson.class);
-                newLesson.setModule(module);
-                updatedLessons.add(newLesson);
+                lesson = mapper.map(lessonDTO, Lesson.class);
+                lesson.setModule(module);
             }
-        }
-        return updatedLessons;
+            return lesson;
+        }).collect(Collectors.toList());
     }
 
     @Transactional

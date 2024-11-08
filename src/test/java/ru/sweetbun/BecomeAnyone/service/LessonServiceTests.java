@@ -59,7 +59,7 @@ class LessonServiceTests {
 
     private Stream<Arguments> lessonScenariosProvider() {
         return Stream.of(
-                Arguments.of(
+                Arguments.of( // 1
                         List.of(
                                 UpdateLessonInCourseDTO.builder().id(1L).title("Updated Lesson 1").build(),
                                 UpdateLessonInCourseDTO.builder().id(2L).title("Updated Lesson 2").build()
@@ -68,7 +68,7 @@ class LessonServiceTests {
                         List.of("Updated Lesson 1", "Updated Lesson 2"),
                         1
                 ),
-                Arguments.of(
+                Arguments.of( // 2
                         List.of(
                                 UpdateLessonInCourseDTO.builder().title("New Lesson 1").build(),
                                 UpdateLessonInCourseDTO.builder().title("New Lesson 2").build()
@@ -77,7 +77,7 @@ class LessonServiceTests {
                         List.of("New Lesson 1", "New Lesson 2"),
                         3
                 ),
-                Arguments.of(
+                Arguments.of( // 3
                         List.of(
                                 UpdateLessonInCourseDTO.builder().id(1L).title("Updated Lesson 1").build(),
                                 UpdateLessonInCourseDTO.builder().title("New Lesson 3").build(),
@@ -87,13 +87,13 @@ class LessonServiceTests {
                         List.of("Updated Lesson 1", "New Lesson 3", "Updated Lesson 2"),
                         1
                 ),
-                Arguments.of(
+                Arguments.of( // 4
                         Collections.emptyList(),
                         0,
                         Collections.emptyList(),
                         3
                 ),
-                Arguments.of(
+                Arguments.of( // 5
                         List.of(
                                 UpdateLessonInCourseDTO.builder().id(1L).title("Updated Lesson 1").build(),
                                 UpdateLessonInCourseDTO.builder().title("New Lesson 3").build()
@@ -102,7 +102,7 @@ class LessonServiceTests {
                         List.of("Updated Lesson 1", "New Lesson 3"),
                         2
                 ),
-                Arguments.of(
+                Arguments.of( // 6
                         List.of(
                                 UpdateLessonInCourseDTO.builder().id(1L).title(null).build(),
                                 UpdateLessonInCourseDTO.builder().id(3L).title(null).build()

@@ -76,33 +76,34 @@ public class ModuleService {
     public List<Module> updateModules(List<UpdateModuleInCourseDTO> moduleDTOS, Course course) {
         Map<Long, Module> currentModulesMap = course.getModules().stream()
                 .collect(Collectors.toMap(Module::getId, Function.identity()));
-        List<Module> updatedModules = new ArrayList<>();
 
-        for (UpdateModuleInCourseDTO moduleDTO : moduleDTOS) {
-            Long moduleDTOId = moduleDTO.id();
-            if (moduleDTOId != null && currentModulesMap.containsKey(moduleDTOId)) {
-                Module module = currentModulesMap.get(moduleDTOId);
-                currentModulesMap.remove(moduleDTOId);
-                List<UpdateLessonInCourseDTO> lessonDTOS = moduleDTO.lessons();
-                modelMapper.map(moduleDTO, module);
-                updatedModules.add(updateLessonsForModule(lessonDTOS, module));
-            } else {
-                List<UpdateLessonInCourseDTO> lessonDTOS = moduleDTO.lessons();
-                Module newModule = modelMapper.map(moduleDTO, Module.class);
-                newModule.setCourse(course);
-                Module savedModule = moduleRepository.save(newModule);
-                updatedModules.add(updateLessonsForModule(lessonDTOS, savedModule));
-            }
-        }
+        List<Module> updatedModules = mergeModules(moduleDTOS, modelMapper, currentModulesMap, course,
+                moduleRepository, lessonService);
+
         moduleRepository.deleteAll(new ArrayList<>(currentModulesMap.values()));
         return updatedModules;
     }
 
     @Transactional
-    private Module updateLessonsForModule(List<UpdateLessonInCourseDTO> lessonDTOS, Module module) {
-        module.setLessons(lessonService.updateLessons(lessonDTOS, module));
-        return moduleRepository.save(module);
+    public static List<Module> mergeModules(List<UpdateModuleInCourseDTO> moduleDTOS, ModelMapper mapper,
+                                            Map<Long, Module> currentModulesMap, Course course,
+                                            ModuleRepository moduleRepository, LessonService lessonService) {
+        return moduleDTOS.stream().map(moduleDTO -> {
+            Module module;
+            Long moduleDTOId = moduleDTO.id();
+
+            if (moduleDTOId != null && currentModulesMap.containsKey(moduleDTOId)) {
+                module = currentModulesMap.remove(moduleDTOId);
+                mapper.map(moduleDTO, module);
+            } else {
+                module = mapper.map(moduleDTO, Module.class);
+                module.setCourse(course);
+            }
+            module.setLessons(lessonService.updateLessons(moduleDTO.lessons(), module));
+            return moduleRepository.save(module);
+        }).collect(Collectors.toList());
     }
+
 
     @Transactional
     public long deleteModuleById(Long id) {
