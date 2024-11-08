@@ -11,6 +11,7 @@ import ru.sweetbun.BecomeAnyone.DTO.UpdateLessonInCourseDTO;
 import ru.sweetbun.BecomeAnyone.entity.Lesson;
 import ru.sweetbun.BecomeAnyone.entity.Module;
 import ru.sweetbun.BecomeAnyone.exception.ResourceNotFoundException;
+import ru.sweetbun.BecomeAnyone.mapper.UpdateLessonInCourseMapper;
 import ru.sweetbun.BecomeAnyone.repository.LessonRepository;
 
 import java.util.ArrayList;
@@ -28,6 +29,39 @@ public class LessonService {
     private final ModelMapper modelMapper;
     @Lazy
     private final ModuleService moduleService;
+
+    private final UpdateLessonInCourseMapper updateLessonInCourseMapper = UpdateLessonInCourseMapper.INSTANCE;
+
+    @Transactional
+    public List<Lesson> updateLessons(List<UpdateLessonInCourseDTO> lessonDTOS, Module module) {
+        Map<Long, Lesson> currentLessonsMap = module.getLessons().stream()
+                .collect(Collectors.toMap(Lesson::getId, Function.identity()));
+
+        List<Lesson> updatedLessons = mergeLessons(lessonDTOS, updateLessonInCourseMapper, currentLessonsMap, module);
+
+        lessonRepository.deleteAll(new ArrayList<>(currentLessonsMap.values()));
+        return updatedLessons;
+    }
+
+    public static List<Lesson> mergeLessons(List<UpdateLessonInCourseDTO> lessonDTOS, UpdateLessonInCourseMapper mapper,
+                                            Map<Long, Lesson> currentLessonsMap, Module module) {
+        List<Lesson> updatedLessons = new ArrayList<>();
+
+        for (UpdateLessonInCourseDTO lessonDTO : lessonDTOS) {
+            Long lessonDTOId = lessonDTO.id();
+            if (lessonDTOId != null && currentLessonsMap.containsKey(lessonDTOId)) {
+                Lesson lesson = currentLessonsMap.get(lessonDTOId);
+                currentLessonsMap.remove(lessonDTOId);
+                lesson = mapper.toLesson(lessonDTO);
+                updatedLessons.add(lesson);
+            } else {
+                Lesson newLesson = mapper.toLesson(lessonDTO);
+                newLesson.setModule(module);
+                updatedLessons.add(newLesson);
+            }
+        }
+        return updatedLessons;
+    }
 
     @Transactional
     public Lesson createLesson(CreateLessonDTO lessonDTO, Long moduleId) {
@@ -66,7 +100,7 @@ public class LessonService {
         return lessonRepository.save(lesson);
     }
 
-    @Transactional
+    /*@Transactional
     public List<Lesson> updateLessons(List<UpdateLessonInCourseDTO> lessonDTOS, Module module) {
         Map<Long, Lesson> currentLessonsMap = module.getLessons().stream()
                 .collect(Collectors.toMap(Lesson::getId, Function.identity()));
@@ -77,10 +111,11 @@ public class LessonService {
             if (lessonDTOId != null && currentLessonsMap.containsKey(lessonDTOId)) {
                 Lesson lesson = currentLessonsMap.get(lessonDTOId);
                 currentLessonsMap.remove(lessonDTOId);
-                modelMapper.map(lessonDTO, lesson);
+                lesson = updateLessonInCourseMapper.toLesson(lessonDTO);
+                //modelMapper.map(lessonDTO, lesson);
                 updatedLessons.add(lesson);
             } else {
-                Lesson newLesson = modelMapper.map(lessonDTO, Lesson.class);
+                Lesson newLesson = updateLessonInCourseMapper.toLesson(lessonDTO);
                 newLesson.setModule(module);
                 Lesson savedLesson = lessonRepository.save(newLesson);
                 updatedLessons.add(savedLesson);
@@ -88,7 +123,7 @@ public class LessonService {
         }
         lessonRepository.deleteAll(new ArrayList<>(currentLessonsMap.values()));
         return updatedLessons;
-    }
+    }*/
 
     @Transactional
     public long deleteLessonById(Long id) {
