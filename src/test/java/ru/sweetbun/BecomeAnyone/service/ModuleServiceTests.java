@@ -13,7 +13,6 @@ import org.modelmapper.ModelMapper;
 import ru.sweetbun.BecomeAnyone.DTO.UpdateModuleInCourseDTO;
 import ru.sweetbun.BecomeAnyone.config.ModelMapperConfig;
 import ru.sweetbun.BecomeAnyone.entity.Course;
-import ru.sweetbun.BecomeAnyone.entity.Lesson;
 import ru.sweetbun.BecomeAnyone.entity.Module;
 import ru.sweetbun.BecomeAnyone.repository.ModuleRepository;
 

@@ -37,6 +37,7 @@ public class Lesson {
     @Column(name = "order_num")
     private int orderNum;
 
+    @Builder.Default
     @JsonManagedReference
     @OneToMany(mappedBy = "lesson", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Test> tests = new ArrayList<>();

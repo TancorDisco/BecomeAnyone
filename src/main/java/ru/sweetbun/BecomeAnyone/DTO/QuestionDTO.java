@@ -15,5 +15,6 @@ public class QuestionDTO<T extends AnswerDTO> {
     private boolean hasSeveralCorrectAnswers;
     private String explanation;
     private String imageUrl;
+    @Builder.Default
     private List<T> answers = new ArrayList<>();
 }

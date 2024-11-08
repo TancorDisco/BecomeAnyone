@@ -3,13 +3,13 @@ package ru.sweetbun.BecomeAnyone.entity;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Table(name = "answers")
-@Data
+@Getter
+@Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Answer {
@@ -24,9 +24,9 @@ public class Answer {
     @JoinColumn(name = "question_id")
     private Question question;
 
-    @Column(name = "answer_text", nullable = false)
+    @Column(nullable = false)
     private String answerText;
 
     @Column(nullable = false)
-    private boolean isCorrect;
+    private boolean correct;
 }

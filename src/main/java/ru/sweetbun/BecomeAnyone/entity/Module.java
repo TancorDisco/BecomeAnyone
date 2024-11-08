@@ -36,6 +36,7 @@ public class Module {
     @Column(name = "order_num")
     private int orderNum;
 
+    @Builder.Default
     @JsonManagedReference
     @OneToMany(mappedBy = "module", cascade = CascadeType.ALL)
     private List<Lesson> lessons = new ArrayList<>();

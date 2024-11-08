@@ -71,24 +71,29 @@ public class AnswerService {
     public List<Answer> updateAnswers(List<UpdateAnswerDTO> answerDTOS, Question question) {
         Map<Long, Answer> currentAnswersMap = question.getAnswers().stream()
                 .collect(Collectors.toMap(Answer::getId, Function.identity()));
-        List<Answer> updatedAnswers = new ArrayList<>();
 
-        for (UpdateAnswerDTO answerDTO : answerDTOS) {
-            Long answerDTOId = answerDTO.id();
-            if (answerDTOId != null && currentAnswersMap.containsKey(answerDTOId)) {
-                Answer answer = currentAnswersMap.get(answerDTOId);
-                currentAnswersMap.remove(answerDTOId);
-                modelMapper.map(answerDTO, answer);
-                updatedAnswers.add(answer);
-            } else {
-                Answer newAnswer = modelMapper.map(answerDTO, Answer.class);
-                newAnswer.setQuestion(question);
-                Answer savedAnswer = answerRepository.save(newAnswer);
-                updatedAnswers.add(savedAnswer);
-            }
-        }
+        List<Answer> updatedAnswers = mergeAnswers(answerDTOS, modelMapper, currentAnswersMap, question);
+
         answerRepository.deleteAll(new ArrayList<>(currentAnswersMap.values()));
         return updatedAnswers;
+    }
+
+    @Transactional
+    public static List<Answer> mergeAnswers(List<UpdateAnswerDTO> answerDTOS, ModelMapper mapper,
+                                            Map<Long, Answer> currentAnswersMap, Question question) {
+        return answerDTOS.stream().map(answerDTO -> {
+            Long answerDTOId = answerDTO.id();
+            Answer answer;
+
+            if (answerDTOId != null && currentAnswersMap.containsKey(answerDTOId)) {
+                answer = currentAnswersMap.remove(answerDTOId);
+                mapper.map(answerDTO, answer);
+            } else {
+                answer = mapper.map(answerDTO, Answer.class);
+                answer.setQuestion(question);
+            }
+            return answer;
+        }).collect(Collectors.toList());
     }
 
     @Transactional
@@ -107,9 +112,9 @@ public class AnswerService {
             answerMap.put(answer.getId(), answer);
         }
         for (AnswerToCheckDTO answerDTO : answersDTOS) {
-            Answer answer = answerMap.get(answerDTO.id());
-            if (answer == null) throw new IllegalArgumentException();
-            if (answer.isCorrect() != answerDTO.isCorrect()) return false;
+            Answer answer = answerMap.remove(answerDTO.id());
+            if (answer == null) throw new IllegalArgumentException("Incorrect test");
+            if (answer.isCorrect() != answerDTO.correct()) return false;
         }
         return true;
     }

@@ -17,5 +17,6 @@ import java.util.List;
 public class CreateModuleDTO implements ModuleDTO {
     private String title;
     private int orderNum;
+    @Builder.Default
     private List<CreateLessonDTO> lessons = new ArrayList<>();
 }
