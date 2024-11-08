@@ -20,6 +20,10 @@ public class ModelMapperConfig {
 
     @Bean
     public ModelMapper modelMapper() {
+        return createConfiguredModelMapper();
+    }
+
+    public static ModelMapper createConfiguredModelMapper() {
         ModelMapper modelMapper = new ModelMapper();
 
         modelMapper.getConfiguration()

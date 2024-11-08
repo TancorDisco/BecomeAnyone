@@ -37,13 +37,13 @@ public class LessonService {
         Map<Long, Lesson> currentLessonsMap = module.getLessons().stream()
                 .collect(Collectors.toMap(Lesson::getId, Function.identity()));
 
-        List<Lesson> updatedLessons = mergeLessons(lessonDTOS, updateLessonInCourseMapper, currentLessonsMap, module);
+        List<Lesson> updatedLessons = mergeLessons(lessonDTOS, modelMapper, currentLessonsMap, module);
 
         lessonRepository.deleteAll(new ArrayList<>(currentLessonsMap.values()));
         return updatedLessons;
     }
 
-    public static List<Lesson> mergeLessons(List<UpdateLessonInCourseDTO> lessonDTOS, UpdateLessonInCourseMapper mapper,
+    public static List<Lesson> mergeLessons(List<UpdateLessonInCourseDTO> lessonDTOS, ModelMapper mapper,
                                             Map<Long, Lesson> currentLessonsMap, Module module) {
         List<Lesson> updatedLessons = new ArrayList<>();
 
@@ -52,10 +52,11 @@ public class LessonService {
             if (lessonDTOId != null && currentLessonsMap.containsKey(lessonDTOId)) {
                 Lesson lesson = currentLessonsMap.get(lessonDTOId);
                 currentLessonsMap.remove(lessonDTOId);
-                lesson = mapper.toLesson(lessonDTO);
+                //lesson = mapper.toLesson(lessonDTO);
+                mapper.map(lessonDTO, lesson);
                 updatedLessons.add(lesson);
             } else {
-                Lesson newLesson = mapper.toLesson(lessonDTO);
+                Lesson newLesson = mapper.map(lessonDTO, Lesson.class);
                 newLesson.setModule(module);
                 updatedLessons.add(newLesson);
             }
