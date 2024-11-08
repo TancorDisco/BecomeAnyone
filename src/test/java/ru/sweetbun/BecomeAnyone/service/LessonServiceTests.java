@@ -1,26 +1,27 @@
 package ru.sweetbun.BecomeAnyone.service;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.modelmapper.ModelMapper;
 import ru.sweetbun.BecomeAnyone.DTO.UpdateLessonInCourseDTO;
 import ru.sweetbun.BecomeAnyone.config.ModelMapperConfig;
 import ru.sweetbun.BecomeAnyone.entity.Lesson;
 import ru.sweetbun.BecomeAnyone.entity.Module;
-import ru.sweetbun.BecomeAnyone.mapper.UpdateLessonInCourseMapper;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class LessonServiceTests {
 
     private Module module;
     private Map<Long, Lesson> currentLessonsMap;
-    private final UpdateLessonInCourseMapper updateLessonInCourseMapper = UpdateLessonInCourseMapper.INSTANCE;;
     private ModelMapper modelMapper;
 
     @BeforeEach
@@ -37,21 +38,79 @@ class LessonServiceTests {
         currentLessonsMap.put(3L, lesson3);
     }
 
-    @Test
-    public void mergeLessons_ExistingLessonIds_ShouldUpdateLessons() {
-        // Arrange
-        List<UpdateLessonInCourseDTO> lessonDTOS = Arrays.asList(
-                UpdateLessonInCourseDTO.builder().id(1L).title("Updated Lesson 1").build(),
-                UpdateLessonInCourseDTO.builder().id(2L).build()
-        );
-
+    @DisplayName("MergeLessons with various scenarios")
+    @ParameterizedTest(name = "{index} => lessonDTOS={0}, countUpdatedLessons={1}" +
+            ", expectedTitles={2}, countLessonsForDeletion={3}, ")
+    @MethodSource("lessonScenariosProvider")
+    public void mergeLessons_VariousScenarios(List<UpdateLessonInCourseDTO> lessonDTOS,
+                                              int countUpdatedLessons,
+                                              List<String> expectedTitles,
+                                              int countLessonsForDeletion) {
         // Act
         List<Lesson> updatedLessons = LessonService.mergeLessons(lessonDTOS, modelMapper, currentLessonsMap, module);
 
         // Assert
-        assertEquals(2, updatedLessons.size());
-        assertEquals("Updated Lesson 1", updatedLessons.get(0).getTitle());
-        assertEquals("Lesson 2", updatedLessons.get(1).getTitle());
-        assertEquals(1, currentLessonsMap.size());
+        assertEquals(countUpdatedLessons, updatedLessons.size());
+        for (int i = 0; i < countUpdatedLessons; i++) {
+            assertEquals(expectedTitles.get(i), updatedLessons.get(i).getTitle());
+        }
+        assertEquals(countLessonsForDeletion, currentLessonsMap.size());
+    }
+
+    private Stream<Arguments> lessonScenariosProvider() {
+        return Stream.of(
+                Arguments.of(
+                        List.of(
+                                UpdateLessonInCourseDTO.builder().id(1L).title("Updated Lesson 1").build(),
+                                UpdateLessonInCourseDTO.builder().id(2L).title("Updated Lesson 2").build()
+                        ),
+                        2,
+                        List.of("Updated Lesson 1", "Updated Lesson 2"),
+                        1
+                ),
+                Arguments.of(
+                        List.of(
+                                UpdateLessonInCourseDTO.builder().title("New Lesson 1").build(),
+                                UpdateLessonInCourseDTO.builder().title("New Lesson 2").build()
+                        ),
+                        2,
+                        List.of("New Lesson 1", "New Lesson 2"),
+                        3
+                ),
+                Arguments.of(
+                        List.of(
+                                UpdateLessonInCourseDTO.builder().id(1L).title("Updated Lesson 1").build(),
+                                UpdateLessonInCourseDTO.builder().title("New Lesson 3").build(),
+                                UpdateLessonInCourseDTO.builder().id(2L).title("Updated Lesson 2").build()
+                        ),
+                        3,
+                        List.of("Updated Lesson 1", "New Lesson 3", "Updated Lesson 2"),
+                        1
+                ),
+                Arguments.of(
+                        Collections.emptyList(),
+                        0,
+                        Collections.emptyList(),
+                        3
+                ),
+                Arguments.of(
+                        List.of(
+                                UpdateLessonInCourseDTO.builder().id(1L).title("Updated Lesson 1").build(),
+                                UpdateLessonInCourseDTO.builder().title("New Lesson 3").build()
+                        ),
+                        2,
+                        List.of("Updated Lesson 1", "New Lesson 3"),
+                        2
+                ),
+                Arguments.of(
+                        List.of(
+                                UpdateLessonInCourseDTO.builder().id(1L).title(null).build(),
+                                UpdateLessonInCourseDTO.builder().id(3L).title(null).build()
+                        ),
+                        2,
+                        List.of("Lesson 1", "Lesson 3"),
+                        1
+                )
+        );
     }
 }

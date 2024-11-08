@@ -11,7 +11,6 @@ import ru.sweetbun.BecomeAnyone.DTO.UpdateLessonInCourseDTO;
 import ru.sweetbun.BecomeAnyone.entity.Lesson;
 import ru.sweetbun.BecomeAnyone.entity.Module;
 import ru.sweetbun.BecomeAnyone.exception.ResourceNotFoundException;
-import ru.sweetbun.BecomeAnyone.mapper.UpdateLessonInCourseMapper;
 import ru.sweetbun.BecomeAnyone.repository.LessonRepository;
 
 import java.util.ArrayList;
@@ -29,8 +28,6 @@ public class LessonService {
     private final ModelMapper modelMapper;
     @Lazy
     private final ModuleService moduleService;
-
-    private final UpdateLessonInCourseMapper updateLessonInCourseMapper = UpdateLessonInCourseMapper.INSTANCE;
 
     @Transactional
     public List<Lesson> updateLessons(List<UpdateLessonInCourseDTO> lessonDTOS, Module module) {
@@ -52,7 +49,6 @@ public class LessonService {
             if (lessonDTOId != null && currentLessonsMap.containsKey(lessonDTOId)) {
                 Lesson lesson = currentLessonsMap.get(lessonDTOId);
                 currentLessonsMap.remove(lessonDTOId);
-                //lesson = mapper.toLesson(lessonDTO);
                 mapper.map(lessonDTO, lesson);
                 updatedLessons.add(lesson);
             } else {
