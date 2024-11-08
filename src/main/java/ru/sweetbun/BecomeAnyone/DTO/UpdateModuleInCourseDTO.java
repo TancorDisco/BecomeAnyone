@@ -1,18 +1,18 @@
 package ru.sweetbun.BecomeAnyone.DTO;
 
-import lombok.Builder;
+import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
+@Getter
+@Setter
 @Builder
-public record UpdateModuleInCourseDTO (
-        Long id,
-        String title,
-        int orderNum,
-        List<UpdateLessonInCourseDTO> lessons
-) implements ModuleDTO{
-
-    public UpdateModuleInCourseDTO {
-        if (lessons == null) lessons = List.of();
-    }
+@NoArgsConstructor
+@AllArgsConstructor
+public class UpdateModuleInCourseDTO implements ModuleDTO {
+    private Long id;
+    private String title;
+    private int orderNum;
+    private List<UpdateLessonInCourseDTO> lessons = new ArrayList<>();
 }

@@ -37,7 +37,7 @@ public class QuestionService {
     @Transactional
     public Question createQuestion(QuestionDTO<CreateAnswerDTO> questionDTO, Long testId) {
         Test test = testService.getTestById(testId);
-        List<CreateAnswerDTO> answerDTOS = questionDTO.answers();
+        List<CreateAnswerDTO> answerDTOS = questionDTO.getAnswers();
         validateAnswers(answerDTOS);
         Question question = modelMapper.map(questionDTO, Question.class);
         question.setTest(test);
@@ -59,7 +59,7 @@ public class QuestionService {
     @Transactional
     public Question updateQuestion(QuestionDTO<UpdateAnswerDTO> questionDTO, Long id) {
         Question question = getQuestionById(id);
-        List<UpdateAnswerDTO> answerDTOS = questionDTO.answers();
+        List<UpdateAnswerDTO> answerDTOS = questionDTO.getAnswers();
         validateAnswers(answerDTOS);
         modelMapper.map(questionDTO, question);
         question.setAnswers(answerService.updateAnswers(answerDTOS, question));

@@ -44,7 +44,7 @@ public class LessonService {
     public static List<Lesson> mergeLessons(List<UpdateLessonInCourseDTO> lessonDTOS, ModelMapper mapper,
                                             Map<Long, Lesson> currentLessonsMap, Module module) {
         return lessonDTOS.stream().map(lessonDTO -> {
-            Long lessonDTOId = lessonDTO.id();
+            Long lessonDTOId = lessonDTO.getId();
             Lesson lesson;
 
             if (lessonDTOId != null && currentLessonsMap.containsKey(lessonDTOId)) {

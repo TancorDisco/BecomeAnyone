@@ -38,7 +38,7 @@ public class CourseService {
     public Course createCourse(CourseDTO<CreateModuleDTO> courseDTO) {
         User user = securityUtils.getCurrentUser();
 
-        List<CreateModuleDTO> moduleDTOS = courseDTO.modules();
+        List<CreateModuleDTO> moduleDTOS = courseDTO.getModules();
         Course course = modelMapper.map(courseDTO, Course.class);
         course.setCreatedAt(now());
         course.setTeacher(user);
@@ -70,7 +70,7 @@ public class CourseService {
     public Course updateCourse(CourseDTO<UpdateModuleInCourseDTO> courseDTO, Long id) {
         Course course = getCourseById(id);
         modelMapper.map(courseDTO, course);
-        course.setModules(moduleService.updateModules(courseDTO.modules(), course));
+        course.setModules(moduleService.updateModules(courseDTO.getModules(), course));
         course.setUpdatedAt(now());
         return courseRepository.save(course);
     }

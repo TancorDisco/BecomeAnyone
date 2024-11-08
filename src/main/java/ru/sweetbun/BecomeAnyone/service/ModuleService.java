@@ -41,7 +41,7 @@ public class ModuleService {
             module.setCourse(course);
             course.getModules().add(module);
             moduleRepository.save(module);
-            List<CreateLessonDTO> lessonDTOS = moduleDTO.lessons();
+            List<CreateLessonDTO> lessonDTOS = moduleDTO.getLessons();
             if (!lessonDTOS.isEmpty()) {
                 lessonService.createLessons(lessonDTOS, module);
             }
@@ -90,7 +90,7 @@ public class ModuleService {
                                             ModuleRepository moduleRepository, LessonService lessonService) {
         return moduleDTOS.stream().map(moduleDTO -> {
             Module module;
-            Long moduleDTOId = moduleDTO.id();
+            Long moduleDTOId = moduleDTO.getId();
 
             if (moduleDTOId != null && currentModulesMap.containsKey(moduleDTOId)) {
                 module = currentModulesMap.remove(moduleDTOId);
@@ -99,7 +99,7 @@ public class ModuleService {
                 module = mapper.map(moduleDTO, Module.class);
                 module.setCourse(course);
             }
-            module.setLessons(lessonService.updateLessons(moduleDTO.lessons(), module));
+            module.setLessons(lessonService.updateLessons(moduleDTO.getLessons(), module));
             return moduleRepository.save(module);
         }).collect(Collectors.toList());
     }

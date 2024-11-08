@@ -1,14 +1,21 @@
 package ru.sweetbun.BecomeAnyone.DTO;
 
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+
+import java.util.ArrayList;
 import java.util.List;
 
-public record CreateModuleDTO (
-        String title,
-        int orderNum,
-        List<CreateLessonDTO> lessons
-) implements ModuleDTO {
-
-    public CreateModuleDTO {
-        if (lessons == null) lessons = List.of();
-    }
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class CreateModuleDTO implements ModuleDTO {
+    private String title;
+    private int orderNum;
+    private List<CreateLessonDTO> lessons = new ArrayList<>();
 }

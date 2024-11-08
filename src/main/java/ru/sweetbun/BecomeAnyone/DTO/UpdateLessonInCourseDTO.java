@@ -1,11 +1,16 @@
 package ru.sweetbun.BecomeAnyone.DTO;
 
+import lombok.*;
+
 import lombok.Builder;
 
+@Getter
+@Setter
 @Builder
-public record UpdateLessonInCourseDTO (
-        Long id,
-        String title,
-        int orderNum
-) {
+@NoArgsConstructor
+@AllArgsConstructor
+public class UpdateLessonInCourseDTO {
+    private Long id;
+    private String title;
+    private int orderNum;
 }
