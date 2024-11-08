@@ -49,14 +49,6 @@ class ModuleServiceTests {
         Module module2 = Module.builder().id(2L).title("Module 2").course(course).build();
         Module module3 = Module.builder().id(3L).title("Module 3").course(course).build();
 
-        /*Lesson lesson1 = Lesson.builder().id(1L).title("Lesson 1").orderNum(1).build();
-        Lesson lesson2 = Lesson.builder().id(2L).title("Lesson 2").orderNum(2).build();
-        Lesson lesson3 = Lesson.builder().id(3L).title("Lesson 3").orderNum(3).build();
-
-        module1.getLessons().add(lesson1);
-        module1.getLessons().add(lesson2);
-        module2.getLessons().add(lesson3);*/
-
         currentModulesMap.put(1L, module1);
         currentModulesMap.put(2L, module2);
         currentModulesMap.put(3L, module3);
