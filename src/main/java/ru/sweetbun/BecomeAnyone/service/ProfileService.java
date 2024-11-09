@@ -34,8 +34,8 @@ public class ProfileService {
     }
 
     @Transactional
-    public Profile updateProfile(ProfileDTO profileDTO, Long id) {
-        Profile profile = getProfileById(id);
+    public Profile updateProfile(ProfileDTO profileDTO, Profile profile) {
+        if (profile == null) throw new ResourceNotFoundException("Profile not exist");
         modelMapper.map(profileDTO, profile);
         return profileRepository.save(profile);
     }

@@ -18,7 +18,7 @@ public class ProfileController {
 
     @GetMapping
     public ResponseEntity<?> getUserProfile() {
-        return ok(userService.getUserProfile());
+        return ok(userService.getCurrentUser());
     }
 
     @PostMapping

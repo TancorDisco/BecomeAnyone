@@ -74,7 +74,7 @@ public class UserService {
         return id;
     }
 
-    public User getUserProfile() {
+    public User getCurrentUser() {
         return securityUtils.getCurrentUser();
     }
 
@@ -93,7 +93,7 @@ public class UserService {
     @Transactional
     public User updateUserProfile(ProfileDTO profileDTO) {
         User user = securityUtils.getCurrentUser();
-        Profile profile = profileService.updateProfile(profileDTO, user.getProfile().getId());
+        Profile profile = profileService.updateProfile(profileDTO, user.getProfile());
         user.setProfile(profile);
         profile.setUser(user);
         return userRepository.save(user);

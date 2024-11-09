@@ -94,25 +94,21 @@ class ProfileServiceTests {
 
     @Test
     void updateProfile_ExistingId_ProfileUpdated() {
-        Long id = 1L;
         ProfileDTO profileDTO = ProfileDTO.builder().build();
 
-        when(profileRepository.findById(id)).thenReturn(Optional.of(profile));
         when(profileRepository.save(profile)).thenReturn(profile);
 
-        Profile updatedProfile = profileService.updateProfile(profileDTO, id);
+        Profile updatedProfile = profileService.updateProfile(profileDTO, profile);
 
         assertNotNull(updatedProfile);
         verify(profileRepository, times(1)).save(profile);
     }
 
     @Test
-    void updateProfile_NonExistingId_ThrowsResourceNotFoundException() {
-        Long id = 1L;
+    void updateProfile_ProfileNonExist_ThrowsResourceNotFoundException() {
         ProfileDTO profileDTO = ProfileDTO.builder().build();
-        when(profileRepository.findById(id)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> profileService.updateProfile(profileDTO, id));
+        assertThrows(ResourceNotFoundException.class, () -> profileService.updateProfile(profileDTO, null));
     }
 
     @Test
