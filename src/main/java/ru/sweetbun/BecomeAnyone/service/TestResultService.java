@@ -27,12 +27,12 @@ public class TestResultService {
     @Autowired
     public TestResultService(TestResultRepository testResultRepository, SecurityUtils securityUtils,
                              @Lazy EnrollmentService enrollmentService,
-                             @Lazy CourseService courseService, CourseService courseService1, ProgressService progressService,
+                             @Lazy CourseService courseService, ProgressService progressService,
                              @Value("${test-result.percentage.acceptable}") double acceptablePercentage) {
         this.testResultRepository = testResultRepository;
         this.securityUtils = securityUtils;
         this.enrollmentService = enrollmentService;
-        this.courseService = courseService1;
+        this.courseService = courseService;
         this.progressService = progressService;
         this.acceptablePercentage = acceptablePercentage;
     }
