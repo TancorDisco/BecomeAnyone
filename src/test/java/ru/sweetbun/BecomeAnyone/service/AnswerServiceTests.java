@@ -33,7 +33,7 @@ class AnswerServiceTests {
     @Mock
     private AnswerRepository answerRepository;
 
-    private ModelMapper modelMapper;
+    private final ModelMapper modelMapper = ModelMapperConfig.createConfiguredModelMapper();
 
     @Mock
     private QuestionService questionService;
@@ -46,8 +46,7 @@ class AnswerServiceTests {
     private CreateAnswerDTO answerDTO;
 
     @BeforeEach
-    void setup() {
-        modelMapper = ModelMapperConfig.createConfiguredModelMapper();
+    void setup() {ModelMapperConfig.createConfiguredModelMapper();
         answerService = new AnswerService(answerRepository, modelMapper, questionService);
 
         question = Question.builder().id(1L).build();

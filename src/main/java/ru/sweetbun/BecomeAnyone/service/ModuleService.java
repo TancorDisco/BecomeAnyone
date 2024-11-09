@@ -41,10 +41,7 @@ public class ModuleService {
             module.setCourse(course);
             course.getModules().add(module);
             moduleRepository.save(module);
-            List<CreateLessonDTO> lessonDTOS = moduleDTO.getLessons();
-            if (!lessonDTOS.isEmpty()) {
-                lessonService.createLessons(lessonDTOS, module);
-            }
+            lessonService.createLessons(moduleDTO.getLessons(), module);
         }
     }
 

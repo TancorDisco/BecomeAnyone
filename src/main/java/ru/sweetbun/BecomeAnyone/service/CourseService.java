@@ -34,19 +34,18 @@ public class CourseService {
 
     private final SecurityUtils securityUtils;
 
+    private final UserService userService;
+
     @Transactional
     public Course createCourse(CourseDTO<CreateModuleDTO> courseDTO) {
         User user = securityUtils.getCurrentUser();
 
-        List<CreateModuleDTO> moduleDTOS = courseDTO.getModules();
         Course course = modelMapper.map(courseDTO, Course.class);
         course.setCreatedAt(now());
         course.setTeacher(user);
 
         Course savedCourse = courseRepository.save(course);
-        if (!moduleDTOS.isEmpty()) {
-            moduleService.createModules(moduleDTOS, savedCourse);
-        }
+        moduleService.createModules(courseDTO.getModules(), savedCourse);
         return savedCourse;
     }
 
@@ -57,12 +56,12 @@ public class CourseService {
 
     public List<Course> getAllCourses(Long teacherId, String q) {
         Specification<Course> spec = Stream.of(
-                ofNullable(teacherId).map(id -> CourseRepository.hasTeacher(securityUtils.getCurrentUser())),
+                ofNullable(teacherId).map(id -> CourseRepository.hasTeacher(userService.getUserById(teacherId))),
                 ofNullable(q).filter(title -> !title.isEmpty()).map(CourseRepository::hasTitle)
         )
                 .flatMap(Optional::stream)
                 .reduce(Specification::and)
-                .orElse(null);
+                .orElse(Specification.where(null));
         return courseRepository.findAll(spec);
     }
 

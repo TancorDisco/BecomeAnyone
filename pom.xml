@@ -119,7 +119,8 @@
 						</goals>
 						<configuration>
 							<excludes>
-								<exclude>ru/sweetbun/entity/*</exclude>
+								<exclude>ru/sweetbun/BecomeAnyone/entity/**</exclude>
+								<exclude>ru/sweetbun/BecomeAnyone/DTO/**</exclude>
 							</excludes>
 						</configuration>
 					</execution>
