@@ -37,7 +37,7 @@ public class RoleService {
     @Transactional
     public Role updateRole(RoleDTO roleDTO, Long id) {
         Role role = getRoleById(id);
-        role = modelMapper.map(roleDTO, Role.class);
+        modelMapper.map(roleDTO, role);
         return roleRepository.save(role);
     }
 
