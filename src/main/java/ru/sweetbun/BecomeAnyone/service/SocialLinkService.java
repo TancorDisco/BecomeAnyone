@@ -35,9 +35,9 @@ public class SocialLinkService {
     }
 
     @Transactional
-    public SocialLink updateSocialLink(SocialLink SocialLink, Long id) {
+    public SocialLink updateSocialLink(SocialLinkDTO socialLinkDTO, Long id) {
         SocialLink socialLink = getSocialLinkById(id);
-        socialLink = modelMapper.map(socialLink, SocialLink.class);
+        modelMapper.map(socialLinkDTO, socialLink);
         return socialLinkRepository.save(socialLink);
     }
 
