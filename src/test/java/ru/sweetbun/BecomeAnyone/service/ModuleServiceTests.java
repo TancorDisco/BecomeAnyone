@@ -1,6 +1,5 @@
 package ru.sweetbun.BecomeAnyone.service;
 
-import jakarta.inject.Inject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,8 +22,6 @@ import ru.sweetbun.BecomeAnyone.exception.ResourceNotFoundException;
 import ru.sweetbun.BecomeAnyone.repository.ModuleRepository;
 
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -245,8 +242,8 @@ class ModuleServiceTests {
         return Stream.of(
                 Arguments.of( // 1
                         List.of(
-                                UpdateModuleInCourseDTO.builder().id(1L).title("Updated Module 1").lessons(Collections.emptyList()).build(),
-                                UpdateModuleInCourseDTO.builder().id(2L).title("Updated Module 2").lessons(Collections.emptyList()).build()
+                                UpdateModuleInCourseDTO.builder().id(1L).title("Updated Module 1").build(),
+                                UpdateModuleInCourseDTO.builder().id(2L).title("Updated Module 2").build()
                         ),
                         2,
                         List.of("Updated Module 1", "Updated Module 2"),
@@ -254,8 +251,8 @@ class ModuleServiceTests {
                 ),
                 Arguments.of( // 2
                         List.of(
-                                UpdateModuleInCourseDTO.builder().title("New Module 1").lessons(Collections.emptyList()).build(),
-                                UpdateModuleInCourseDTO.builder().title("New Module 2").lessons(Collections.emptyList()).build()
+                                UpdateModuleInCourseDTO.builder().title("New Module 1").build(),
+                                UpdateModuleInCourseDTO.builder().title("New Module 2").build()
                         ),
                         2,
                         List.of("New Module 1", "New Module 2"),
@@ -263,9 +260,9 @@ class ModuleServiceTests {
                 ),
                 Arguments.of( // 3
                         List.of(
-                                UpdateModuleInCourseDTO.builder().id(1L).title("Updated Module 1").lessons(Collections.emptyList()).build(),
-                                UpdateModuleInCourseDTO.builder().title("New Module 3").lessons(Collections.emptyList()).build(),
-                                UpdateModuleInCourseDTO.builder().id(2L).title("Updated Module 2").lessons(Collections.emptyList()).build()
+                                UpdateModuleInCourseDTO.builder().id(1L).title("Updated Module 1").build(),
+                                UpdateModuleInCourseDTO.builder().title("New Module 3").build(),
+                                UpdateModuleInCourseDTO.builder().id(2L).title("Updated Module 2").build()
                         ),
                         3,
                         List.of("Updated Module 1", "New Module 3", "Updated Module 2"),
@@ -279,8 +276,8 @@ class ModuleServiceTests {
                 ),
                 Arguments.of( // 5
                         List.of(
-                                UpdateModuleInCourseDTO.builder().id(1L).title("Updated Module 1").lessons(Collections.emptyList()).build(),
-                                UpdateModuleInCourseDTO.builder().title("New Module 3").lessons(Collections.emptyList()).build()
+                                UpdateModuleInCourseDTO.builder().id(1L).title("Updated Module 1").build(),
+                                UpdateModuleInCourseDTO.builder().title("New Module 3").build()
                         ),
                         2,
                         List.of("Updated Module 1", "New Module 3"),
@@ -288,8 +285,8 @@ class ModuleServiceTests {
                 ),
                 Arguments.of(
                         List.of(
-                                UpdateModuleInCourseDTO.builder().id(1L).title(null).lessons(Collections.emptyList()).build(),
-                                UpdateModuleInCourseDTO.builder().id(3L).title(null).lessons(Collections.emptyList()).build()
+                                UpdateModuleInCourseDTO.builder().id(1L).title(null).build(),
+                                UpdateModuleInCourseDTO.builder().id(3L).title(null).build()
                         ),
                         2,
                         List.of("Module 1", "Module 3"),

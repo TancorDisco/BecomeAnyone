@@ -81,15 +81,12 @@ public class UserService {
     @Transactional
     public User createUserProfile(ProfileDTO profileDTO) {
         User user = securityUtils.getCurrentUser();
-
-        if (user.getProfile() != null) {
+        if (user.getProfile() != null)
             throw new RuntimeException("Profile already exists for this user");
-        }
-        Profile profile =  profileService.createProfile(profileDTO);
 
+        Profile profile =  profileService.createProfile(profileDTO);
         profile.setUser(user);
         user.setProfile(profile);
-
         return userRepository.save(user);
     }
 

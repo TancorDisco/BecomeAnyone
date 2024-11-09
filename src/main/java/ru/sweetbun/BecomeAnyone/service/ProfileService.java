@@ -1,7 +1,6 @@
 package ru.sweetbun.BecomeAnyone.service;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,7 +11,6 @@ import ru.sweetbun.BecomeAnyone.repository.ProfileRepository;
 
 import java.util.List;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ProfileService {
@@ -43,7 +41,9 @@ public class ProfileService {
     }
 
     @Transactional
-    public void deleteProfileById(Long id) {
+    public long deleteProfileById(Long id) {
+        getProfileById(id);
         profileRepository.deleteById(id);
+        return id;
     }
 }
