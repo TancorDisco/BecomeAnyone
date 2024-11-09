@@ -124,6 +124,26 @@ class AnswerServiceTests {
     }
 
     @Test
+    void updateAnswers_ValidAnswerDTOs_CallsDeleteAllAndSaveAll() {
+        // Arrange
+        List<UpdateAnswerDTO> updateAnswerDTOS = List.of(
+                new UpdateAnswerDTO(1L, "Updated Answer 1", false),
+                new UpdateAnswerDTO(null, "New Answer", true));
+
+        // Act
+        List<Answer> result = answerService.updateAnswers(updateAnswerDTOS, question);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        verify(answerRepository, never()).deleteAll(any());
+        assertEquals("Updated Answer 1", result.get(0).getAnswerText());
+        assertFalse(result.get(0).isCorrect());
+        assertEquals("New Answer", result.get(1).getAnswerText());
+        assertTrue(result.get(1).isCorrect());
+    }
+
+    @Test
     void deleteAnswerById_AnswerExists_ReturnsDeletedAnswerId() {
         when(answerRepository.findById(1L)).thenReturn(Optional.of(answer));
 

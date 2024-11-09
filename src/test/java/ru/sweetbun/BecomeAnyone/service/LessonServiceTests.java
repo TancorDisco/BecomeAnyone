@@ -157,10 +157,7 @@ class LessonServiceTests {
                 new UpdateLessonInCourseDTO(1L, "Updated Lesson 1", 1),
                 new UpdateLessonInCourseDTO(null, "New Lesson", 2)
         );
-        Lesson updatedLesson1 = Lesson.builder().id(1L).title("UpdatedLesson 1").build();
-        Lesson newLesson = Lesson.builder().title("New Lesson").build();
         module.getLessons().add(currentLessonsMap.get(3L));
-        lenient().when(lessonRepository.saveAll(any())).thenReturn(List.of(updatedLesson1, newLesson));
 
         //Act
         List<Lesson> result = lessonService.updateLessons(lessonDTOS, module);

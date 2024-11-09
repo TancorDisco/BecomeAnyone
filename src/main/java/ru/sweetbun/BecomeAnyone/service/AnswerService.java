@@ -8,14 +8,12 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.sweetbun.BecomeAnyone.DTO.CreateAnswerDTO;
 import ru.sweetbun.BecomeAnyone.DTO.UpdateAnswerDTO;
 import ru.sweetbun.BecomeAnyone.DTO.toCheck.AnswerToCheckDTO;
-import ru.sweetbun.BecomeAnyone.DTO.toCheck.QuestionToCheckDTO;
 import ru.sweetbun.BecomeAnyone.entity.Answer;
 import ru.sweetbun.BecomeAnyone.entity.Question;
 import ru.sweetbun.BecomeAnyone.exception.ResourceNotFoundException;
 import ru.sweetbun.BecomeAnyone.repository.AnswerRepository;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -75,7 +73,8 @@ public class AnswerService {
 
         List<Answer> updatedAnswers = mergeAnswers(answerDTOS, modelMapper, currentAnswersMap, question);
 
-        answerRepository.deleteAll(new ArrayList<>(currentAnswersMap.values()));
+        if (!currentAnswersMap.isEmpty())
+            answerRepository.deleteAll(new ArrayList<>(currentAnswersMap.values()));
         return updatedAnswers;
     }
 
