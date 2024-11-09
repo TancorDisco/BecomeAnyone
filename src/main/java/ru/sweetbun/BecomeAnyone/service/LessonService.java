@@ -36,7 +36,8 @@ public class LessonService {
 
         List<Lesson> updatedLessons = mergeLessons(lessonDTOS, modelMapper, currentLessonsMap, module);
 
-        lessonRepository.deleteAll(new ArrayList<>(currentLessonsMap.values()));
+        if (!currentLessonsMap.isEmpty())
+            lessonRepository.deleteAll(new ArrayList<>(currentLessonsMap.values()));
         return updatedLessons;
     }
 
@@ -69,7 +70,7 @@ public class LessonService {
         List<Lesson> lessons = lessonDTOS.stream()
                 .map(lessonDTO -> createLesson(lessonDTO, module))
                 .toList();
-        lessonRepository.saveAll(lessons);
+        if (!lessons.isEmpty()) lessonRepository.saveAll(lessons);
     }
 
     private Lesson createLesson(CreateLessonDTO lessonDTO, Module module) {
