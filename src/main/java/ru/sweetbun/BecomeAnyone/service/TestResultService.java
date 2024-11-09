@@ -50,7 +50,8 @@ public class TestResultService {
                 .build();
 
         if (!testResultRepository.existsByTestAndProgressAndPercentGreaterThanEqual(test, progress, acceptablePercentage)) {
-            progressService.updateProgress(testResult, course);
+            double completionPercent = progressService.updateProgress(testResult, course);
+            enrollmentService.updateEnrollmentStatus(completionPercent, enrollment);
         }
         return testResultRepository.save(testResult);
     }

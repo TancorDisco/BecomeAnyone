@@ -41,7 +41,7 @@ public class ProgressService {
     }
 
     @Transactional
-    public void updateProgress(TestResult testResult, Course course) {
+    public double updateProgress(TestResult testResult, Course course) {
         Progress progress = testResult.getProgress();
 
         if (acceptablePercentage <= testResult.getPercent()) {
@@ -53,6 +53,7 @@ public class ProgressService {
             progress.setCompletionPercentage((double) progress.getCompletedTests() / testCount * 100);
             progressRepository.save(progress);
         }
+        return progress.getCompletionPercentage();
     }
 
     @Transactional

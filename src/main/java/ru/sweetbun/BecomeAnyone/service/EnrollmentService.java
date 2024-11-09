@@ -5,18 +5,18 @@ import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.sweetbun.BecomeAnyone.DTO.EnrollmentDTO;
 import ru.sweetbun.BecomeAnyone.entity.Course;
 import ru.sweetbun.BecomeAnyone.entity.Enrollment;
 import ru.sweetbun.BecomeAnyone.entity.Progress;
 import ru.sweetbun.BecomeAnyone.entity.User;
-import ru.sweetbun.BecomeAnyone.entity.enums.EnrollmentStatus;
 import ru.sweetbun.BecomeAnyone.exception.ResourceNotFoundException;
 import ru.sweetbun.BecomeAnyone.repository.EnrollmentRepository;
 import ru.sweetbun.BecomeAnyone.util.SecurityUtils;
 
 import java.time.LocalDate;
 import java.util.List;
+
+import static ru.sweetbun.BecomeAnyone.entity.enums.EnrollmentStatus.*;
 
 @RequiredArgsConstructor
 @Service
@@ -40,7 +40,7 @@ public class EnrollmentService {
                 .course(courseService.getCourseById(courseId))
                 .enrollmentDate(LocalDate.now())
                 .progress(progress)
-                .status(EnrollmentStatus.NOT_STARTED)
+                .status(NOT_STARTED)
                 .build();
         progress.setEnrollment(enrollment);
         return enrollmentRepository.save(enrollment);
@@ -56,9 +56,12 @@ public class EnrollmentService {
     }
 
     @Transactional
-    public Enrollment updateEnrollment(EnrollmentDTO enrollmentDTO, Long id) {
-        Enrollment enrollment = getEnrollmentById(id);
-        modelMapper.map(enrollmentDTO, enrollment);
+    public Enrollment updateEnrollmentStatus(double completionPercent, Enrollment enrollment) {
+        if (enrollment.getStatus() == NOT_STARTED && completionPercent > 0.0) {
+            enrollment.setStatus(IN_PROGRESS);
+        } else if (enrollment.getStatus() != COMPLETED && completionPercent == 100.0) {
+            enrollment.setStatus(COMPLETED);
+        }
         return enrollmentRepository.save(enrollment);
     }
 

@@ -1,4 +1,4 @@
 package ru.sweetbun.BecomeAnyone.DTO;
 
-public record EnrollmentDTO () {
+public record EnrollmentDTO (String status) {
 }
