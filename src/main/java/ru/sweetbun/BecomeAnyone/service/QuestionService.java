@@ -17,10 +17,8 @@ import ru.sweetbun.BecomeAnyone.exception.ObjectMustContainException;
 import ru.sweetbun.BecomeAnyone.exception.ResourceNotFoundException;
 import ru.sweetbun.BecomeAnyone.repository.QuestionRepository;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -74,26 +72,31 @@ public class QuestionService {
     }
 
     private void validateAnswers(List<? extends AnswerDTO> createAnswerDTOS) {
-        if (createAnswerDTOS.isEmpty())
+        if (createAnswerDTOS == null || createAnswerDTOS.isEmpty())
             throw new ObjectMustContainException(Question.class.getSimpleName(), Answer.class.getSimpleName());
     }
 
     public List<Question> checkQuestions(List<QuestionToCheckDTO> questionDTOS, List<Question> questions) {
-        if (questionDTOS.size() != questions.size()) {
-            throw new IllegalArgumentException("Size not equals");
+        validateInputs(questionDTOS, questions);
+        Map<Long, Question> questionMap = questions.stream()
+                .collect(Collectors.toMap(Question::getId, question -> question));
+
+        return questionDTOS.stream()
+                .map(dto -> getQuestionIfWrong(dto, questionMap))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
+
+    private void validateInputs(List<QuestionToCheckDTO> questionDTOS, List<Question> questions) {
+        if (questionDTOS.size() != questions.size())
+            throw new IllegalArgumentException("Sizes of question lists do not match.");
+    }
+
+    private Question getQuestionIfWrong(QuestionToCheckDTO dto, Map<Long, Question> questionMap) {
+        Question question = questionMap.get(dto.id());
+        if (question == null) {
+            throw new IllegalArgumentException("Question with id " + dto.id() + " is null.");
         }
-        Map<Long, Question> questionMap = new HashMap<>();
-        List<Question> wrongQuestions = new ArrayList<>();
-        for (Question question : questions) {
-            questionMap.put(question.getId(), question);
-        }
-        for (QuestionToCheckDTO questionDTO : questionDTOS) {
-            Question question = questionMap.get(questionDTO.id());
-            if (question == null) throw new IllegalArgumentException("Question is null");
-            if (!answerService.checkAnswers(questionDTO.answers(), question.getAnswers())) {
-                wrongQuestions.add(question);
-            }
-        }
-        return wrongQuestions;
+        return answerService.checkAnswers(dto.answers(), question.getAnswers()) ? null : question;
     }
 }
