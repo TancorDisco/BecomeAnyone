@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.sweetbun.BecomeAnyone.DTO.CreateAnswerDTO;
 import ru.sweetbun.BecomeAnyone.DTO.UpdateAnswerDTO;
 import ru.sweetbun.BecomeAnyone.DTO.toCheck.AnswerToCheckDTO;
+import ru.sweetbun.BecomeAnyone.DTO.toCheck.QuestionToCheckDTO;
 import ru.sweetbun.BecomeAnyone.entity.Answer;
 import ru.sweetbun.BecomeAnyone.entity.Question;
 import ru.sweetbun.BecomeAnyone.exception.ResourceNotFoundException;
@@ -104,18 +105,20 @@ public class AnswerService {
     }
 
     public boolean checkAnswers(List<AnswerToCheckDTO> answersDTOS, List<Answer> answers) {
-        if (answersDTOS.size() != answers.size()) {
-            throw new IllegalArgumentException("Incorrect test");
-        }
-        Map<Long, Answer> answerMap = new HashMap<>();
-        for (Answer answer : answers) {
-            answerMap.put(answer.getId(), answer);
-        }
+        validateInputs(answersDTOS, answers);
+        Map<Long, Answer> answerMap = answers.stream()
+                .collect(Collectors.toMap(Answer::getId, answer -> answer));
+
         for (AnswerToCheckDTO answerDTO : answersDTOS) {
             Answer answer = answerMap.remove(answerDTO.id());
             if (answer == null) throw new IllegalArgumentException("Incorrect test");
             if (answer.isCorrect() != answerDTO.correct()) return false;
         }
         return true;
+    }
+
+    private void validateInputs(List<AnswerToCheckDTO> answerDTOS, List<Answer> answers) {
+        if (answerDTOS.size() != answers.size())
+            throw new IllegalArgumentException("Sizes of answers lists do not match.");
     }
 }
