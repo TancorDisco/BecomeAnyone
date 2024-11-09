@@ -2,9 +2,7 @@ package ru.sweetbun.BecomeAnyone.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -12,7 +10,9 @@ import java.util.List;
 
 @Entity
 @Table(name = "courses")
-@Data
+@Getter
+@Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Course {
@@ -44,6 +44,7 @@ public class Course {
     @Column
     private LocalDate updatedAt;
 
+    @Builder.Default
     @JsonManagedReference
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
     private List<Module> modules = new ArrayList<>();

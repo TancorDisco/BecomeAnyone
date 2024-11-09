@@ -76,8 +76,8 @@ public class ModuleService {
 
         List<Module> updatedModules = mergeModules(moduleDTOS, modelMapper, currentModulesMap, course,
                 moduleRepository, lessonService);
-
-        moduleRepository.deleteAll(new ArrayList<>(currentModulesMap.values()));
+        if (!currentModulesMap.isEmpty())
+            moduleRepository.deleteAll(new ArrayList<>(currentModulesMap.values()));
         return updatedModules;
     }
 
