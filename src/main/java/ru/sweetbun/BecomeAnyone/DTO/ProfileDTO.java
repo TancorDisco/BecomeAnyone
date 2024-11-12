@@ -1,15 +1,10 @@
 package ru.sweetbun.BecomeAnyone.DTO;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Builder;
 
-import java.util.Set;
-
-@Data
-@AllArgsConstructor
-public class ProfileDTO {
-
-    private String bio;
-    private String photoUrl;
-    private Set<SocialLinkDTO> links;
+@Builder
+public record ProfileDTO (
+        String bio,
+        String photoUrl
+) {
 }

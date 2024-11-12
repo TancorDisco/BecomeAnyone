@@ -1,16 +1,18 @@
 package ru.sweetbun.BecomeAnyone.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "progress")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Progress {
@@ -20,15 +22,20 @@ public class Progress {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @JsonBackReference
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "enrollment_id")
     private Enrollment enrollment;
 
-    @Column(name = "completed_lessons")
-    private int completedLessons;
+    @Column(nullable = false)
+    private double completionPercentage = 0.0;
 
-    @ElementCollection
-    private List<Integer> testResults;
+    @Column(name = "completed_tests")
+    private int completedTests = 0;
+
+    @JsonManagedReference
+    @OneToMany(mappedBy = "progress", cascade = CascadeType.ALL)
+    private List<TestResult> testResults = new ArrayList<>();
 
     @Column(name = "completion_date")
     private LocalDateTime completionDate;

@@ -1,16 +1,18 @@
 package ru.sweetbun.BecomeAnyone.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import ru.sweetbun.BecomeAnyone.entity.enums.EnrollmentStatus;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
+@Builder
 @Entity
 @Table(name = "enrollments")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Enrollment {
@@ -20,6 +22,7 @@ public class Enrollment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @JsonManagedReference
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "student_id")
     private User student;
@@ -31,9 +34,11 @@ public class Enrollment {
     @Column(name = "enrollment_date")
     private LocalDate enrollmentDate;
 
+    @JsonManagedReference
     @OneToOne(mappedBy = "enrollment", cascade = CascadeType.ALL)
     private Progress progress;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status")
-    private String status;
+    private EnrollmentStatus status;
 }

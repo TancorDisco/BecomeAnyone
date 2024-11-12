@@ -1,8 +1,9 @@
 package ru.sweetbun.BecomeAnyone.service;
 
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.sweetbun.BecomeAnyone.DTO.SocialLinkDTO;
 import ru.sweetbun.BecomeAnyone.entity.SocialLink;
 import ru.sweetbun.BecomeAnyone.exception.ResourceNotFoundException;
@@ -10,6 +11,7 @@ import ru.sweetbun.BecomeAnyone.repository.SocialLinkRepository;
 
 import java.util.List;
 
+@RequiredArgsConstructor
 @Service
 public class SocialLinkService {
 
@@ -17,12 +19,7 @@ public class SocialLinkService {
 
     private final ModelMapper modelMapper;
 
-    @Autowired
-    public SocialLinkService(SocialLinkRepository socialLinkRepository, ModelMapper modelMapper) {
-        this.socialLinkRepository = socialLinkRepository;
-        this.modelMapper = modelMapper;
-    }
-
+    @Transactional
     public SocialLink createSocialLink(SocialLinkDTO socialLinkDTO) {
         SocialLink socialLink = modelMapper.map(socialLinkDTO, SocialLink.class);
         return socialLinkRepository.save(socialLink);
@@ -30,21 +27,25 @@ public class SocialLinkService {
 
     public SocialLink getSocialLinkById(Long id) {
         return socialLinkRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(SocialLink.class.getSimpleName(), id));
+                .orElseThrow(() -> new ResourceNotFoundException(SocialLink.class, id));
     }
 
     public List<SocialLink> getAllSocialLinks() {
         return socialLinkRepository.findAll();
     }
 
-    public SocialLink updateSocialLink(SocialLink SocialLink, Long id) {
+    @Transactional
+    public SocialLink updateSocialLink(SocialLinkDTO socialLinkDTO, Long id) {
         SocialLink socialLink = getSocialLinkById(id);
-        socialLink = modelMapper.map(socialLink, SocialLink.class);
+        modelMapper.map(socialLinkDTO, socialLink);
         return socialLinkRepository.save(socialLink);
     }
 
-    public void deleteSocialLinkById(Long id) {
+    @Transactional
+    public long deleteSocialLinkById(Long id) {
+        getSocialLinkById(id);
         socialLinkRepository.deleteById(id);
+        return id;
     }
 }
 

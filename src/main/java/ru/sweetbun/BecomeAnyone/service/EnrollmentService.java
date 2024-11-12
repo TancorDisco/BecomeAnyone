@@ -1,17 +1,24 @@
 package ru.sweetbun.BecomeAnyone.service;
 
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-import ru.sweetbun.BecomeAnyone.DTO.EnrollmentDTO;
+import org.springframework.transaction.annotation.Transactional;
+import ru.sweetbun.BecomeAnyone.entity.Course;
 import ru.sweetbun.BecomeAnyone.entity.Enrollment;
+import ru.sweetbun.BecomeAnyone.entity.Progress;
+import ru.sweetbun.BecomeAnyone.entity.User;
 import ru.sweetbun.BecomeAnyone.exception.ResourceNotFoundException;
 import ru.sweetbun.BecomeAnyone.repository.EnrollmentRepository;
+import ru.sweetbun.BecomeAnyone.util.SecurityUtils;
 
 import java.time.LocalDate;
 import java.util.List;
 
+import static ru.sweetbun.BecomeAnyone.entity.enums.EnrollmentStatus.*;
+
+@RequiredArgsConstructor
 @Service
 public class EnrollmentService {
 
@@ -20,44 +27,54 @@ public class EnrollmentService {
     private final ModelMapper modelMapper;
 
     private final CourseService courseService;
+    @Lazy
+    private final ProgressService progressService;
 
-    private final UserService userService;
+    private final SecurityUtils securityUtils;
 
-    @Autowired
-    public EnrollmentService(EnrollmentRepository enrollmentRepository, ModelMapper modelMapper, CourseService courseService, UserService userService) {
-        this.enrollmentRepository = enrollmentRepository;
-        this.modelMapper = modelMapper;
-        this.courseService = courseService;
-        this.userService = userService;
-    }
-
-    public Enrollment createEnrollment(EnrollmentDTO enrollmentDTO, Long courseId) {
-        Enrollment enrollment = modelMapper.map(enrollmentDTO, Enrollment.class);
-        enrollment.setCourse(courseService.getCourseById(courseId));
-        var username = SecurityContextHolder.getContext().getAuthentication().getName();
-        enrollment.setStudent(userService.getUserByUsername(username));
-        enrollment.setEnrollmentDate(LocalDate.now());
-        enrollment.setStatus("IN PROGRESS");
-
+    @Transactional
+    public Enrollment createEnrollment(Long courseId) {
+        Progress progress = progressService.createProgress();
+        Enrollment enrollment = Enrollment.builder()
+                .student(securityUtils.getCurrentUser())
+                .course(courseService.getCourseById(courseId))
+                .enrollmentDate(LocalDate.now())
+                .progress(progress)
+                .status(NOT_STARTED)
+                .build();
+        progress.setEnrollment(enrollment);
         return enrollmentRepository.save(enrollment);
     }
 
     public Enrollment getEnrollmentById(Long id) {
         return enrollmentRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(Enrollment.class.getSimpleName(), id));
+                .orElseThrow(() -> new ResourceNotFoundException(Enrollment.class, id));
     }
 
-    public List<Enrollment> getAllEnrollments() {
-        return enrollmentRepository.findAll();
+    public List<Enrollment> getAllEnrollmentsByStudent() {
+        return enrollmentRepository.findAllByStudent(securityUtils.getCurrentUser());
     }
 
-    public Enrollment updateEnrollment(EnrollmentDTO enrollmentDTO, Long id) {
-        Enrollment enrollment = getEnrollmentById(id);
-        enrollment = modelMapper.map(enrollmentDTO, Enrollment.class);
+    @Transactional
+    public Enrollment updateEnrollmentStatus(double completionPercent, Enrollment enrollment) {
+        if (enrollment.getStatus() == NOT_STARTED && completionPercent > 0.0) {
+            enrollment.setStatus(IN_PROGRESS);
+        } else if (enrollment.getStatus() != COMPLETED && completionPercent == 100.0) {
+            enrollment.setStatus(COMPLETED);
+        }
         return enrollmentRepository.save(enrollment);
     }
 
-    public void deleteEnrollmentById(Long id) {
-        enrollmentRepository.deleteById(id);
+    @Transactional
+    public long deleteEnrollment(Long courseId) {
+        User student = securityUtils.getCurrentUser();
+        Course course = courseService.getCourseById(courseId);
+        enrollmentRepository.deleteByStudentAndCourse(student, course);
+        return courseId;
+    }
+
+    public Enrollment getEnrollmentByStudentAndCourse(User student, Course course) {
+        return enrollmentRepository.findByStudentAndCourse(student, course)
+                .orElseThrow(() -> new ResourceNotFoundException(Enrollment.class, student, course));
     }
 }

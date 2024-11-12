@@ -1,10 +1,8 @@
 package ru.sweetbun.BecomeAnyone.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotEmpty;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -12,7 +10,9 @@ import java.util.List;
 
 @Entity
 @Table(name = "courses")
-@Data
+@Getter
+@Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Course {
@@ -26,11 +26,9 @@ public class Course {
     @JoinColumn(name = "teacher_id")
     private User teacher;
 
-    @NotEmpty
-    @Column(name = "title")
+    @Column(name = "title", nullable = false)
     private String title;
 
-    @NotEmpty
     @Column(name = "description")
     private String description;
 
@@ -40,12 +38,14 @@ public class Course {
     @Column(name = "course_plan")
     private String coursePlan;
 
-    @Column(name = "created_at")
+    @Column(nullable = false)
     private LocalDate createdAt;
 
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Module> modules = new ArrayList<>();
+    @Column
+    private LocalDate updatedAt;
 
-    /*@ManyToMany(mappedBy = "viewedCourses")
-    private Set<User> students = new HashSet<>();*/
+    @Builder.Default
+    @JsonManagedReference
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
+    private List<Module> modules = new ArrayList<>();
 }
