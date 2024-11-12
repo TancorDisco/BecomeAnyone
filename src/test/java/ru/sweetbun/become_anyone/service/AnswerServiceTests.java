@@ -46,7 +46,7 @@ class AnswerServiceTests {
     private CreateAnswerDTO answerDTO;
 
     @BeforeEach
-    void setup() {ModelMapperConfig.createConfiguredModelMapper();
+    void setup() {
         answerService = new AnswerService(answerRepository, modelMapper, questionService);
 
         question = Question.builder().id(1L).build();
@@ -219,91 +219,65 @@ class AnswerServiceTests {
         );
     }
 
-    @Test
-    void mergeAnswers_UpdatesExistingAnswerAndAddsNewOne() {
-        //Arrange
-        Map<Long, Answer> currentAnswersMap = new HashMap<>();
-        currentAnswersMap.put(1L, answer);
-
-        UpdateAnswerDTO updateExistingAnswerDTO = new UpdateAnswerDTO(1L, "", false);
-        UpdateAnswerDTO newAnswerDTO = new UpdateAnswerDTO(null, "", true);
-
-        //Act
-        List<Answer> mergedAnswers = AnswerService.mergeAnswers(List.of(updateExistingAnswerDTO, newAnswerDTO),
-                modelMapper, currentAnswersMap, question);
-
-        //Assert
-        assertEquals(2, mergedAnswers.size());
-
-        Answer updatedAnswer = mergedAnswers.get(0);
-        assertEquals(1L, updatedAnswer.getId());
-        assertFalse(updatedAnswer.isCorrect());
-
-        Answer addedAnswer = mergedAnswers.get(1);
-        assertNull(addedAnswer.getId());
-        assertTrue(addedAnswer.isCorrect());
-        assertSame(question, addedAnswer.getQuestion());
-
-        assertTrue(currentAnswersMap.isEmpty());
-    }
-
     @ParameterizedTest
-    @MethodSource("provideMergeAnswersTestCases")
-    void mergeAnswers_VariousScenarios(List<UpdateAnswerDTO> answerDTOs,
-                                       Map<Long, Answer> currentAnswersMap,
-                                       int expectedSize,
-                                       boolean expectedFirstAnswerCorrect,
-                                       Boolean expectedSecondAnswerCorrect,
-                                       int expectedSizeForDeletion) {
+    @MethodSource("provideTestData")
+    void testUpdateAnswers(List<UpdateAnswerDTO> answerDTOS, List<Answer> expectedAnswers) {
         // Act
-        List<Answer> mergedAnswers = AnswerService.mergeAnswers(answerDTOs, modelMapper, currentAnswersMap, question);
+        List<Answer> updatedAnswers = answerService.updateAnswers(answerDTOS, question);
 
         // Assert
-        assertEquals(expectedSize, mergedAnswers.size());
-
-        if (expectedSize > 0) {
-            assertEquals(currentAnswersMap.size(), expectedSizeForDeletion);
-            assertEquals(expectedFirstAnswerCorrect, mergedAnswers.get(0).isCorrect());
-        }
-
-        if (expectedSize > 1 && expectedSecondAnswerCorrect != null) {
-            Answer secondAnswer = mergedAnswers.get(1);
-            assertEquals(expectedSecondAnswerCorrect, secondAnswer.isCorrect());
-            assertSame(question, secondAnswer.getQuestion());
+        assertEquals(expectedAnswers.size(), updatedAnswers.size());
+        for (int i = 0; i < expectedAnswers.size(); i++) {
+            assertEquals(expectedAnswers.get(i).getAnswerText(), updatedAnswers.get(i).getAnswerText());
+            assertEquals(expectedAnswers.get(i).isCorrect(), updatedAnswers.get(i).isCorrect());
         }
     }
 
-    private static Stream<Arguments> provideMergeAnswersTestCases() {
-        Answer existingAnswer = Answer.builder().id(1L).correct(true).build();
-        UpdateAnswerDTO answerDTO1 = new UpdateAnswerDTO(null, "", true);
-        UpdateAnswerDTO answerDTO2 = new UpdateAnswerDTO(1L, "", false);
-
+    private static Stream<Arguments> provideTestData() {
         return Stream.of(
-                Arguments.of( // 1
-                        List.of(answerDTO2),
-                        new HashMap<>(Map.of(1L, existingAnswer)),
-                        1, false, null, 0
+                // 1: Add new answers
+                Arguments.of(
+                        List.of(
+                                UpdateAnswerDTO.builder().id(1L).answerText("Answer").correct(false).build(),
+                                UpdateAnswerDTO.builder().answerText("New Answer 1").correct(true).build(),
+                                UpdateAnswerDTO.builder().answerText("New Answer 2").correct(false).build()
+                        ),
+                        List.of(
+                                Answer.builder().id(1L).answerText("Answer").correct(false).build(),
+                                Answer.builder().id(2L).answerText("New Answer 1").correct(true).build(),
+                                Answer.builder().id(3L).answerText("New Answer 2").correct(false).build()
+                        )
                 ),
-                Arguments.of( // 2
-                        List.of(answerDTO1),
-                        new HashMap<>(Map.of(1L, existingAnswer)),
-                        1, true, true, 1
+                // 2: Update existing answers
+                Arguments.of(
+                        List.of(
+                                UpdateAnswerDTO.builder().id(1L).answerText("Updated Answer 1").correct(false).build()
+                        ),
+                        List.of(
+                                Answer.builder().id(1L).answerText("Updated Answer 1").correct(false).build()
+                        )
                 ),
-                Arguments.of( // 3
-                        List.of(answerDTO2,
-                                answerDTO1),
-                        new HashMap<>(Map.of(1L, existingAnswer)),
-                        2, false, true, 0
+                // 3: Add new and update existing answers
+                Arguments.of(
+                        List.of(
+                                UpdateAnswerDTO.builder().id(1L).answerText("Updated Answer 1").correct(false).build(),
+                                UpdateAnswerDTO.builder().answerText("New Answer 3").correct(true).build()
+                        ),
+                        List.of(
+                                Answer.builder().id(1L).answerText("Updated Answer 1").correct(false).build(),
+                                Answer.builder().id(2L).answerText("New Answer 3").correct(true).build()
+                        )
                 ),
-                Arguments.of( // 4
-                        List.of(),
-                        new HashMap<>(Map.of(1L, existingAnswer)),
-                        0, false, null, 1
-                ),
-                Arguments.of( // 5
-                        List.of(new UpdateAnswerDTO(2L, "", true)),
-                        new HashMap<>(Map.of(1L, existingAnswer)),
-                        1, true, null, 1
+                // 4: Add new answers & delete old
+                Arguments.of(
+                        List.of(
+                                UpdateAnswerDTO.builder().answerText("New Answer 1").correct(true).build(),
+                                UpdateAnswerDTO.builder().answerText("New Answer 2").correct(false).build()
+                        ),
+                        List.of(
+                                Answer.builder().id(2L).answerText("New Answer 1").correct(true).build(),
+                                Answer.builder().id(3L).answerText("New Answer 2").correct(false).build()
+                        )
                 )
         );
     }

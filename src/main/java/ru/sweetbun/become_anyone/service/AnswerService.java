@@ -71,29 +71,28 @@ public class AnswerService {
         Map<Long, Answer> currentAnswersMap = question.getAnswers().stream()
                 .collect(Collectors.toMap(Answer::getId, Function.identity()));
 
-        List<Answer> updatedAnswers = mergeAnswers(answerDTOS, modelMapper, currentAnswersMap, question);
+        List<Answer> updatedAnswers = mergeAnswers(answerDTOS, currentAnswersMap, question);
 
         if (!currentAnswersMap.isEmpty())
             answerRepository.deleteAll(new ArrayList<>(currentAnswersMap.values()));
         return updatedAnswers;
     }
 
-    @Transactional
-    public static List<Answer> mergeAnswers(List<UpdateAnswerDTO> answerDTOS, ModelMapper mapper,
-                                            Map<Long, Answer> currentAnswersMap, Question question) {
+    private List<Answer> mergeAnswers(List<UpdateAnswerDTO> answerDTOS, Map<Long, Answer> currentAnswersMap,
+                                      Question question) {
         return answerDTOS.stream().map(answerDTO -> {
             Long answerDTOId = answerDTO.id();
             Answer answer;
 
             if (answerDTOId != null && currentAnswersMap.containsKey(answerDTOId)) {
                 answer = currentAnswersMap.remove(answerDTOId);
-                mapper.map(answerDTO, answer);
+                modelMapper.map(answerDTO, answer);
             } else {
-                answer = mapper.map(answerDTO, Answer.class);
+                answer = modelMapper.map(answerDTO, Answer.class);
                 answer.setQuestion(question);
             }
             return answer;
-        }).collect(Collectors.toList());
+        }).toList();
     }
 
     @Transactional
