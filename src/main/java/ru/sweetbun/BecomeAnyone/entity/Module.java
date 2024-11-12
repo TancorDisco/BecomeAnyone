@@ -3,8 +3,6 @@ package ru.sweetbun.BecomeAnyone.entity;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -14,6 +12,7 @@ import java.util.List;
 @Table(name = "modules")
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Module {
@@ -35,8 +34,9 @@ public class Module {
     private String description;
 
     @Column(name = "order_num")
-    private Integer orderNum;
+    private int orderNum;
 
+    @Builder.Default
     @JsonManagedReference
     @OneToMany(mappedBy = "module", cascade = CascadeType.ALL)
     private List<Lesson> lessons = new ArrayList<>();

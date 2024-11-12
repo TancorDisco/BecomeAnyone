@@ -1,12 +1,10 @@
 package ru.sweetbun.BecomeAnyone.DTO;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Builder;
 
-@Data
-@AllArgsConstructor
-public class UpdateModuleDTO {
-
-    private String title;
-    private String description;
+@Builder
+public record UpdateModuleDTO (
+        String title,
+        String description
+) implements ModuleDTO{
 }

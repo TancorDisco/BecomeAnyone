@@ -1,17 +1,20 @@
 package ru.sweetbun.BecomeAnyone.DTO;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
-@Data
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
 @AllArgsConstructor
-public class CreateCourseDTO {
-
+public class CourseDTO<T extends ModuleDTO> {
     private String title;
     private String description;
     private String requirements;
     private String coursePlan;
-    private List<CreateModuleDTO> modules;
+    @Builder.Default
+    private List<T> modules = new ArrayList<>();
 }

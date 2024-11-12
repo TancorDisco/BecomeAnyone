@@ -1,14 +1,15 @@
 package ru.sweetbun.BecomeAnyone.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Table(name = "answers")
-@Data
+@Getter
+@Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Answer {
@@ -18,15 +19,14 @@ public class Answer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @JsonBackReference
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "question_id")
     private Question question;
 
-    @Column(name = "answer_text")
-    @NotEmpty
+    @Column(nullable = false)
     private String answerText;
 
-    @Column
-    @NotEmpty
-    private boolean isCorrect;
+    @Column(nullable = false)
+    private boolean correct;
 }
