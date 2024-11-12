@@ -9,6 +9,7 @@ import ru.sweetbun.become_anyone.entity.*;
 import ru.sweetbun.become_anyone.repository.TestResultRepository;
 import ru.sweetbun.become_anyone.util.SecurityUtils;
 
+@Transactional(readOnly = true)
 @Service
 public class TestResultService {
 

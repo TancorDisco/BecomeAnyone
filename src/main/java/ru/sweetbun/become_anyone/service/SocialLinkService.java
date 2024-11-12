@@ -11,6 +11,7 @@ import ru.sweetbun.become_anyone.repository.SocialLinkRepository;
 
 import java.util.List;
 
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Service
 public class SocialLinkService {

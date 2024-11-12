@@ -22,6 +22,7 @@ import java.util.stream.Stream;
 import static java.time.LocalDate.now;
 import static java.util.Optional.ofNullable;
 
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Service
 public class CourseService {

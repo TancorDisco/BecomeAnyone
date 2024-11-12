@@ -19,6 +19,7 @@ import ru.sweetbun.become_anyone.util.SecurityUtils;
 
 import java.util.List;
 
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Slf4j
 @Service
@@ -82,7 +83,7 @@ public class UserService {
     public User createUserProfile(ProfileDTO profileDTO) {
         User user = securityUtils.getCurrentUser();
         if (user.getProfile() != null)
-            throw new RuntimeException("Profile already exists for this user");
+            throw new IllegalArgumentException("Profile already exists for this user");
 
         Profile profile =  profileService.createProfile(profileDTO);
         profile.setUser(user);

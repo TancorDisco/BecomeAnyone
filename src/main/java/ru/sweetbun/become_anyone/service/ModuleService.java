@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+@Transactional(readOnly = true)
 @Service
 @RequiredArgsConstructor
 public class ModuleService {
@@ -32,13 +33,13 @@ public class ModuleService {
     @Transactional
     public Module createModule(CreateModuleDTO moduleDTO, Long courseId) {
         Course course = courseService.getCourseById(courseId);
-        return createModule(moduleDTO, course);
+        return moduleRepository.save(createModule(moduleDTO, course));
     }
 
     @Transactional
     public void createModules(List<CreateModuleDTO> moduleDTOS, Course course) {
         for (CreateModuleDTO moduleDTO : moduleDTOS) {
-            Module module = createModule(moduleDTO, course);
+            Module module = moduleRepository.save(createModule(moduleDTO, course));
             lessonService.createLessons(moduleDTO.getLessons(), module);
         }
     }
@@ -47,7 +48,7 @@ public class ModuleService {
         Module module = modelMapper.map(moduleDTO, Module.class);
         module.setCourse(course);
         course.getModules().add(module);
-        return moduleRepository.save(module);
+        return module;
     }
 
     public Module getModuleById(Long id) {

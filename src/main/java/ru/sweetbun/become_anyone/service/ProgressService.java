@@ -12,6 +12,7 @@ import ru.sweetbun.become_anyone.repository.ProgressRepository;
 
 import java.util.List;
 
+@Transactional(readOnly = true)
 @Service
 public class ProgressService {
 

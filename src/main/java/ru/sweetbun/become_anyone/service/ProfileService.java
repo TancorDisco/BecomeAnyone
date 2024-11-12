@@ -11,6 +11,7 @@ import ru.sweetbun.become_anyone.repository.ProfileRepository;
 
 import java.util.List;
 
+@Transactional(readOnly = true)
 @Service
 @RequiredArgsConstructor
 public class ProfileService {

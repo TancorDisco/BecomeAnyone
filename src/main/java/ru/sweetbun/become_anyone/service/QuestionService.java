@@ -20,6 +20,7 @@ import ru.sweetbun.become_anyone.repository.QuestionRepository;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Service
 public class QuestionService {
@@ -84,7 +85,7 @@ public class QuestionService {
         return questionDTOS.stream()
                 .map(dto -> getQuestionIfWrong(dto, questionMap))
                 .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private void validateInputs(List<QuestionToCheckDTO> questionDTOS, List<Question> questions) {

@@ -18,6 +18,7 @@ import java.util.List;
 
 import static ru.sweetbun.become_anyone.entity.enums.EnrollmentStatus.*;
 
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Service
 public class EnrollmentService {
