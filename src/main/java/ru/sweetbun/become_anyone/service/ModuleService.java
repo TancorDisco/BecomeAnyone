@@ -29,6 +29,7 @@ public class ModuleService {
     @Lazy
     private final CourseService courseService;
 
+    @Transactional
     public Module createModule(CreateModuleDTO moduleDTO, Long courseId) {
         Course course = courseService.getCourseById(courseId);
         return createModule(moduleDTO, course);
@@ -42,8 +43,7 @@ public class ModuleService {
         }
     }
 
-    @Transactional
-    public Module createModule(CreateModuleDTO moduleDTO, Course course) {
+    private Module createModule(CreateModuleDTO moduleDTO, Course course) {
         Module module = modelMapper.map(moduleDTO, Module.class);
         module.setCourse(course);
         course.getModules().add(module);
@@ -77,7 +77,7 @@ public class ModuleService {
         return updatedModules;
     }
 
-    public List<Module> mergeModules(List<UpdateModuleInCourseDTO> moduleDTOS,
+    private List<Module> mergeModules(List<UpdateModuleInCourseDTO> moduleDTOS,
                                             Map<Long, Module> currentModulesMap, Course course) {
         return moduleDTOS.stream().map(moduleDTO -> {
             Module module;

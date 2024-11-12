@@ -1,7 +1,6 @@
 package ru.sweetbun.become_anyone.service;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -49,7 +48,7 @@ class LessonServiceTests {
     public void setUp() {
         lessonService = new LessonService(lessonRepository, modelMapper, moduleService);
 
-        module = Module.builder().id(1L).build();
+        module = Module.builder().id(1L).title("Module 1").build();
 
         Lesson lesson1 = Lesson.builder().id(1L).title("Lesson 1").orderNum(1).module(module).build();
         Lesson lesson2 = Lesson.builder().id(2L).title("Lesson 2").orderNum(2).module(module).build();
@@ -216,78 +215,102 @@ class LessonServiceTests {
         assertThrows(ResourceNotFoundException.class, () -> lessonService.getAllLessonsByModule(1L));
     }
 
-    @DisplayName("MergeLessons with various scenarios")
-    @ParameterizedTest(name = "{index} => lessonDTOS={0}, countUpdatedLessons={1}" +
-            ", expectedTitles={2}, countLessonsForDeletion={3}, ")
-    @MethodSource("lessonScenariosProvider")
-    public void mergeLessons_VariousScenarios(List<UpdateLessonInCourseDTO> lessonDTOS,
-                                              int countUpdatedLessons,
-                                              List<String> expectedTitles,
-                                              int countLessonsForDeletion) {
+    @ParameterizedTest
+    @MethodSource("provideTestData")
+    void testUpdateLessons(List<UpdateLessonInCourseDTO> lessonDTOS, List<Lesson> expectedLessons) {
+        // Arrange
+        module.setLessons(new ArrayList<>(currentLessonsMap.values()));
+
         // Act
-        List<Lesson> updatedLessons = LessonService.mergeLessons(lessonDTOS, modelMapper, currentLessonsMap, module);
+        List<Lesson> updatedLessons = lessonService.updateLessons(lessonDTOS, module);
 
         // Assert
-        assertEquals(countUpdatedLessons, updatedLessons.size());
-        for (int i = 0; i < countUpdatedLessons; i++) {
-            assertEquals(expectedTitles.get(i), updatedLessons.get(i).getTitle());
+        assertEquals(expectedLessons.size(), updatedLessons.size());
+        for (int i = 0; i < expectedLessons.size(); i++) {
+            assertEquals(expectedLessons.get(i).getTitle(), updatedLessons.get(i).getTitle());
+            assertEquals(expectedLessons.get(i).getOrderNum(), updatedLessons.get(i).getOrderNum());
         }
-        assertEquals(countLessonsForDeletion, currentLessonsMap.size());
     }
 
-    private Stream<Arguments> lessonScenariosProvider() {
+    private static Stream<Arguments> provideTestData() {
         return Stream.of(
-                Arguments.of( // 1
+                // 1: Add new lessons and delete old
+                Arguments.of(
                         List.of(
-                                UpdateLessonInCourseDTO.builder().id(1L).title("Updated Lesson 1").build(),
-                                UpdateLessonInCourseDTO.builder().id(2L).title("Updated Lesson 2").build()
+                                UpdateLessonInCourseDTO.builder().title("New Lesson 1").orderNum(4).build(),
+                                UpdateLessonInCourseDTO.builder().title("New Lesson 2").orderNum(5).build()
                         ),
-                        2,
-                        List.of("Updated Lesson 1", "Updated Lesson 2"),
-                        1
-                ),
-                Arguments.of( // 2
                         List.of(
-                                UpdateLessonInCourseDTO.builder().title("New Lesson 1").build(),
-                                UpdateLessonInCourseDTO.builder().title("New Lesson 2").build()
-                        ),
-                        2,
-                        List.of("New Lesson 1", "New Lesson 2"),
-                        3
+                                Lesson.builder().id(4L).title("New Lesson 1").orderNum(4).build(),
+                                Lesson.builder().id(5L).title("New Lesson 2").orderNum(5).build()
+                        )
                 ),
-                Arguments.of( // 3
+                // 2: Update existing lessons and delete old
+                Arguments.of(
                         List.of(
-                                UpdateLessonInCourseDTO.builder().id(1L).title("Updated Lesson 1").build(),
-                                UpdateLessonInCourseDTO.builder().title("New Lesson 3").build(),
-                                UpdateLessonInCourseDTO.builder().id(2L).title("Updated Lesson 2").build()
+                                UpdateLessonInCourseDTO.builder().id(1L).title("Updated Lesson 1").orderNum(1).build(),
+                                UpdateLessonInCourseDTO.builder().id(2L).title("Updated Lesson 2").orderNum(2).build()
                         ),
-                        3,
-                        List.of("Updated Lesson 1", "New Lesson 3", "Updated Lesson 2"),
-                        1
-                ),
-                Arguments.of( // 4
-                        Collections.emptyList(),
-                        0,
-                        Collections.emptyList(),
-                        3
-                ),
-                Arguments.of( // 5
                         List.of(
-                                UpdateLessonInCourseDTO.builder().id(1L).title("Updated Lesson 1").build(),
-                                UpdateLessonInCourseDTO.builder().title("New Lesson 3").build()
-                        ),
-                        2,
-                        List.of("Updated Lesson 1", "New Lesson 3"),
-                        2
+                                Lesson.builder().id(1L).title("Updated Lesson 1").orderNum(1).build(),
+                                Lesson.builder().id(2L).title("Updated Lesson 2").orderNum(2).build()
+                        )
                 ),
-                Arguments.of( // 6
+                // 3: Add new and update existing lessons and delete old
+                Arguments.of(
                         List.of(
-                                UpdateLessonInCourseDTO.builder().id(1L).title(null).build(),
-                                UpdateLessonInCourseDTO.builder().id(3L).title(null).build()
+                                UpdateLessonInCourseDTO.builder().id(1L).title("Updated Lesson 1").orderNum(1).build(),
+                                UpdateLessonInCourseDTO.builder().title("New Lesson 3").orderNum(4).build()
                         ),
-                        2,
-                        List.of("Lesson 1", "Lesson 3"),
-                        1
+                        List.of(
+                                Lesson.builder().id(1L).title("Updated Lesson 1").orderNum(1).build(),
+                                Lesson.builder().id(4L).title("New Lesson 3").orderNum(4).build()
+                        )
+                ),
+                // 4: Add new lessons
+                Arguments.of(
+                        List.of(
+                                UpdateLessonInCourseDTO.builder().id(1L).title("Lesson 1").orderNum(1).build(),
+                                UpdateLessonInCourseDTO.builder().id(2L).title("Lesson 2").orderNum(2).build(),
+                                UpdateLessonInCourseDTO.builder().id(3L).title("Lesson 3").orderNum(3).build(),
+                                UpdateLessonInCourseDTO.builder().title("New Lesson 1").orderNum(4).build(),
+                                UpdateLessonInCourseDTO.builder().title("New Lesson 2").orderNum(5).build()
+                        ),
+                        List.of(
+                                Lesson.builder().id(1L).title("Lesson 1").orderNum(1).build(),
+                                Lesson.builder().id(2L).title("Lesson 2").orderNum(2).build(),
+                                Lesson.builder().id(3L).title("Lesson 3").orderNum(3).build(),
+                                Lesson.builder().id(4L).title("New Lesson 1").orderNum(4).build(),
+                                Lesson.builder().id(5L).title("New Lesson 2").orderNum(5).build()
+                        )
+                ),
+                // 5: Update existing lessons
+                Arguments.of(
+                        List.of(
+                                UpdateLessonInCourseDTO.builder().id(1L).title("Updated Lesson 1").orderNum(1).build(),
+                                UpdateLessonInCourseDTO.builder().id(2L).title("Updated Lesson 2").orderNum(2).build(),
+                                UpdateLessonInCourseDTO.builder().id(3L).title("Lesson 3").orderNum(3).build()
+                        ),
+                        List.of(
+                                Lesson.builder().id(1L).title("Updated Lesson 1").orderNum(1).build(),
+                                Lesson.builder().id(2L).title("Updated Lesson 2").orderNum(2).build(),
+                                Lesson.builder().id(3L).title("Lesson 3").orderNum(3).build()
+                        )
+                ),
+                // 6: Add new and update existing lessons
+                Arguments.of(
+                        List.of(
+                                UpdateLessonInCourseDTO.builder().id(1L).title("Updated Lesson 1").orderNum(1).build(),
+                                UpdateLessonInCourseDTO.builder().id(2L).title("Lesson 2").orderNum(2).build(),
+                                UpdateLessonInCourseDTO.builder().id(3L).title("Lesson 3").orderNum(3).build(),
+                                UpdateLessonInCourseDTO.builder().title("New Lesson 3").orderNum(4).build()
+                        ),
+                        List.of(
+                                Lesson.builder().id(1L).title("Updated Lesson 1").orderNum(1).build(),
+                                Lesson.builder().id(2L).title("Lesson 2").orderNum(2).build(),
+                                Lesson.builder().id(3L).title("Lesson 3").orderNum(3).build(),
+                                Lesson.builder().id(4L).title("New Lesson 3").orderNum(4).build()
+                        )
                 )
         );
     }
