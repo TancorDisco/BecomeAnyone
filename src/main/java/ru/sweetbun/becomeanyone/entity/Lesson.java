@@ -30,8 +30,9 @@ public class Lesson {
     @Column(name = "title", nullable = false)
     private String title;
 
-    @Column(name = "content")
-    private String content;
+    @JsonManagedReference
+    @OneToOne(mappedBy = "lesson", cascade = CascadeType.ALL)
+    private Content content;
 
     @Column(name = "order_num")
     private int orderNum;

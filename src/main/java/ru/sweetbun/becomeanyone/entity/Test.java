@@ -33,6 +33,7 @@ public class Test {
     @Column(name = "description")
     private String description;
 
+    @Builder.Default
     @JsonManagedReference
     @OneToMany(mappedBy = "test", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Question> questions = new ArrayList<>();
