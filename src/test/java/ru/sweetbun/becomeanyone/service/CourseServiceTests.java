@@ -8,15 +8,18 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.jpa.domain.Specification;
-import ru.sweetbun.becomeanyone.dto.CourseDTO;
-import ru.sweetbun.becomeanyone.dto.CreateModuleDTO;
-import ru.sweetbun.becomeanyone.dto.UpdateModuleInCourseDTO;
-import ru.sweetbun.becomeanyone.config.ModelMapperConfig;
-import ru.sweetbun.becomeanyone.entity.Course;
-import ru.sweetbun.becomeanyone.entity.User;
-import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
-import ru.sweetbun.becomeanyone.repository.CourseRepository;
-import ru.sweetbun.becomeanyone.util.SecurityUtils;
+import ru.sweetbun.becomeanyone.api.dto.CourseDTO;
+import ru.sweetbun.becomeanyone.api.dto.CreateModuleDTO;
+import ru.sweetbun.becomeanyone.api.dto.UpdateModuleInCourseDTO;
+import ru.sweetbun.becomeanyone.domain.service.CourseService;
+import ru.sweetbun.becomeanyone.domain.service.ModuleService;
+import ru.sweetbun.becomeanyone.domain.service.UserServiceImpl;
+import ru.sweetbun.becomeanyone.infrastructure.config.ModelMapperConfig;
+import ru.sweetbun.becomeanyone.domain.entity.Course;
+import ru.sweetbun.becomeanyone.domain.entity.User;
+import ru.sweetbun.becomeanyone.infrastructure.exception.ResourceNotFoundException;
+import ru.sweetbun.becomeanyone.infrastructure.repository.CourseRepository;
+import ru.sweetbun.becomeanyone.domain.util.SecurityUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -40,14 +43,14 @@ class CourseServiceTests {
     private ModuleService moduleService;
 
     @Mock
-    private UserService userService;
+    private UserServiceImpl userServiceImpl;
 
     @InjectMocks
     private CourseService courseService;
 
     @BeforeEach
     void setUp() {
-        courseService = new CourseService(courseRepository, modelMapper, moduleService, securityUtils, userService);
+        courseService = new CourseService(courseRepository, modelMapper, moduleService, securityUtils, userServiceImpl);
     }
 
     @Test
@@ -124,7 +127,7 @@ class CourseServiceTests {
         Long teacherId = 1L;
         User user = new User();
         List<Course> courses = List.of(new Course());
-        when(userService.getUserById(teacherId)).thenReturn(user);
+        when(userServiceImpl.getUserById(teacherId)).thenReturn(user);
         when(courseRepository.findAll(any(Specification.class))).thenReturn(courses);
 
         List<Course> result = courseService.getAllCourses(teacherId, null);

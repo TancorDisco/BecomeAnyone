@@ -9,15 +9,18 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
-import ru.sweetbun.becomeanyone.dto.CreateAnswerDTO;
-import ru.sweetbun.becomeanyone.dto.QuestionDTO;
-import ru.sweetbun.becomeanyone.dto.UpdateAnswerDTO;
-import ru.sweetbun.becomeanyone.dto.toCheck.QuestionToCheckDTO;
-import ru.sweetbun.becomeanyone.config.ModelMapperConfig;
-import ru.sweetbun.becomeanyone.entity.Question;
-import ru.sweetbun.becomeanyone.exception.ObjectMustContainException;
-import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
-import ru.sweetbun.becomeanyone.repository.QuestionRepository;
+import ru.sweetbun.becomeanyone.api.dto.CreateAnswerDTO;
+import ru.sweetbun.becomeanyone.api.dto.QuestionDTO;
+import ru.sweetbun.becomeanyone.api.dto.UpdateAnswerDTO;
+import ru.sweetbun.becomeanyone.api.dto.tocheck.QuestionToCheckDTO;
+import ru.sweetbun.becomeanyone.domain.service.AnswerService;
+import ru.sweetbun.becomeanyone.domain.service.QuestionService;
+import ru.sweetbun.becomeanyone.domain.service.TestService;
+import ru.sweetbun.becomeanyone.infrastructure.config.ModelMapperConfig;
+import ru.sweetbun.becomeanyone.domain.entity.Question;
+import ru.sweetbun.becomeanyone.infrastructure.exception.ObjectMustContainException;
+import ru.sweetbun.becomeanyone.infrastructure.exception.ResourceNotFoundException;
+import ru.sweetbun.becomeanyone.infrastructure.repository.QuestionRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -58,7 +61,7 @@ class QuestionServiceTests {
         QuestionDTO<CreateAnswerDTO> questionDTO = new QuestionDTO<>();
         questionDTO.setAnswers(answers);
         Long testId = 1L;
-        ru.sweetbun.becomeanyone.entity.Test test = new ru.sweetbun.becomeanyone.entity.Test();
+        ru.sweetbun.becomeanyone.domain.entity.Test test = new ru.sweetbun.becomeanyone.domain.entity.Test();
 
         when(testService.getTestById(testId)).thenReturn(test);
         when(questionRepository.save(any(Question.class))).thenReturn(question);
@@ -105,7 +108,7 @@ class QuestionServiceTests {
     @Test
     void getAllQuestionsByTest_ExistingTest_ReturnsQuestions() {
         Long testId = 1L;
-        ru.sweetbun.becomeanyone.entity.Test test = new ru.sweetbun.becomeanyone.entity.Test();
+        ru.sweetbun.becomeanyone.domain.entity.Test test = new ru.sweetbun.becomeanyone.domain.entity.Test();
         List<Question> questions = List.of(question);
         when(testService.getTestById(testId)).thenReturn(test);
         when(questionRepository.findAllQuestionsByTest(test)).thenReturn(questions);

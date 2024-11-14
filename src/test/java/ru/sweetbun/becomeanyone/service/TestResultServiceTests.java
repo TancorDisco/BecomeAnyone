@@ -5,9 +5,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ru.sweetbun.becomeanyone.entity.*;
-import ru.sweetbun.becomeanyone.repository.TestResultRepository;
-import ru.sweetbun.becomeanyone.util.SecurityUtils;
+import ru.sweetbun.becomeanyone.domain.entity.*;
+import ru.sweetbun.becomeanyone.domain.service.CourseService;
+import ru.sweetbun.becomeanyone.domain.service.EnrollmentService;
+import ru.sweetbun.becomeanyone.domain.service.ProgressService;
+import ru.sweetbun.becomeanyone.domain.service.TestResultService;
+import ru.sweetbun.becomeanyone.infrastructure.repository.TestResultRepository;
+import ru.sweetbun.becomeanyone.domain.util.SecurityUtils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -36,7 +40,7 @@ class TestResultServiceTests {
 
     private final double acceptablePercentage = 75.0;
 
-    private ru.sweetbun.becomeanyone.entity.Test test;
+    private ru.sweetbun.becomeanyone.domain.entity.Test test;
     private User user;
     private Course course;
     private Progress progress;
@@ -47,7 +51,7 @@ class TestResultServiceTests {
         testResultService = new TestResultService(testResultRepository, securityUtils,
                 enrollmentService, courseService, progressService, acceptablePercentage);
 
-        test = new ru.sweetbun.becomeanyone.entity.Test();
+        test = new ru.sweetbun.becomeanyone.domain.entity.Test();
         user = new User();
         course = new Course();
         progress = new Progress();

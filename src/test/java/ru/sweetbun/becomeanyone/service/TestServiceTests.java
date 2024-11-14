@@ -7,15 +7,19 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
-import ru.sweetbun.becomeanyone.dto.TestDTO;
-import ru.sweetbun.becomeanyone.dto.toCheck.QuestionToCheckDTO;
-import ru.sweetbun.becomeanyone.dto.toCheck.TestToCheckDTO;
-import ru.sweetbun.becomeanyone.config.ModelMapperConfig;
-import ru.sweetbun.becomeanyone.entity.Lesson;
-import ru.sweetbun.becomeanyone.entity.Question;
-import ru.sweetbun.becomeanyone.entity.TestResult;
-import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
-import ru.sweetbun.becomeanyone.repository.TestRepository;
+import ru.sweetbun.becomeanyone.api.dto.TestDTO;
+import ru.sweetbun.becomeanyone.api.dto.tocheck.QuestionToCheckDTO;
+import ru.sweetbun.becomeanyone.api.dto.tocheck.TestToCheckDTO;
+import ru.sweetbun.becomeanyone.domain.service.LessonService;
+import ru.sweetbun.becomeanyone.domain.service.QuestionService;
+import ru.sweetbun.becomeanyone.domain.service.TestResultService;
+import ru.sweetbun.becomeanyone.domain.service.TestService;
+import ru.sweetbun.becomeanyone.infrastructure.config.ModelMapperConfig;
+import ru.sweetbun.becomeanyone.domain.entity.Lesson;
+import ru.sweetbun.becomeanyone.domain.entity.Question;
+import ru.sweetbun.becomeanyone.domain.entity.TestResult;
+import ru.sweetbun.becomeanyone.infrastructure.exception.ResourceNotFoundException;
+import ru.sweetbun.becomeanyone.infrastructure.repository.TestRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -44,7 +48,7 @@ class TestServiceTests {
     private TestService testService;
 
     private TestDTO testDTO;
-    private ru.sweetbun.becomeanyone.entity.Test test;
+    private ru.sweetbun.becomeanyone.domain.entity.Test test;
     private Lesson lesson;
 
     @BeforeEach
@@ -53,20 +57,20 @@ class TestServiceTests {
 
         testDTO = new TestDTO("Test Name", "");
         lesson = Lesson.builder().id(1L).build();
-        test = ru.sweetbun.becomeanyone.entity.Test.builder().id(1L).lesson(lesson).build();
+        test = ru.sweetbun.becomeanyone.domain.entity.Test.builder().id(1L).lesson(lesson).build();
     }
 
     @Test
     void createTest_LessonExists_TestCreated() {
         when(lessonService.getLessonById(1L)).thenReturn(lesson);
-        when(testRepository.save(any(ru.sweetbun.becomeanyone.entity.Test.class))).thenAnswer(
+        when(testRepository.save(any(ru.sweetbun.becomeanyone.domain.entity.Test.class))).thenAnswer(
                 invocation -> invocation.getArgument(0));
 
-        ru.sweetbun.becomeanyone.entity.Test result = testService.createTest(testDTO, 1L);
+        ru.sweetbun.becomeanyone.domain.entity.Test result = testService.createTest(testDTO, 1L);
 
         assertNotNull(result);
         assertEquals("Test Name", result.getTitle());
-        verify(testRepository).save(any(ru.sweetbun.becomeanyone.entity.Test.class));
+        verify(testRepository).save(any(ru.sweetbun.becomeanyone.domain.entity.Test.class));
     }
 
     @Test
@@ -80,7 +84,7 @@ class TestServiceTests {
     void getTestById_TestExists_ReturnsTest() {
         when(testRepository.findById(1L)).thenReturn(Optional.of(test));
 
-        ru.sweetbun.becomeanyone.entity.Test result = testService.getTestById(1L);
+        ru.sweetbun.becomeanyone.domain.entity.Test result = testService.getTestById(1L);
 
         assertNotNull(result);
         assertEquals(1L, result.getId());
@@ -99,7 +103,7 @@ class TestServiceTests {
         when(testRepository.findAllTestsByLesson(lesson)).thenReturn(List.of(test, test));
 
         // Act
-        List<ru.sweetbun.becomeanyone.entity.Test> result = testService.getAllTestsByLesson(1L);
+        List<ru.sweetbun.becomeanyone.domain.entity.Test> result = testService.getAllTestsByLesson(1L);
 
         // Assert
         assertNotNull(result);
@@ -109,9 +113,9 @@ class TestServiceTests {
     @Test
     void updateTest_TestExists_TestUpdated() {
         when(testRepository.findById(1L)).thenReturn(Optional.of(test));
-        when(testRepository.save(any(ru.sweetbun.becomeanyone.entity.Test.class))).thenReturn(test);
+        when(testRepository.save(any(ru.sweetbun.becomeanyone.domain.entity.Test.class))).thenReturn(test);
 
-        ru.sweetbun.becomeanyone.entity.Test result = testService.updateTest(testDTO, 1L);
+        ru.sweetbun.becomeanyone.domain.entity.Test result = testService.updateTest(testDTO, 1L);
 
         assertNotNull(result);
         assertEquals("Test Name", result.getTitle());

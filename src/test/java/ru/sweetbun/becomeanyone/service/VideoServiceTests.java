@@ -9,15 +9,16 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ru.sweetbun.becomeanyone.entity.Video;
-import ru.sweetbun.becomeanyone.repository.VideoRepository;
+import ru.sweetbun.becomeanyone.domain.entity.Video;
+import ru.sweetbun.becomeanyone.domain.service.VideoService;
+import ru.sweetbun.becomeanyone.infrastructure.repository.VideoRepository;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-class VideoServiceTest {
+class VideoServiceTests {
 
     @Mock
     private VideoRepository videoRepository;

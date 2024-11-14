@@ -7,10 +7,11 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ru.sweetbun.becomeanyone.entity.Module;
-import ru.sweetbun.becomeanyone.entity.*;
-import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
-import ru.sweetbun.becomeanyone.repository.ProgressRepository;
+import ru.sweetbun.becomeanyone.domain.entity.*;
+import ru.sweetbun.becomeanyone.domain.entity.Module;
+import ru.sweetbun.becomeanyone.domain.service.ProgressService;
+import ru.sweetbun.becomeanyone.infrastructure.exception.ResourceNotFoundException;
+import ru.sweetbun.becomeanyone.infrastructure.repository.ProgressRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -81,7 +82,7 @@ class ProgressServiceTests {
         TestResult testResult = TestResult.builder().progress(progress).percent(percent).build();
         progress.setCompletedTests(0);
 
-        ru.sweetbun.becomeanyone.entity.Test test = new ru.sweetbun.becomeanyone.entity.Test();
+        ru.sweetbun.becomeanyone.domain.entity.Test test = new ru.sweetbun.becomeanyone.domain.entity.Test();
         Lesson lesson = Lesson.builder().tests(List.of(test, test, test, test)).build();
         Module module = Module.builder().lessons(List.of(lesson)).build();
         Course course = Course.builder().modules(List.of(module)).build();

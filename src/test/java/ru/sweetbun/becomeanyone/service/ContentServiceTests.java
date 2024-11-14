@@ -10,10 +10,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
-import ru.sweetbun.becomeanyone.config.ModelMapperConfig;
-import ru.sweetbun.becomeanyone.dto.ContentDTO;
-import ru.sweetbun.becomeanyone.entity.Content;
-import ru.sweetbun.becomeanyone.entity.Video;
+import ru.sweetbun.becomeanyone.domain.service.ContentService;
+import ru.sweetbun.becomeanyone.domain.service.VideoService;
+import ru.sweetbun.becomeanyone.infrastructure.config.ModelMapperConfig;
+import ru.sweetbun.becomeanyone.api.dto.ContentDTO;
+import ru.sweetbun.becomeanyone.domain.entity.Content;
+import ru.sweetbun.becomeanyone.domain.entity.Video;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
