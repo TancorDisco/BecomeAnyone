@@ -3,15 +3,13 @@ package ru.sweetbun.becomeanyone.entity;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Table(name = "contents")
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Content {
@@ -29,6 +27,7 @@ public class Content {
     @Column
     private String text;
 
+    @Builder.Default
     @JsonManagedReference
     @OneToOne(mappedBy = "content", cascade = CascadeType.ALL)
     private Video video = null;

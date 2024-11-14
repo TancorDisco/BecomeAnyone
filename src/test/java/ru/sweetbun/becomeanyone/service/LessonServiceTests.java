@@ -11,10 +11,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
+import ru.sweetbun.becomeanyone.dto.ContentDTO;
 import ru.sweetbun.becomeanyone.dto.CreateLessonDTO;
 import ru.sweetbun.becomeanyone.dto.UpdateLessonDTO;
 import ru.sweetbun.becomeanyone.dto.UpdateLessonInCourseDTO;
 import ru.sweetbun.becomeanyone.config.ModelMapperConfig;
+import ru.sweetbun.becomeanyone.entity.Content;
 import ru.sweetbun.becomeanyone.entity.Lesson;
 import ru.sweetbun.becomeanyone.entity.Module;
 import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
@@ -108,11 +110,14 @@ class LessonServiceTests {
 
     @Test
     void updateLesson_LessonExists_ShouldUpdateAndReturnLesson() {
-        UpdateLessonDTO updateLessonDTO = UpdateLessonDTO.builder().build();
+        UpdateLessonDTO updateLessonDTO = UpdateLessonDTO.builder().content(new ContentDTO("", "")).build();
         Lesson lesson = currentLessonsMap.get(1L);
+        Content content =  Content.builder().id(1L).build();
+        lesson.setContent(content);
 
         when(lessonRepository.findById(1L)).thenReturn(Optional.of(lesson));
         when(lessonRepository.save(lesson)).thenReturn(lesson);
+        when(contentService.updateContent(any(ContentDTO.class), eq(content))).thenReturn(content);
 
         Lesson result = lessonService.updateLesson(updateLessonDTO, 1L);
 
