@@ -31,5 +31,5 @@ public class Content {
 
     @JsonManagedReference
     @OneToOne(mappedBy = "content", cascade = CascadeType.ALL)
-    private Video video;
+    private Video video = null;
 }

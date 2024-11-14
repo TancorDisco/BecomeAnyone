@@ -11,9 +11,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
-import ru.sweetbun.becomeanyone.DTO.CreateLessonDTO;
-import ru.sweetbun.becomeanyone.DTO.UpdateLessonDTO;
-import ru.sweetbun.becomeanyone.DTO.UpdateLessonInCourseDTO;
+import ru.sweetbun.becomeanyone.dto.CreateLessonDTO;
+import ru.sweetbun.becomeanyone.dto.UpdateLessonDTO;
+import ru.sweetbun.becomeanyone.dto.UpdateLessonInCourseDTO;
 import ru.sweetbun.becomeanyone.config.ModelMapperConfig;
 import ru.sweetbun.becomeanyone.entity.Lesson;
 import ru.sweetbun.becomeanyone.entity.Module;
@@ -38,6 +38,9 @@ class LessonServiceTests {
     @Mock
     private ModuleService moduleService;
 
+    @Mock
+    private ContentService contentService;
+
     @InjectMocks
     private LessonService lessonService;
 
@@ -46,7 +49,7 @@ class LessonServiceTests {
 
     @BeforeEach
     public void setUp() {
-        lessonService = new LessonService(lessonRepository, modelMapper, moduleService);
+        lessonService = new LessonService(lessonRepository, modelMapper, moduleService, contentService);
 
         module = Module.builder().id(1L).title("Module 1").build();
 

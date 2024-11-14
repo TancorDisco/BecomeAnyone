@@ -5,7 +5,7 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import ru.sweetbun.becomeanyone.DTO.*;
+import ru.sweetbun.becomeanyone.dto.*;
 import ru.sweetbun.becomeanyone.entity.Module;
 import ru.sweetbun.becomeanyone.entity.*;
 
@@ -47,6 +47,9 @@ public class ModelMapperConfig {
 
         modelMapper.createTypeMap(Test.class, Test.class)
                 .addMappings(mapper -> mapper.skip(Test::setQuestions));
+
+        modelMapper.createTypeMap(ContentDTO.class, Content.class)
+                .addMappings(mapper -> mapper.skip(Content::setVideo));
 
         return modelMapper;
     }
