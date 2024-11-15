@@ -1,9 +1,9 @@
-package ru.sweetbun.becomeanyone.dto;
+package ru.sweetbun.becomeanyone.dto.user;
 
 import lombok.Builder;
 
 @Builder
-public record UserDTO (
+public record UserRequest(
         String username,
         String email,
         String password

@@ -5,7 +5,7 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import ru.sweetbun.becomeanyone.api.dto.*;
+import ru.sweetbun.becomeanyone.dto.*;
 import ru.sweetbun.becomeanyone.domain.entity.Module;
 import ru.sweetbun.becomeanyone.domain.entity.*;
 

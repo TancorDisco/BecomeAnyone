@@ -1,9 +1,9 @@
-package ru.sweetbun.becomeanyone.dto;
+package ru.sweetbun.becomeanyone.dto.profile;
 
 import lombok.Builder;
 
 @Builder
-public record ProfileDTO (
+public record ProfileRequest(
         String bio,
         String photoUrl
 ) {

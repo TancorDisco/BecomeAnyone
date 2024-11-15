@@ -127,7 +127,7 @@ class CourseServiceTests {
         Long teacherId = 1L;
         User user = new User();
         List<Course> courses = List.of(new Course());
-        when(userServiceImpl.getUserById(teacherId)).thenReturn(user);
+        when(userServiceImpl.fetchUserById(teacherId)).thenReturn(user);
         when(courseRepository.findAll(any(Specification.class))).thenReturn(courses);
 
         List<Course> result = courseService.getAllCourses(teacherId, null);

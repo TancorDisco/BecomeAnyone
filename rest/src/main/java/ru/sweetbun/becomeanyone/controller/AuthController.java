@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.sweetbun.becomeanyone.dto.UserDTO;
-import ru.sweetbun.becomeanyone.port.AuthServicePort;
+import ru.sweetbun.becomeanyone.dto.user.UserRequest;
+import ru.sweetbun.becomeanyone.contract.AuthService;
 
 import static org.springframework.http.ResponseEntity.ok;
 
@@ -16,11 +16,11 @@ import static org.springframework.http.ResponseEntity.ok;
 @RequestMapping("/auth")
 public class AuthController {
 
-    private final AuthServicePort authServicePort;
+    private final AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody UserDTO userDTO) {
-        return ok(authServicePort.register(userDTO));
+    public ResponseEntity<?> registerUser(@RequestBody UserRequest userRequest) {
+        return ok(authService.register(userRequest));
     }
 
     @PostMapping("/login")

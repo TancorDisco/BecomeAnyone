@@ -40,7 +40,7 @@ class CustomUserDetailsServiceTests {
     @Test
     void loadUserByUsername_UserExists_ReturnsUserDetails() {
         String username = "user";
-        when(userServiceImpl.getUserByUsername(username)).thenReturn(user);
+        when(userServiceImpl.fetchUserByUsername(username)).thenReturn(user);
 
         UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
 
@@ -48,29 +48,29 @@ class CustomUserDetailsServiceTests {
         assertEquals(user.getUsername(), userDetails.getUsername());
         assertEquals(user.getPassword(), userDetails.getPassword());
         assertTrue(userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_USER")));
-        verify(userServiceImpl, times(1)).getUserByUsername(username);
+        verify(userServiceImpl, times(1)).fetchUserByUsername(username);
     }
 
     @Test
     void loadUserByUsername_UserNotFound_ThrowsUsernameNotFoundException() {
         String username = "user";
-        when(userServiceImpl.getUserByUsername(username)).thenThrow(new UsernameNotFoundException("User not found"));
+        when(userServiceImpl.fetchUserByUsername(username)).thenThrow(new UsernameNotFoundException("User not found"));
 
         assertThrows(UsernameNotFoundException.class, () -> customUserDetailsService.loadUserByUsername(username));
-        verify(userServiceImpl, times(1)).getUserByUsername(username);
+        verify(userServiceImpl, times(1)).fetchUserByUsername(username);
     }
 
     @Test
     void loadUserByUsername_UserWithNoRoles_ReturnsUserDetailsWithEmptyAuthorities() {
         String username = "user";
         user.setRoles(Collections.emptySet());
-        when(userServiceImpl.getUserByUsername(username)).thenReturn(user);
+        when(userServiceImpl.fetchUserByUsername(username)).thenReturn(user);
 
         UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
 
         assertNotNull(userDetails);
         assertEquals(user.getUsername(), userDetails.getUsername());
         assertEquals(0, userDetails.getAuthorities().size());
-        verify(userServiceImpl, times(1)).getUserByUsername(username);
+        verify(userServiceImpl, times(1)).fetchUserByUsername(username);
     }
 }

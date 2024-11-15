@@ -7,7 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
-import ru.sweetbun.becomeanyone.dto.RoleDTO;
+import ru.sweetbun.becomeanyone.dto.role.RoleRequest;
 import ru.sweetbun.becomeanyone.domain.service.RoleService;
 import ru.sweetbun.becomeanyone.infrastructure.config.ModelMapperConfig;
 import ru.sweetbun.becomeanyone.domain.entity.Role;
@@ -44,10 +44,10 @@ class RoleServiceTests {
 
     @Test
     void createRole_ValidRoleDTO_ShouldReturnSavedRole() {
-        RoleDTO roleDTO = new RoleDTO("ROLE_ADMIN");
+        RoleRequest roleRequest = new RoleRequest("ROLE_ADMIN");
         when(roleRepository.save(any(Role.class))).thenReturn(role);
 
-        Role savedRole = roleService.createRole(roleDTO);
+        Role savedRole = roleService.createRole(roleRequest);
 
         assertNotNull(savedRole);
         verify(roleRepository, times(1)).save(any(Role.class));
@@ -83,12 +83,12 @@ class RoleServiceTests {
 
     @Test
     void updateRole_ExistingId_ShouldReturnUpdatedRole() {
-        RoleDTO roleDTO = new RoleDTO("");
+        RoleRequest roleRequest = new RoleRequest("");
 
         when(roleRepository.findById(anyLong())).thenReturn(Optional.of(role));
         when(roleRepository.save(role)).thenReturn(role);
 
-        Role updatedRole = roleService.updateRole(roleDTO, 1L);
+        Role updatedRole = roleService.updateRole(roleRequest, 1L);
 
         assertNotNull(updatedRole);
         verify(roleRepository, times(1)).save(role);
@@ -96,10 +96,10 @@ class RoleServiceTests {
 
     @Test
     void updateRole_NonExistingId_ShouldThrowException() {
-        RoleDTO roleDTO = new RoleDTO("");
+        RoleRequest roleRequest = new RoleRequest("");
         when(roleRepository.findById(anyLong())).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> roleService.updateRole(roleDTO, 1L));
+        assertThrows(ResourceNotFoundException.class, () -> roleService.updateRole(roleRequest, 1L));
     }
 
     @Test

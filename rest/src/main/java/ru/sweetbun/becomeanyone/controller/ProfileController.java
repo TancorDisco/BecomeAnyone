@@ -3,8 +3,8 @@ package ru.sweetbun.becomeanyone.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.sweetbun.becomeanyone.dto.ProfileDTO;
-import ru.sweetbun.becomeanyone.port.ProfileServicePort;
+import ru.sweetbun.becomeanyone.dto.profile.ProfileRequest;
+import ru.sweetbun.becomeanyone.contract.ProfileService;
 
 import static org.springframework.http.ResponseEntity.ok;
 
@@ -14,20 +14,20 @@ import static org.springframework.http.ResponseEntity.ok;
 @RequestMapping("/profile")
 public class ProfileController {
 
-    private final ProfileServicePort profileServicePort;
+    private final ProfileService profileService;
 
     @GetMapping
     public ResponseEntity<?> getUserProfile() {
-        return ok(profileServicePort.getCurrentUser());
+        return ok(profileService.getCurrentUser());
     }
 
     @PostMapping
-    public ResponseEntity<?> createUserProfile(@RequestBody ProfileDTO profileDTO) {
-        return ok(profileServicePort.createUserProfile(profileDTO));
+    public ResponseEntity<?> createUserProfile(@RequestBody ProfileRequest profileRequest) {
+        return ok(profileService.createUserProfile(profileRequest));
     }
 
     @PatchMapping
-    public ResponseEntity<?> updateUserProfile(@RequestBody ProfileDTO profileDTO) {
-        return ok(profileServicePort.updateUserProfile(profileDTO));
+    public ResponseEntity<?> updateUserProfile(@RequestBody ProfileRequest profileRequest) {
+        return ok(profileService.updateUserProfile(profileRequest));
     }
 }

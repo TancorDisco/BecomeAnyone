@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.sweetbun.becomeanyone.dto.ProfileDTO;
+import ru.sweetbun.becomeanyone.dto.profile.ProfileRequest;
 import ru.sweetbun.becomeanyone.domain.entity.Profile;
 import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
 import ru.sweetbun.becomeanyone.infrastructure.repository.ProfileRepository;
@@ -20,8 +20,8 @@ public class ProfileService {
     private final ModelMapper modelMapper;
 
     @Transactional
-    public Profile createProfile(ProfileDTO profileDTO) {
-        Profile profile = modelMapper.map(profileDTO, Profile.class);
+    public Profile createProfile(ProfileRequest profileRequest) {
+        Profile profile = modelMapper.map(profileRequest, Profile.class);
         return profileRepository.save(profile);
     }
 
@@ -35,9 +35,9 @@ public class ProfileService {
     }
 
     @Transactional
-    public Profile updateProfile(ProfileDTO profileDTO, Profile profile) {
+    public Profile updateProfile(ProfileRequest profileRequest, Profile profile) {
         if (profile == null) throw new ResourceNotFoundException("Profile not exist");
-        modelMapper.map(profileDTO, profile);
+        modelMapper.map(profileRequest, profile);
         return profileRepository.save(profile);
     }
 

@@ -57,7 +57,7 @@ public class CourseService {
 
     public List<Course> getAllCourses(Long teacherId, String q) {
         Specification<Course> spec = Stream.of(
-                ofNullable(teacherId).map(id -> CourseRepository.hasTeacher(userServiceImpl.getUserById(teacherId))),
+                ofNullable(teacherId).map(id -> CourseRepository.hasTeacher(userServiceImpl.fetchUserById(teacherId))),
                 ofNullable(q).filter(title -> !title.isEmpty()).map(CourseRepository::hasTitle)
         )
                 .flatMap(Optional::stream)

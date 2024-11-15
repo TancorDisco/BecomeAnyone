@@ -4,9 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.sweetbun.becomeanyone.api.dto.RoleDTO;
+import ru.sweetbun.becomeanyone.dto.role.RoleRequest;
 import ru.sweetbun.becomeanyone.domain.entity.Role;
-import ru.sweetbun.becomeanyone.infrastructure.exception.ResourceNotFoundException;
+import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
 import ru.sweetbun.becomeanyone.infrastructure.repository.RoleRepository;
 
 import java.util.List;
@@ -21,8 +21,8 @@ public class RoleService {
     protected final ModelMapper modelMapper;
 
     @Transactional
-    public Role createRole(RoleDTO roleDTO) {
-        Role role = modelMapper.map(roleDTO, Role.class);
+    public Role createRole(RoleRequest roleRequest) {
+        Role role = modelMapper.map(roleRequest, Role.class);
         return roleRepository.save(role);
     }
 
@@ -36,9 +36,9 @@ public class RoleService {
     }
 
     @Transactional
-    public Role updateRole(RoleDTO roleDTO, Long id) {
+    public Role updateRole(RoleRequest roleRequest, Long id) {
         Role role = getRoleById(id);
-        modelMapper.map(roleDTO, role);
+        modelMapper.map(roleRequest, role);
         return roleRepository.save(role);
     }
 

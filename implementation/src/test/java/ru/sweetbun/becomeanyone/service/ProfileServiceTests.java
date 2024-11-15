@@ -9,7 +9,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
-import ru.sweetbun.becomeanyone.dto.ProfileDTO;
+import ru.sweetbun.becomeanyone.dto.profile.ProfileRequest;
 import ru.sweetbun.becomeanyone.domain.service.ProfileService;
 import ru.sweetbun.becomeanyone.infrastructure.config.ModelMapperConfig;
 import ru.sweetbun.becomeanyone.domain.entity.Profile;
@@ -45,10 +45,10 @@ class ProfileServiceTests {
 
     @Test
     void createProfile_ValidProfileDTO_ProfileCreated() {
-        ProfileDTO profileDTO = ProfileDTO.builder().build();
+        ProfileRequest profileRequest = ProfileRequest.builder().build();
         when(profileRepository.save(any(Profile.class))).thenReturn(profile);
 
-        Profile createdProfile = profileService.createProfile(profileDTO);
+        Profile createdProfile = profileService.createProfile(profileRequest);
 
         assertNotNull(createdProfile);
         verify(profileRepository, times(1)).save(any(Profile.class));
@@ -94,11 +94,11 @@ class ProfileServiceTests {
 
     @Test
     void updateProfile_ExistingId_ProfileUpdated() {
-        ProfileDTO profileDTO = ProfileDTO.builder().build();
+        ProfileRequest profileRequest = ProfileRequest.builder().build();
 
         when(profileRepository.save(profile)).thenReturn(profile);
 
-        Profile updatedProfile = profileService.updateProfile(profileDTO, profile);
+        Profile updatedProfile = profileService.updateProfile(profileRequest, profile);
 
         assertNotNull(updatedProfile);
         verify(profileRepository, times(1)).save(profile);
@@ -106,9 +106,9 @@ class ProfileServiceTests {
 
     @Test
     void updateProfile_ProfileNonExist_ThrowsResourceNotFoundException() {
-        ProfileDTO profileDTO = ProfileDTO.builder().build();
+        ProfileRequest profileRequest = ProfileRequest.builder().build();
 
-        assertThrows(ResourceNotFoundException.class, () -> profileService.updateProfile(profileDTO, null));
+        assertThrows(ResourceNotFoundException.class, () -> profileService.updateProfile(profileRequest, null));
     }
 
     @Test

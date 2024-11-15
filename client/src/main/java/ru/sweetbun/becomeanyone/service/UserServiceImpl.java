@@ -3,11 +3,12 @@ package ru.sweetbun.becomeanyone.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
-import ru.sweetbun.becomeanyone.dto.ProfileDTO;
-import ru.sweetbun.becomeanyone.dto.UserDTO;
-import ru.sweetbun.becomeanyone.port.AuthServicePort;
-import ru.sweetbun.becomeanyone.port.ProfileServicePort;
-import ru.sweetbun.becomeanyone.port.UserServicePort;
+import ru.sweetbun.becomeanyone.dto.profile.ProfileRequest;
+import ru.sweetbun.becomeanyone.dto.user.UserRequest;
+import ru.sweetbun.becomeanyone.contract.AuthService;
+import ru.sweetbun.becomeanyone.contract.ProfileService;
+import ru.sweetbun.becomeanyone.contract.UserService;
+import ru.sweetbun.becomeanyone.dto.user.UserResponse;
 import ru.sweetbun.becomeanyone.feign.UserServiceClient;
 
 import java.util.List;
@@ -15,33 +16,33 @@ import java.util.List;
 @Profile("feign")
 @Service
 @RequiredArgsConstructor
-public class UserServiceImpl implements UserServicePort, ProfileServicePort, AuthServicePort {
+public class UserServiceImpl implements UserService, ProfileService, AuthService {
 
     private final UserServiceClient userServiceClient;
 
     @Override
-    public UserDTO register(UserDTO userDTO) {
-        return userServiceClient.registerUser(userDTO);
+    public UserResponse register(UserRequest userRequest) {
+        return userServiceClient.registerUser(userRequest);
     }
 
     @Override
-    public UserDTO getUserById(Long id) {
+    public UserResponse getUserById(Long id) {
         return userServiceClient.getUserById(id);
     }
 
     @Override
-    public List<UserDTO> getAllUsers() {
+    public List<UserResponse> getAllUsers() {
         return userServiceClient.getAllUsers();
     }
 
     @Override
-    public UserDTO getUserByUsername(String username) {
+    public UserResponse getUserByUsername(String username) {
         return null;
     }
 
     @Override
-    public UserDTO updateUser(UserDTO userDTO, Long id) {
-        return userServiceClient.updateUser(id, userDTO);
+    public UserResponse updateUser(UserRequest userRequest, Long id) {
+        return userServiceClient.updateUser(id, userRequest);
     }
 
     @Override
@@ -50,17 +51,17 @@ public class UserServiceImpl implements UserServicePort, ProfileServicePort, Aut
     }
 
     @Override
-    public UserDTO getCurrentUser() {
+    public UserResponse getCurrentUser() {
         return null;
     }
 
     @Override
-    public UserDTO createUserProfile(ProfileDTO profileDTO) {
-        return userServiceClient.createUserProfile(profileDTO);
+    public UserResponse createUserProfile(ProfileRequest profileRequest) {
+        return userServiceClient.createUserProfile(profileRequest);
     }
 
     @Override
-    public UserDTO updateUserProfile(ProfileDTO profileDTO) {
-        return userServiceClient.updateUserProfile(profileDTO);
+    public UserResponse updateUserProfile(ProfileRequest profileRequest) {
+        return userServiceClient.updateUserProfile(profileRequest);
     }
 }
