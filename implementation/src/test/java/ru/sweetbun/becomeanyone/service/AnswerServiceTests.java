@@ -14,13 +14,11 @@ import org.modelmapper.ModelMapper;
 import ru.sweetbun.becomeanyone.dto.CreateAnswerDTO;
 import ru.sweetbun.becomeanyone.dto.UpdateAnswerDTO;
 import ru.sweetbun.becomeanyone.dto.tocheck.AnswerToCheckDTO;
-import ru.sweetbun.becomeanyone.domain.service.AnswerService;
-import ru.sweetbun.becomeanyone.domain.service.QuestionService;
-import ru.sweetbun.becomeanyone.infrastructure.config.ModelMapperConfig;
+import ru.sweetbun.becomeanyone.config.ModelMapperConfig;
 import ru.sweetbun.becomeanyone.domain.entity.Answer;
 import ru.sweetbun.becomeanyone.domain.entity.Question;
 import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
-import ru.sweetbun.becomeanyone.infrastructure.repository.AnswerRepository;
+import ru.sweetbun.becomeanyone.domain.repository.AnswerRepository;
 
 import java.util.*;
 import java.util.stream.Stream;

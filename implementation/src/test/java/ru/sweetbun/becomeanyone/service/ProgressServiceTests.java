@@ -9,9 +9,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.sweetbun.becomeanyone.domain.entity.*;
 import ru.sweetbun.becomeanyone.domain.entity.Module;
-import ru.sweetbun.becomeanyone.domain.service.ProgressService;
 import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
-import ru.sweetbun.becomeanyone.infrastructure.repository.ProgressRepository;
+import ru.sweetbun.becomeanyone.domain.repository.ProgressRepository;
 
 import java.util.List;
 import java.util.Optional;

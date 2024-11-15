@@ -10,16 +10,12 @@ import org.modelmapper.ModelMapper;
 import ru.sweetbun.becomeanyone.dto.TestDTO;
 import ru.sweetbun.becomeanyone.dto.tocheck.QuestionToCheckDTO;
 import ru.sweetbun.becomeanyone.dto.tocheck.TestToCheckDTO;
-import ru.sweetbun.becomeanyone.domain.service.LessonService;
-import ru.sweetbun.becomeanyone.domain.service.QuestionService;
-import ru.sweetbun.becomeanyone.domain.service.TestResultService;
-import ru.sweetbun.becomeanyone.domain.service.TestService;
-import ru.sweetbun.becomeanyone.infrastructure.config.ModelMapperConfig;
+import ru.sweetbun.becomeanyone.config.ModelMapperConfig;
 import ru.sweetbun.becomeanyone.domain.entity.Lesson;
 import ru.sweetbun.becomeanyone.domain.entity.Question;
 import ru.sweetbun.becomeanyone.domain.entity.TestResult;
 import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
-import ru.sweetbun.becomeanyone.infrastructure.repository.TestRepository;
+import ru.sweetbun.becomeanyone.domain.repository.TestRepository;
 
 import java.util.List;
 import java.util.Optional;

@@ -8,11 +8,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 import ru.sweetbun.becomeanyone.dto.role.RoleRequest;
-import ru.sweetbun.becomeanyone.domain.service.RoleService;
-import ru.sweetbun.becomeanyone.infrastructure.config.ModelMapperConfig;
+import ru.sweetbun.becomeanyone.config.ModelMapperConfig;
 import ru.sweetbun.becomeanyone.domain.entity.Role;
 import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
-import ru.sweetbun.becomeanyone.infrastructure.repository.RoleRepository;
+import ru.sweetbun.becomeanyone.domain.repository.RoleRepository;
 
 import java.util.List;
 import java.util.Optional;

@@ -6,12 +6,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.sweetbun.becomeanyone.domain.entity.*;
-import ru.sweetbun.becomeanyone.domain.service.CourseService;
-import ru.sweetbun.becomeanyone.domain.service.EnrollmentService;
-import ru.sweetbun.becomeanyone.domain.service.ProgressService;
-import ru.sweetbun.becomeanyone.domain.service.TestResultService;
-import ru.sweetbun.becomeanyone.infrastructure.repository.TestResultRepository;
-import ru.sweetbun.becomeanyone.domain.util.SecurityUtils;
+import ru.sweetbun.becomeanyone.domain.repository.TestResultRepository;
+import ru.sweetbun.becomeanyone.util.SecurityUtils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;

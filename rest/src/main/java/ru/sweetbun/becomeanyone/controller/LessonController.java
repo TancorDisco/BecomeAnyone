@@ -5,7 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.sweetbun.becomeanyone.dto.CreateLessonDTO;
 import ru.sweetbun.becomeanyone.dto.UpdateLessonDTO;
-import ru.sweetbun.becomeanyone.domain.service.LessonService;
+import ru.sweetbun.becomeanyone.service.LessonService;
 
 import static org.springframework.http.ResponseEntity.ok;
 

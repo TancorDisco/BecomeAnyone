@@ -8,11 +8,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 import ru.sweetbun.becomeanyone.dto.SocialLinkDTO;
-import ru.sweetbun.becomeanyone.domain.service.SocialLinkService;
-import ru.sweetbun.becomeanyone.infrastructure.config.ModelMapperConfig;
+import ru.sweetbun.becomeanyone.config.ModelMapperConfig;
 import ru.sweetbun.becomeanyone.domain.entity.SocialLink;
 import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
-import ru.sweetbun.becomeanyone.infrastructure.repository.SocialLinkRepository;
+import ru.sweetbun.becomeanyone.domain.repository.SocialLinkRepository;
 
 import java.util.List;
 import java.util.Optional;

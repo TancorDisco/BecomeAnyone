@@ -11,15 +11,12 @@ import org.springframework.data.jpa.domain.Specification;
 import ru.sweetbun.becomeanyone.api.dto.CourseDTO;
 import ru.sweetbun.becomeanyone.api.dto.CreateModuleDTO;
 import ru.sweetbun.becomeanyone.api.dto.UpdateModuleInCourseDTO;
-import ru.sweetbun.becomeanyone.domain.service.CourseService;
-import ru.sweetbun.becomeanyone.domain.service.ModuleService;
-import ru.sweetbun.becomeanyone.domain.service.UserServiceImpl;
-import ru.sweetbun.becomeanyone.infrastructure.config.ModelMapperConfig;
+import ru.sweetbun.becomeanyone.config.ModelMapperConfig;
 import ru.sweetbun.becomeanyone.domain.entity.Course;
 import ru.sweetbun.becomeanyone.domain.entity.User;
 import ru.sweetbun.becomeanyone.infrastructure.exception.ResourceNotFoundException;
-import ru.sweetbun.becomeanyone.infrastructure.repository.CourseRepository;
-import ru.sweetbun.becomeanyone.domain.util.SecurityUtils;
+import ru.sweetbun.becomeanyone.domain.repository.CourseRepository;
+import ru.sweetbun.becomeanyone.util.SecurityUtils;
 
 import java.util.List;
 import java.util.Optional;

@@ -10,11 +10,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 import ru.sweetbun.becomeanyone.dto.profile.ProfileRequest;
-import ru.sweetbun.becomeanyone.domain.service.ProfileService;
-import ru.sweetbun.becomeanyone.infrastructure.config.ModelMapperConfig;
+import ru.sweetbun.becomeanyone.config.ModelMapperConfig;
 import ru.sweetbun.becomeanyone.domain.entity.Profile;
 import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
-import ru.sweetbun.becomeanyone.infrastructure.repository.ProfileRepository;
+import ru.sweetbun.becomeanyone.domain.repository.ProfileRepository;
 
 import java.util.List;
 import java.util.Optional;

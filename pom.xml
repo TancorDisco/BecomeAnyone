@@ -23,6 +23,7 @@
 	</developers>
 	<modules>
 		<module>api</module>
+		<module>domain</module>
 		<module>implementation</module>
 		<module>rest</module>
 		<module>client</module>

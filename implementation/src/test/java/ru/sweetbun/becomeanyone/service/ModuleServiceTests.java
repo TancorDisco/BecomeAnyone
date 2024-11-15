@@ -14,14 +14,11 @@ import org.modelmapper.ModelMapper;
 import ru.sweetbun.becomeanyone.dto.CreateModuleDTO;
 import ru.sweetbun.becomeanyone.dto.UpdateModuleDTO;
 import ru.sweetbun.becomeanyone.dto.UpdateModuleInCourseDTO;
-import ru.sweetbun.becomeanyone.domain.service.CourseService;
-import ru.sweetbun.becomeanyone.domain.service.LessonService;
-import ru.sweetbun.becomeanyone.domain.service.ModuleService;
-import ru.sweetbun.becomeanyone.infrastructure.config.ModelMapperConfig;
+import ru.sweetbun.becomeanyone.config.ModelMapperConfig;
 import ru.sweetbun.becomeanyone.domain.entity.Course;
 import ru.sweetbun.becomeanyone.domain.entity.Module;
 import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
-import ru.sweetbun.becomeanyone.infrastructure.repository.ModuleRepository;
+import ru.sweetbun.becomeanyone.domain.repository.ModuleRepository;
 
 import java.util.*;
 import java.util.stream.Stream;

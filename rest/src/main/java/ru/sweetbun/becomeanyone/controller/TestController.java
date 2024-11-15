@@ -5,7 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.sweetbun.becomeanyone.dto.TestDTO;
 import ru.sweetbun.becomeanyone.dto.tocheck.TestToCheckDTO;
-import ru.sweetbun.becomeanyone.domain.service.TestService;
+import ru.sweetbun.becomeanyone.service.TestService;
 
 import static org.springframework.http.ResponseEntity.ok;
 

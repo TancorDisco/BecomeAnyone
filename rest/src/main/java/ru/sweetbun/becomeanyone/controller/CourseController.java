@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.sweetbun.becomeanyone.dto.CourseDTO;
 import ru.sweetbun.becomeanyone.dto.CreateModuleDTO;
 import ru.sweetbun.becomeanyone.dto.UpdateModuleInCourseDTO;
-import ru.sweetbun.becomeanyone.domain.service.CourseService;
+import ru.sweetbun.becomeanyone.service.CourseService;
 
 import static org.springframework.http.ResponseEntity.ok;
 
