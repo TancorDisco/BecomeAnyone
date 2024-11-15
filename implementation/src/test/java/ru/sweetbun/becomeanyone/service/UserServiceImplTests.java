@@ -178,19 +178,19 @@ class UserServiceImplTests {
     }
 
     @Test
-    void fetchUserByUsername_UserExists_ReturnsUser() {
+    void getUserByUsername_UserExists_ReturnsUser() {
         when(userRepository.findByUsername("username")).thenReturn(Optional.of(user));
 
-        User result = userServiceImpl.fetchUserByUsername("username");
+        User result = userServiceImpl.getUserByUsername("username");
 
         assertEquals(user, result);
     }
 
     @Test
-    void fetchUserByUsername_UserDoesNotExist_ThrowsUsernameNotFoundException() {
+    void getUserByUsername_UserDoesNotExist_ThrowsUsernameNotFoundException() {
         when(userRepository.findByUsername("username")).thenReturn(Optional.empty());
 
-        assertThrows(UsernameNotFoundException.class, () -> userServiceImpl.fetchUserByUsername("username"));
+        assertThrows(UsernameNotFoundException.class, () -> userServiceImpl.getUserByUsername("username"));
     }
 
     @Test

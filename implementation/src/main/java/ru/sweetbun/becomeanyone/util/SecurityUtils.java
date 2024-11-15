@@ -18,6 +18,6 @@ public class SecurityUtils {
     }
 
     public User getCurrentUser() {
-        return userServiceImpl.fetchUserByUsername(getCurrentUsername());
+        return userServiceImpl.getUserByUsername(getCurrentUsername());
     }
 }

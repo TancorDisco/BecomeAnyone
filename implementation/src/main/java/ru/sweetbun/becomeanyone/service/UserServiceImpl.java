@@ -73,16 +73,9 @@ public class UserServiceImpl implements UserService, ProfileService, AuthService
                 .toList();
     }
 
-    public User fetchUserByUsername(String username) {
+    public User getUserByUsername(String username) {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
-    }
-
-    @Override
-    public UserResponse getUserByUsername(String username) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
-        return modelMapper.map(user, UserResponse.class);
     }
 
     @Override
