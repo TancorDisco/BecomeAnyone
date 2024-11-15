@@ -3,8 +3,8 @@ package ru.sweetbun.becomeanyone.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.sweetbun.becomeanyone.dto.TestDTO;
-import ru.sweetbun.becomeanyone.dto.tocheck.TestToCheckDTO;
+import ru.sweetbun.becomeanyone.dto.test.request.TestDTO;
+import ru.sweetbun.becomeanyone.dto.test.request.TestToCheckDTO;
 import ru.sweetbun.becomeanyone.service.TestService;
 
 import static org.springframework.http.ResponseEntity.ok;

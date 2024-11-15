@@ -7,11 +7,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ru.sweetbun.becomeanyone.domain.entity.*;
 import ru.sweetbun.becomeanyone.domain.entity.Module;
-import ru.sweetbun.becomeanyone.dto.*;
+import ru.sweetbun.becomeanyone.dto.content.ContentDTO;
 import ru.sweetbun.becomeanyone.dto.course.CourseRequest;
 import ru.sweetbun.becomeanyone.dto.lesson.request.UpdateLessonInCourseRequest;
 import ru.sweetbun.becomeanyone.dto.module.request.CreateModuleRequest;
 import ru.sweetbun.becomeanyone.dto.module.request.UpdateModuleInCourseRequest;
+import ru.sweetbun.becomeanyone.dto.question.request.QuestionDTO;
 
 @Configuration
 public class ModelMapperConfig {

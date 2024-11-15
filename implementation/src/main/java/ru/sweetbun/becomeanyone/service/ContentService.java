@@ -3,7 +3,7 @@ package ru.sweetbun.becomeanyone.service;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
-import ru.sweetbun.becomeanyone.dto.ContentDTO;
+import ru.sweetbun.becomeanyone.dto.content.ContentDTO;
 import ru.sweetbun.becomeanyone.domain.entity.Content;
 import ru.sweetbun.becomeanyone.domain.entity.Video;
 

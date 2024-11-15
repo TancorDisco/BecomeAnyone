@@ -2,8 +2,8 @@ package ru.sweetbun.becomeanyone.feign;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
-import ru.sweetbun.becomeanyone.dto.user.UserRequest;
-import ru.sweetbun.becomeanyone.dto.user.UserResponse;
+import ru.sweetbun.becomeanyone.dto.user.request.UserRequest;
+import ru.sweetbun.becomeanyone.dto.user.response.UserResponse;
 
 import java.util.List;
 

@@ -1,6 +1,7 @@
-package ru.sweetbun.becomeanyone.dto.tocheck;
+package ru.sweetbun.becomeanyone.dto.question.request;
 
 import lombok.Builder;
+import ru.sweetbun.becomeanyone.dto.answer.request.AnswerToCheckDTO;
 
 import java.util.List;
 

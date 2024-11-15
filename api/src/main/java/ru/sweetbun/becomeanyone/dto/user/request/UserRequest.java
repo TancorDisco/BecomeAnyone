@@ -1,4 +1,4 @@
-package ru.sweetbun.becomeanyone.dto.user;
+package ru.sweetbun.becomeanyone.dto.user.request;
 
 import lombok.Builder;
 

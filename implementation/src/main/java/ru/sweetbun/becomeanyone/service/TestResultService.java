@@ -17,7 +17,7 @@ public class TestResultService {
 
     private final SecurityUtils securityUtils;
 
-    private final EnrollmentService enrollmentService;
+    private final EnrollmentServiceImpl enrollmentServiceImpl;
 
     private final CourseServiceImpl courseServiceImpl;
 
@@ -27,12 +27,12 @@ public class TestResultService {
 
     @Autowired
     public TestResultService(TestResultRepository testResultRepository, SecurityUtils securityUtils,
-                             @Lazy EnrollmentService enrollmentService,
+                             @Lazy EnrollmentServiceImpl enrollmentServiceImpl,
                              @Lazy CourseServiceImpl courseServiceImpl, ProgressService progressService,
                              @Value("${test-result.percentage.acceptable}") double acceptablePercentage) {
         this.testResultRepository = testResultRepository;
         this.securityUtils = securityUtils;
-        this.enrollmentService = enrollmentService;
+        this.enrollmentServiceImpl = enrollmentServiceImpl;
         this.courseServiceImpl = courseServiceImpl;
         this.progressService = progressService;
         this.acceptablePercentage = acceptablePercentage;
@@ -42,7 +42,7 @@ public class TestResultService {
     public TestResult createTestResult(Test test, double percent, Long courseId) {
         User user = securityUtils.getCurrentUser();
         Course course = courseServiceImpl.fetchCourseById(courseId);
-        Enrollment enrollment = enrollmentService.getEnrollmentByStudentAndCourse(user, course);
+        Enrollment enrollment = enrollmentServiceImpl.getEnrollmentByStudentAndCourse(user, course);
         Progress progress = enrollment.getProgress();
         TestResult testResult = TestResult.builder()
                 .test(test)
@@ -52,7 +52,7 @@ public class TestResultService {
 
         if (!testResultRepository.existsByTestAndProgressAndPercentGreaterThanEqual(test, progress, acceptablePercentage)) {
             double completionPercent = progressService.updateProgress(testResult, course);
-            enrollmentService.updateEnrollmentStatus(completionPercent, enrollment);
+            enrollmentServiceImpl.updateEnrollmentStatus(completionPercent, enrollment);
         }
         return testResultRepository.save(testResult);
     }

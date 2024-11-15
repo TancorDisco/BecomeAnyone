@@ -2,8 +2,8 @@ package ru.sweetbun.becomeanyone.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import ru.sweetbun.becomeanyone.dto.user.UserRequest;
-import ru.sweetbun.becomeanyone.dto.user.UserResponse;
+import ru.sweetbun.becomeanyone.dto.user.request.UserRequest;
+import ru.sweetbun.becomeanyone.dto.user.response.UserResponse;
 import ru.sweetbun.becomeanyone.service.UserServiceImpl;
 
 import java.util.List;

@@ -15,6 +15,7 @@ import ru.sweetbun.becomeanyone.domain.entity.Enrollment;
 import ru.sweetbun.becomeanyone.domain.entity.Progress;
 import ru.sweetbun.becomeanyone.domain.entity.User;
 import ru.sweetbun.becomeanyone.domain.entity.enums.EnrollmentStatus;
+import ru.sweetbun.becomeanyone.dto.enrollment.EnrollmentResponse;
 import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
 import ru.sweetbun.becomeanyone.domain.repository.EnrollmentRepository;
 import ru.sweetbun.becomeanyone.util.SecurityUtils;
@@ -29,7 +30,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class EnrollmentServiceTests {
+class EnrollmentServiceImplTests {
 
     @Mock
     private EnrollmentRepository enrollmentRepository;
@@ -46,7 +47,7 @@ class EnrollmentServiceTests {
     private SecurityUtils securityUtils;
 
     @InjectMocks
-    private EnrollmentService enrollmentService;
+    private EnrollmentServiceImpl enrollmentServiceImpl;
 
     private User currentUser;
     private Course course;
@@ -54,7 +55,7 @@ class EnrollmentServiceTests {
 
     @BeforeEach
     void setUp() {
-        enrollmentService = new EnrollmentService(enrollmentRepository, modelMapper, courseServiceImpl, progressService,
+        enrollmentServiceImpl = new EnrollmentServiceImpl(enrollmentRepository, modelMapper, courseServiceImpl, progressService,
                 securityUtils);
 
         currentUser = new User();
@@ -72,7 +73,7 @@ class EnrollmentServiceTests {
         when(progressService.createProgress()).thenReturn(progress);
         when(enrollmentRepository.save(any(Enrollment.class))).thenReturn(enrollment);
 
-        Enrollment createdEnrollment = enrollmentService.createEnrollment(1L);
+        EnrollmentResponse createdEnrollment = enrollmentServiceImpl.createEnrollment(1L);
 
         assertNotNull(createdEnrollment);
         assertEquals(EnrollmentStatus.NOT_STARTED, createdEnrollment.getStatus());
@@ -83,7 +84,7 @@ class EnrollmentServiceTests {
     void getEnrollmentById_ExistingId_ReturnsEnrollment() {
         when(enrollmentRepository.findById(anyLong())).thenReturn(Optional.of(enrollment));
 
-        Enrollment foundEnrollment = enrollmentService.getEnrollmentById(1L);
+        Enrollment foundEnrollment = enrollmentServiceImpl.getEnrollmentById(1L);
 
         assertNotNull(foundEnrollment);
         assertEquals(currentUser, foundEnrollment.getStudent());
@@ -93,14 +94,14 @@ class EnrollmentServiceTests {
     void getEnrollmentById_NonExistingId_ThrowsResourceNotFoundException() {
         when(enrollmentRepository.findById(anyLong())).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> enrollmentService.getEnrollmentById(1L));
+        assertThrows(ResourceNotFoundException.class, () -> enrollmentServiceImpl.getEnrollmentById(1L));
     }
 
     @Test
     void getAllEnrollmentsByStudent_ValidStudent_ReturnsEnrollmentsList() {
         when(enrollmentRepository.findAllByStudent(currentUser)).thenReturn(List.of(enrollment));
 
-        List<Enrollment> enrollments = enrollmentService.getAllEnrollmentsByStudent();
+        List<Enrollment> enrollments = enrollmentServiceImpl.getAllEnrollmentsByStudent();
 
         assertNotNull(enrollments);
         assertFalse(enrollments.isEmpty());
@@ -125,7 +126,7 @@ class EnrollmentServiceTests {
         enrollment.setStatus(initialStatus);
         when(enrollmentRepository.save(any(Enrollment.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        Enrollment updatedEnrollment = enrollmentService.updateEnrollmentStatus(completionPercent, enrollment);
+        Enrollment updatedEnrollment = enrollmentServiceImpl.updateEnrollmentStatus(completionPercent, enrollment);
 
         assertEquals(expectedStatus, updatedEnrollment.getStatus());
         verify(enrollmentRepository, times(1)).save(enrollment);
@@ -135,7 +136,7 @@ class EnrollmentServiceTests {
     void deleteEnrollment_ExistingCourse_ReturnsCourseId() {
         doNothing().when(enrollmentRepository).deleteByStudentAndCourse(currentUser, course);
 
-        long courseId = enrollmentService.deleteEnrollment(1L);
+        long courseId = enrollmentServiceImpl.deleteEnrollment(1L);
 
         assertEquals(1L, courseId);
         verify(enrollmentRepository, times(1)).deleteByStudentAndCourse(currentUser, course);
@@ -145,14 +146,14 @@ class EnrollmentServiceTests {
     void deleteEnrollment_NonExistingCourse_ThrowsResourceNotFoundException() {
         when(courseServiceImpl.fetchCourseById(anyLong())).thenThrow(new ResourceNotFoundException(Course.class, 1L));
 
-        assertThrows(ResourceNotFoundException.class, () -> enrollmentService.deleteEnrollment(1L));
+        assertThrows(ResourceNotFoundException.class, () -> enrollmentServiceImpl.deleteEnrollment(1L));
     }
 
     @Test
     void getEnrollmentByStudentAndCourse_ExistingEnrollment_ReturnsEnrollment() {
         when(enrollmentRepository.findByStudentAndCourse(currentUser, course)).thenReturn(Optional.of(enrollment));
 
-        Enrollment foundEnrollment = enrollmentService.getEnrollmentByStudentAndCourse(currentUser, course);
+        Enrollment foundEnrollment = enrollmentServiceImpl.getEnrollmentByStudentAndCourse(currentUser, course);
 
         assertNotNull(foundEnrollment);
         assertEquals(currentUser, foundEnrollment.getStudent());
@@ -163,6 +164,6 @@ class EnrollmentServiceTests {
     void getEnrollmentByStudentAndCourse_NonExistingEnrollment_ThrowsResourceNotFoundException() {
         when(enrollmentRepository.findByStudentAndCourse(currentUser, course)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> enrollmentService.getEnrollmentByStudentAndCourse(currentUser, course));
+        assertThrows(ResourceNotFoundException.class, () -> enrollmentServiceImpl.getEnrollmentByStudentAndCourse(currentUser, course));
     }
 }

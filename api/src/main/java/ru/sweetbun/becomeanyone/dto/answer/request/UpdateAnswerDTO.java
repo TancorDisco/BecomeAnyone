@@ -1,4 +1,4 @@
-package ru.sweetbun.becomeanyone.dto;
+package ru.sweetbun.becomeanyone.dto.answer.request;
 
 import lombok.Builder;
 
@@ -7,5 +7,5 @@ public record UpdateAnswerDTO (
         Long id,
         String answerText,
         boolean correct
-) implements AnswerDTO{
+) implements AnswerDTO {
 }

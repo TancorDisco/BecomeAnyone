@@ -1,8 +1,8 @@
 package ru.sweetbun.becomeanyone.contract;
 
 
-import ru.sweetbun.becomeanyone.dto.user.UserRequest;
-import ru.sweetbun.becomeanyone.dto.user.UserResponse;
+import ru.sweetbun.becomeanyone.dto.user.request.UserRequest;
+import ru.sweetbun.becomeanyone.dto.user.response.UserResponse;
 
 import java.util.List;
 

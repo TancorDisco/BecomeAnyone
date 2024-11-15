@@ -5,10 +5,12 @@ import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.sweetbun.becomeanyone.contract.EnrollmentService;
 import ru.sweetbun.becomeanyone.domain.entity.Course;
 import ru.sweetbun.becomeanyone.domain.entity.Enrollment;
 import ru.sweetbun.becomeanyone.domain.entity.Progress;
 import ru.sweetbun.becomeanyone.domain.entity.User;
+import ru.sweetbun.becomeanyone.dto.enrollment.EnrollmentResponse;
 import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
 import ru.sweetbun.becomeanyone.domain.repository.EnrollmentRepository;
 import ru.sweetbun.becomeanyone.util.SecurityUtils;
@@ -21,7 +23,7 @@ import static ru.sweetbun.becomeanyone.domain.entity.enums.EnrollmentStatus.*;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Service
-public class EnrollmentService {
+public class EnrollmentServiceImpl implements EnrollmentService {
 
     private final EnrollmentRepository enrollmentRepository;
 
@@ -33,8 +35,9 @@ public class EnrollmentService {
 
     private final SecurityUtils securityUtils;
 
+    @Override
     @Transactional
-    public Enrollment createEnrollment(Long courseId) {
+    public EnrollmentResponse createEnrollment(Long courseId) {
         Progress progress = progressService.createProgress();
         Enrollment enrollment = Enrollment.builder()
                 .student(securityUtils.getCurrentUser())
@@ -44,7 +47,8 @@ public class EnrollmentService {
                 .status(NOT_STARTED)
                 .build();
         progress.setEnrollment(enrollment);
-        return enrollmentRepository.save(enrollment);
+        Enrollment savedEnrollment = enrollmentRepository.save(enrollment);
+        return modelMapper.map(savedEnrollment, EnrollmentResponse.class);
     }
 
     public Enrollment getEnrollmentById(Long id) {
@@ -66,6 +70,7 @@ public class EnrollmentService {
         return enrollmentRepository.save(enrollment);
     }
 
+    @Override
     @Transactional
     public long deleteEnrollment(Long courseId) {
         User student = securityUtils.getCurrentUser();

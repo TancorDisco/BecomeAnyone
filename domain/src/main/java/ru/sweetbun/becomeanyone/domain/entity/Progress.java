@@ -22,7 +22,6 @@ public class Progress {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @JsonBackReference
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "enrollment_id")
     private Enrollment enrollment;
@@ -33,7 +32,6 @@ public class Progress {
     @Column(name = "completed_tests")
     private int completedTests = 0;
 
-    @JsonManagedReference
     @OneToMany(mappedBy = "progress", cascade = CascadeType.ALL)
     private List<TestResult> testResults = new ArrayList<>();
 

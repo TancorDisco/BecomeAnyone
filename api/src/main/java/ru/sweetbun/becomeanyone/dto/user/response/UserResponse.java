@@ -1,5 +1,6 @@
-package ru.sweetbun.becomeanyone.dto.user;
+package ru.sweetbun.becomeanyone.dto.user.response;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
 import ru.sweetbun.becomeanyone.dto.enrollment.EnrollmentResponse;
 import ru.sweetbun.becomeanyone.dto.profile.ProfileResponse;
@@ -19,5 +20,6 @@ public class UserResponse {
     private String email;
     private Set<RoleResponse> roles;
     private ProfileResponse profile;
+    @JsonManagedReference
     private List<EnrollmentResponse> enrollments;
 }

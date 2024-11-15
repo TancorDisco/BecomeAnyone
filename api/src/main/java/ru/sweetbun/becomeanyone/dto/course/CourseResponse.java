@@ -1,8 +1,9 @@
 package ru.sweetbun.becomeanyone.dto.course;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.*;
 import ru.sweetbun.becomeanyone.dto.module.response.ModuleResponse;
-import ru.sweetbun.becomeanyone.dto.user.UserResponse;
+import ru.sweetbun.becomeanyone.dto.user.response.UserResponse;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.List;
 public class CourseResponse {
 
     private Long id;
+    @JsonBackReference
     private UserResponse teacher;
     private String title;
     private String description;

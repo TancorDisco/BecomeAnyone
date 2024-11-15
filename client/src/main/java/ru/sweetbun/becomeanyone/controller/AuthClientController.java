@@ -5,8 +5,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.sweetbun.becomeanyone.dto.user.UserRequest;
-import ru.sweetbun.becomeanyone.dto.user.UserResponse;
+import ru.sweetbun.becomeanyone.dto.user.request.UserRequest;
+import ru.sweetbun.becomeanyone.dto.user.response.UserResponse;
 import ru.sweetbun.becomeanyone.service.UserServiceImpl;
 
 @RestController

@@ -1,12 +1,12 @@
-package ru.sweetbun.becomeanyone.dto;
+package ru.sweetbun.becomeanyone.dto.progress;
 
 import java.util.List;
 
-public record ProgressDTO (
+public record ProgressRequest(
         int completedLessons,
         List<Integer> testResults
 ) {
-    public ProgressDTO {
+    public ProgressRequest {
         if (testResults == null) testResults = List.of();
     }
 }

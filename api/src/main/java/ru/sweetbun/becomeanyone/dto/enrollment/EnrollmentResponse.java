@@ -1,6 +1,11 @@
 package ru.sweetbun.becomeanyone.dto.enrollment;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
+import ru.sweetbun.becomeanyone.dto.course.CourseResponse;
+import ru.sweetbun.becomeanyone.dto.progress.ProgressResponse;
+import ru.sweetbun.becomeanyone.dto.user.response.UserResponse;
 
 import java.time.LocalDate;
 
@@ -12,8 +17,11 @@ import java.time.LocalDate;
 public class EnrollmentResponse {
 
     private Long id;
-    //private CourseDTO course;
+    @JsonBackReference
+    private UserResponse user;
+    @JsonManagedReference
+    private CourseResponse course;
     private LocalDate enrollmentDate;
-    //private ProgressDTO progress;
+    private ProgressResponse progress;
     private String status;
 }

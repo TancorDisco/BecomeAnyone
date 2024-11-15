@@ -1,4 +1,4 @@
-package ru.sweetbun.becomeanyone.dto;
+package ru.sweetbun.becomeanyone.dto.content;
 
 import lombok.*;
 

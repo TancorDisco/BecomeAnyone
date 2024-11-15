@@ -24,7 +24,7 @@ class TestResultServiceTests {
     private SecurityUtils securityUtils;
 
     @Mock
-    private EnrollmentService enrollmentService;
+    private EnrollmentServiceImpl enrollmentServiceImpl;
 
     @Mock
     private CourseServiceImpl courseServiceImpl;
@@ -45,7 +45,7 @@ class TestResultServiceTests {
     @BeforeEach
     void setUp() {
         testResultService = new TestResultService(testResultRepository, securityUtils,
-                enrollmentService, courseServiceImpl, progressService, acceptablePercentage);
+                enrollmentServiceImpl, courseServiceImpl, progressService, acceptablePercentage);
 
         test = new ru.sweetbun.becomeanyone.domain.entity.Test();
         user = new User();
@@ -60,7 +60,7 @@ class TestResultServiceTests {
         Long courseId = 1L;
         when(securityUtils.getCurrentUser()).thenReturn(user);
         when(courseServiceImpl.fetchCourseById(courseId)).thenReturn(course);
-        when(enrollmentService.getEnrollmentByStudentAndCourse(user, course)).thenReturn(enrollment);
+        when(enrollmentServiceImpl.getEnrollmentByStudentAndCourse(user, course)).thenReturn(enrollment);
         when(testResultRepository.save(any(TestResult.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         TestResult result = testResultService.createTestResult(test, percent, courseId);
@@ -79,7 +79,7 @@ class TestResultServiceTests {
 
         when(securityUtils.getCurrentUser()).thenReturn(user);
         when(courseServiceImpl.fetchCourseById(courseId)).thenReturn(course);
-        when(enrollmentService.getEnrollmentByStudentAndCourse(user, course)).thenReturn(enrollment);
+        when(enrollmentServiceImpl.getEnrollmentByStudentAndCourse(user, course)).thenReturn(enrollment);
         when(testResultRepository.save(any(TestResult.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(testResultRepository.existsByTestAndProgressAndPercentGreaterThanEqual(test, progress, acceptablePercentage)).thenReturn(true);
 
@@ -87,6 +87,6 @@ class TestResultServiceTests {
 
         assertNotNull(result);
         verify(progressService, never()).updateProgress(any(TestResult.class), any(Course.class));
-        verify(enrollmentService, never()).updateEnrollmentStatus(anyDouble(), eq(enrollment));
+        verify(enrollmentServiceImpl, never()).updateEnrollmentStatus(anyDouble(), eq(enrollment));
     }
 }
