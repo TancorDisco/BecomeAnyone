@@ -11,9 +11,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
-import ru.sweetbun.becomeanyone.dto.CreateModuleDTO;
-import ru.sweetbun.becomeanyone.dto.UpdateModuleDTO;
-import ru.sweetbun.becomeanyone.dto.UpdateModuleInCourseDTO;
+import ru.sweetbun.becomeanyone.dto.module.request.CreateModuleRequest;
+import ru.sweetbun.becomeanyone.dto.module.request.UpdateModuleRequest;
+import ru.sweetbun.becomeanyone.dto.module.request.UpdateModuleInCourseRequest;
 import ru.sweetbun.becomeanyone.config.ModelMapperConfig;
 import ru.sweetbun.becomeanyone.domain.entity.Course;
 import ru.sweetbun.becomeanyone.domain.entity.Module;
@@ -41,7 +41,7 @@ class ModuleServiceTests {
     private final ModelMapper modelMapper = ModelMapperConfig.createConfiguredModelMapper();
 
     @Mock
-    private CourseService courseService;
+    private CourseServiceImpl courseServiceImpl;
 
     @InjectMocks
     private ModuleService moduleService;
@@ -51,7 +51,7 @@ class ModuleServiceTests {
 
     @BeforeEach
     public void setUp() {
-        moduleService = new ModuleService(moduleRepository, lessonService, modelMapper, courseService);
+        moduleService = new ModuleService(moduleRepository, lessonService, modelMapper, courseServiceImpl);
 
         course = Course.builder().id(1L).build();
         currentModulesMap = new HashMap<>();
@@ -67,8 +67,8 @@ class ModuleServiceTests {
 
     @Test
     void createModule_ValidInput_ModuleCreated() {
-        CreateModuleDTO moduleDTO = new CreateModuleDTO();
-        when(courseService.getCourseById(anyLong())).thenReturn(course);
+        CreateModuleRequest moduleDTO = new CreateModuleRequest();
+        when(courseServiceImpl.fetchCourseById(anyLong())).thenReturn(course);
         when(moduleRepository.save(any(Module.class))).thenAnswer(i -> i.getArguments()[0]);
 
         Module result = moduleService.createModule(moduleDTO, course.getId());
@@ -80,8 +80,8 @@ class ModuleServiceTests {
 
     @Test
     void createModule_NonexistentCourse_ThrowsResourceNotFoundException() {
-        CreateModuleDTO moduleDTO = new CreateModuleDTO();
-        when(courseService.getCourseById(anyLong())).thenThrow(new ResourceNotFoundException(Course.class, 1L));
+        CreateModuleRequest moduleDTO = new CreateModuleRequest();
+        when(courseServiceImpl.fetchCourseById(anyLong())).thenThrow(new ResourceNotFoundException(Course.class, 1L));
 
         assertThrows(ResourceNotFoundException.class, () -> moduleService.createModule(moduleDTO, 1L));
     }
@@ -105,7 +105,7 @@ class ModuleServiceTests {
 
     @Test
     void updateModule_ValidInput_ModuleUpdated() {
-        UpdateModuleDTO updateDTO = UpdateModuleDTO.builder().build();
+        UpdateModuleRequest updateDTO = UpdateModuleRequest.builder().build();
         Module module = currentModulesMap.get(1L);
         when(moduleRepository.findById(anyLong())).thenReturn(Optional.of(module));
         when(moduleRepository.save(any(Module.class))).thenReturn(module);
@@ -118,7 +118,7 @@ class ModuleServiceTests {
 
     @Test
     void updateModule_NonexistentId_ThrowsResourceNotFoundException() {
-        UpdateModuleDTO updateDTO = UpdateModuleDTO.builder().build();
+        UpdateModuleRequest updateDTO = UpdateModuleRequest.builder().build();
         when(moduleRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class, () -> moduleService.updateModule(updateDTO, 1L));
@@ -148,7 +148,7 @@ class ModuleServiceTests {
 
     @Test
     void updateModules_ValidInput_ModulesUpdated() {
-        List<UpdateModuleInCourseDTO> updateDTOs = List.of(new UpdateModuleInCourseDTO(), new UpdateModuleInCourseDTO());
+        List<UpdateModuleInCourseRequest> updateDTOs = List.of(new UpdateModuleInCourseRequest(), new UpdateModuleInCourseRequest());
         course.setModules(List.of(currentModulesMap.get(1L), currentModulesMap.get(2L)));
         when(moduleRepository.save(any(Module.class))).thenAnswer(i -> i.getArguments()[0]);
 
@@ -161,7 +161,7 @@ class ModuleServiceTests {
 
     @Test
     void updateModules_EmptyList_NoModulesUpdatedOrDeleted() {
-        List<UpdateModuleInCourseDTO> emptyUpdateDTOs = new ArrayList<>();
+        List<UpdateModuleInCourseRequest> emptyUpdateDTOs = new ArrayList<>();
 
         List<Module> result = moduleService.updateModules(emptyUpdateDTOs, course);
 
@@ -173,7 +173,7 @@ class ModuleServiceTests {
     void getAllModulesByCourse_ExistingCourseId_ReturnsSortedModules() {
         Long courseId = 1L;
         List<Module> modules = List.of(currentModulesMap.get(1L), currentModulesMap.get(2L));
-        when(courseService.getCourseById(courseId)).thenReturn(new Course());
+        when(courseServiceImpl.fetchCourseById(courseId)).thenReturn(new Course());
         when(moduleRepository.findAllByCourseOrderByOrderNumAsc(any(Course.class))).thenReturn(modules);
 
         List<Module> result = moduleService.getAllModulesByCourse(courseId);
@@ -184,14 +184,14 @@ class ModuleServiceTests {
 
     @Test
     void getAllModulesByCourse_NonexistentCourseId_ThrowsResourceNotFoundException() {
-        when(courseService.getCourseById(anyLong())).thenThrow(new ResourceNotFoundException(Course.class, 1L));
+        when(courseServiceImpl.fetchCourseById(anyLong())).thenThrow(new ResourceNotFoundException(Course.class, 1L));
 
         assertThrows(ResourceNotFoundException.class, () -> moduleService.getAllModulesByCourse(1L));
     }
 
     @Test
     void createModules_ValidInput_ModulesCreated() {
-        List<CreateModuleDTO> moduleDTOs = List.of(new CreateModuleDTO(), new CreateModuleDTO());
+        List<CreateModuleRequest> moduleDTOs = List.of(new CreateModuleRequest(), new CreateModuleRequest());
         when(moduleRepository.save(any(Module.class))).thenAnswer(i -> i.getArguments()[0]);
 
         moduleService.createModules(moduleDTOs, course);
@@ -202,7 +202,7 @@ class ModuleServiceTests {
 
     @Test
     void createModules_EmptyList_NoModulesCreated() {
-        List<CreateModuleDTO> emptyModuleDTOs = new ArrayList<>();
+        List<CreateModuleRequest> emptyModuleDTOs = new ArrayList<>();
 
         moduleService.createModules(emptyModuleDTOs, course);
 
@@ -212,7 +212,7 @@ class ModuleServiceTests {
 
     @ParameterizedTest
     @MethodSource("provideTestData")
-    void testUpdateModules(List<UpdateModuleInCourseDTO> moduleDTOS, List<Module> expectedModules) {
+    void testUpdateModules(List<UpdateModuleInCourseRequest> moduleDTOS, List<Module> expectedModules) {
         // Arrange
         course.setModules(new ArrayList<>(currentModulesMap.values()));
 
@@ -238,11 +238,11 @@ class ModuleServiceTests {
                 // 1: Add new modules
                 Arguments.of(
                         List.of(
-                                UpdateModuleInCourseDTO.builder().id(1L).title("Module 1").orderNum(1).build(),
-                                UpdateModuleInCourseDTO.builder().id(2L).title("Module 2").orderNum(2).build(),
-                                UpdateModuleInCourseDTO.builder().id(3L).title("Module 3").orderNum(3).build(),
-                                UpdateModuleInCourseDTO.builder().title("New Module 1").orderNum(4).build(),
-                                UpdateModuleInCourseDTO.builder().title("New Module 2").orderNum(5).build()
+                                UpdateModuleInCourseRequest.builder().id(1L).title("Module 1").orderNum(1).build(),
+                                UpdateModuleInCourseRequest.builder().id(2L).title("Module 2").orderNum(2).build(),
+                                UpdateModuleInCourseRequest.builder().id(3L).title("Module 3").orderNum(3).build(),
+                                UpdateModuleInCourseRequest.builder().title("New Module 1").orderNum(4).build(),
+                                UpdateModuleInCourseRequest.builder().title("New Module 2").orderNum(5).build()
                         ),
                         List.of(
                                 Module.builder().id(1L).title("Module 1").orderNum(1).build(),
@@ -255,9 +255,9 @@ class ModuleServiceTests {
                 // 2: Update existing modules
                 Arguments.of(
                         List.of(
-                                UpdateModuleInCourseDTO.builder().id(1L).title("Updated Module 1").orderNum(1).build(),
-                                UpdateModuleInCourseDTO.builder().id(2L).title("Updated Module 2").orderNum(2).build(),
-                                UpdateModuleInCourseDTO.builder().id(3L).title("Module 3").orderNum(3).build()
+                                UpdateModuleInCourseRequest.builder().id(1L).title("Updated Module 1").orderNum(1).build(),
+                                UpdateModuleInCourseRequest.builder().id(2L).title("Updated Module 2").orderNum(2).build(),
+                                UpdateModuleInCourseRequest.builder().id(3L).title("Module 3").orderNum(3).build()
                         ),
                         List.of(
                                 Module.builder().id(1L).title("Updated Module 1").orderNum(1).build(),
@@ -268,10 +268,10 @@ class ModuleServiceTests {
                 // 3: Add new and update existing modules
                 Arguments.of(
                         List.of(
-                                UpdateModuleInCourseDTO.builder().id(1L).title("Updated Module 1").orderNum(1).build(),
-                                UpdateModuleInCourseDTO.builder().id(2L).title("Module 2").orderNum(2).build(),
-                                UpdateModuleInCourseDTO.builder().id(3L).title("Module 3").orderNum(3).build(),
-                                UpdateModuleInCourseDTO.builder().title("New Module 3").orderNum(4).build()
+                                UpdateModuleInCourseRequest.builder().id(1L).title("Updated Module 1").orderNum(1).build(),
+                                UpdateModuleInCourseRequest.builder().id(2L).title("Module 2").orderNum(2).build(),
+                                UpdateModuleInCourseRequest.builder().id(3L).title("Module 3").orderNum(3).build(),
+                                UpdateModuleInCourseRequest.builder().title("New Module 3").orderNum(4).build()
                         ),
                         List.of(
                                 Module.builder().id(1L).title("Updated Module 1").orderNum(1).build(),
@@ -283,8 +283,8 @@ class ModuleServiceTests {
                 // 4: Add new and delete old
                 Arguments.of(
                         List.of(
-                                UpdateModuleInCourseDTO.builder().title("New Module 1").orderNum(4).build(),
-                                UpdateModuleInCourseDTO.builder().title("New Module 2").orderNum(5).build()
+                                UpdateModuleInCourseRequest.builder().title("New Module 1").orderNum(4).build(),
+                                UpdateModuleInCourseRequest.builder().title("New Module 2").orderNum(5).build()
                         ),
                         List.of(
                                 Module.builder().id(4L).title("New Module 1").orderNum(4).build(),
@@ -294,8 +294,8 @@ class ModuleServiceTests {
                 // 5: Update existing modules and delete old
                 Arguments.of(
                         List.of(
-                                UpdateModuleInCourseDTO.builder().id(1L).title("Updated Module 1").orderNum(1).build(),
-                                UpdateModuleInCourseDTO.builder().id(2L).title("Updated Module 2").orderNum(2).build()
+                                UpdateModuleInCourseRequest.builder().id(1L).title("Updated Module 1").orderNum(1).build(),
+                                UpdateModuleInCourseRequest.builder().id(2L).title("Updated Module 2").orderNum(2).build()
                         ),
                         List.of(
                                 Module.builder().id(1L).title("Updated Module 1").orderNum(1).build(),
@@ -305,8 +305,8 @@ class ModuleServiceTests {
                 // 6: Add new and update existing modules and delete old
                 Arguments.of(
                         List.of(
-                                UpdateModuleInCourseDTO.builder().id(1L).title("Updated Module 1").orderNum(1).build(),
-                                UpdateModuleInCourseDTO.builder().title("New Module 3").orderNum(4).build()
+                                UpdateModuleInCourseRequest.builder().id(1L).title("Updated Module 1").orderNum(1).build(),
+                                UpdateModuleInCourseRequest.builder().title("New Module 3").orderNum(4).build()
                         ),
                         List.of(
                                 Module.builder().id(1L).title("Updated Module 1").orderNum(1).build(),

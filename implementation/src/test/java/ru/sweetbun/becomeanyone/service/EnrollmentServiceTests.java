@@ -37,7 +37,7 @@ class EnrollmentServiceTests {
     private final ModelMapper modelMapper = ModelMapperConfig.createConfiguredModelMapper();
 
     @Mock
-    private CourseService courseService;
+    private CourseServiceImpl courseServiceImpl;
 
     @Mock
     private ProgressService progressService;
@@ -54,7 +54,7 @@ class EnrollmentServiceTests {
 
     @BeforeEach
     void setUp() {
-        enrollmentService = new EnrollmentService(enrollmentRepository, modelMapper, courseService, progressService,
+        enrollmentService = new EnrollmentService(enrollmentRepository, modelMapper, courseServiceImpl, progressService,
                 securityUtils);
 
         currentUser = new User();
@@ -63,7 +63,7 @@ class EnrollmentServiceTests {
                 .status(EnrollmentStatus.NOT_STARTED).build();
 
         lenient().when(securityUtils.getCurrentUser()).thenReturn(currentUser);
-        lenient().when(courseService.getCourseById(anyLong())).thenReturn(course);
+        lenient().when(courseServiceImpl.fetchCourseById(anyLong())).thenReturn(course);
     }
 
     @Test
@@ -143,7 +143,7 @@ class EnrollmentServiceTests {
 
     @Test
     void deleteEnrollment_NonExistingCourse_ThrowsResourceNotFoundException() {
-        when(courseService.getCourseById(anyLong())).thenThrow(new ResourceNotFoundException(Course.class, 1L));
+        when(courseServiceImpl.fetchCourseById(anyLong())).thenThrow(new ResourceNotFoundException(Course.class, 1L));
 
         assertThrows(ResourceNotFoundException.class, () -> enrollmentService.deleteEnrollment(1L));
     }

@@ -5,9 +5,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.sweetbun.becomeanyone.dto.CreateLessonDTO;
-import ru.sweetbun.becomeanyone.dto.UpdateLessonDTO;
-import ru.sweetbun.becomeanyone.dto.UpdateLessonInCourseDTO;
+import ru.sweetbun.becomeanyone.dto.lesson.request.CreateLessonRequest;
+import ru.sweetbun.becomeanyone.dto.lesson.request.UpdateLessonRequest;
+import ru.sweetbun.becomeanyone.dto.lesson.request.UpdateLessonInCourseRequest;
 import ru.sweetbun.becomeanyone.domain.entity.Content;
 import ru.sweetbun.becomeanyone.domain.entity.Lesson;
 import ru.sweetbun.becomeanyone.domain.entity.Module;
@@ -34,7 +34,7 @@ public class LessonService {
     private final ContentService contentService;
 
     @Transactional
-    public List<Lesson> updateLessons(List<UpdateLessonInCourseDTO> lessonDTOS, Module module) {
+    public List<Lesson> updateLessons(List<UpdateLessonInCourseRequest> lessonDTOS, Module module) {
         Map<Long, Lesson> currentLessonsMap = module.getLessons().stream()
                 .collect(Collectors.toMap(Lesson::getId, Function.identity()));
 
@@ -45,7 +45,7 @@ public class LessonService {
         return updatedLessons;
     }
 
-    private List<Lesson> mergeLessons(List<UpdateLessonInCourseDTO> lessonDTOS,
+    private List<Lesson> mergeLessons(List<UpdateLessonInCourseRequest> lessonDTOS,
                                             Map<Long, Lesson> currentLessonsMap, Module module) {
         return lessonDTOS.stream().map(lessonDTO -> {
             Long lessonDTOId = lessonDTO.getId();
@@ -63,20 +63,20 @@ public class LessonService {
     }
 
     @Transactional
-    public Lesson createLesson(CreateLessonDTO lessonDTO, Long moduleId) {
+    public Lesson createLesson(CreateLessonRequest lessonDTO, Long moduleId) {
         Module module = moduleService.getModuleById(moduleId);
         return lessonRepository.save(createLesson(lessonDTO, module));
     }
 
     @Transactional
-    public void createLessons(List<CreateLessonDTO> lessonDTOS, Module module) {
+    public void createLessons(List<CreateLessonRequest> lessonDTOS, Module module) {
         List<Lesson> lessons = lessonDTOS.stream()
                 .map(lessonDTO -> createLesson(lessonDTO, module))
                 .toList();
         if (!lessons.isEmpty()) lessonRepository.saveAll(lessons);
     }
 
-    private Lesson createLesson(CreateLessonDTO lessonDTO, Module module) {
+    private Lesson createLesson(CreateLessonRequest lessonDTO, Module module) {
         Lesson lesson = modelMapper.map(lessonDTO, Lesson.class);
         lesson.setModule(module);
         module.getLessons().add(lesson);
@@ -93,10 +93,10 @@ public class LessonService {
     }
 
     @Transactional
-    public Lesson updateLesson(UpdateLessonDTO updateLessonDTO, Long id) {
+    public Lesson updateLesson(UpdateLessonRequest updateLessonRequest, Long id) {
         Lesson lesson = getLessonById(id);
-        lesson.setTitle(updateLessonDTO.title());
-        Content content = contentService.updateContent(updateLessonDTO.content(), lesson.getContent());
+        lesson.setTitle(updateLessonRequest.title());
+        Content content = contentService.updateContent(updateLessonRequest.content(), lesson.getContent());
         lesson.setContent(content);
         content.setLesson(lesson);
         return lessonRepository.save(lesson);

@@ -1,7 +1,5 @@
 package ru.sweetbun.becomeanyone.domain.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -22,7 +20,6 @@ public class Lesson {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @JsonBackReference
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "module_id")
     private Module module;
@@ -30,7 +27,6 @@ public class Lesson {
     @Column(name = "title", nullable = false)
     private String title;
 
-    @JsonManagedReference
     @OneToOne(mappedBy = "lesson", cascade = CascadeType.ALL)
     private Content content;
 
@@ -38,7 +34,6 @@ public class Lesson {
     private int orderNum;
 
     @Builder.Default
-    @JsonManagedReference
     @OneToMany(mappedBy = "lesson", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Test> tests = new ArrayList<>();
 }

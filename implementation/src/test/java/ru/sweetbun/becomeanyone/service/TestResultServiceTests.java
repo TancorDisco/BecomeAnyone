@@ -27,7 +27,7 @@ class TestResultServiceTests {
     private EnrollmentService enrollmentService;
 
     @Mock
-    private CourseService courseService;
+    private CourseServiceImpl courseServiceImpl;
 
     @Mock
     private ProgressService progressService;
@@ -45,7 +45,7 @@ class TestResultServiceTests {
     @BeforeEach
     void setUp() {
         testResultService = new TestResultService(testResultRepository, securityUtils,
-                enrollmentService, courseService, progressService, acceptablePercentage);
+                enrollmentService, courseServiceImpl, progressService, acceptablePercentage);
 
         test = new ru.sweetbun.becomeanyone.domain.entity.Test();
         user = new User();
@@ -59,7 +59,7 @@ class TestResultServiceTests {
         double percent = 85.0;
         Long courseId = 1L;
         when(securityUtils.getCurrentUser()).thenReturn(user);
-        when(courseService.getCourseById(courseId)).thenReturn(course);
+        when(courseServiceImpl.fetchCourseById(courseId)).thenReturn(course);
         when(enrollmentService.getEnrollmentByStudentAndCourse(user, course)).thenReturn(enrollment);
         when(testResultRepository.save(any(TestResult.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -78,7 +78,7 @@ class TestResultServiceTests {
         Long courseId = 1L;
 
         when(securityUtils.getCurrentUser()).thenReturn(user);
-        when(courseService.getCourseById(courseId)).thenReturn(course);
+        when(courseServiceImpl.fetchCourseById(courseId)).thenReturn(course);
         when(enrollmentService.getEnrollmentByStudentAndCourse(user, course)).thenReturn(enrollment);
         when(testResultRepository.save(any(TestResult.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(testResultRepository.existsByTestAndProgressAndPercentGreaterThanEqual(test, progress, acceptablePercentage)).thenReturn(true);

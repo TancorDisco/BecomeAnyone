@@ -5,9 +5,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.sweetbun.becomeanyone.dto.CreateModuleDTO;
-import ru.sweetbun.becomeanyone.dto.UpdateModuleDTO;
-import ru.sweetbun.becomeanyone.dto.UpdateModuleInCourseDTO;
+import ru.sweetbun.becomeanyone.dto.module.request.CreateModuleRequest;
+import ru.sweetbun.becomeanyone.dto.module.request.UpdateModuleRequest;
+import ru.sweetbun.becomeanyone.dto.module.request.UpdateModuleInCourseRequest;
 import ru.sweetbun.becomeanyone.domain.entity.Course;
 import ru.sweetbun.becomeanyone.domain.entity.Module;
 import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
@@ -30,23 +30,23 @@ public class ModuleService {
 
     private final ModelMapper modelMapper;
     @Lazy
-    private final CourseService courseService;
+    private final CourseServiceImpl courseServiceImpl;
 
     @Transactional
-    public Module createModule(CreateModuleDTO moduleDTO, Long courseId) {
-        Course course = courseService.getCourseById(courseId);
+    public Module createModule(CreateModuleRequest moduleDTO, Long courseId) {
+        Course course = courseServiceImpl.fetchCourseById(courseId);
         return moduleRepository.save(createModule(moduleDTO, course));
     }
 
     @Transactional
-    public void createModules(List<CreateModuleDTO> moduleDTOS, Course course) {
-        for (CreateModuleDTO moduleDTO : moduleDTOS) {
+    public void createModules(List<CreateModuleRequest> moduleDTOS, Course course) {
+        for (CreateModuleRequest moduleDTO : moduleDTOS) {
             Module module = moduleRepository.save(createModule(moduleDTO, course));
             lessonService.createLessons(moduleDTO.getLessons(), module);
         }
     }
 
-    private Module createModule(CreateModuleDTO moduleDTO, Course course) {
+    private Module createModule(CreateModuleRequest moduleDTO, Course course) {
         Module module = modelMapper.map(moduleDTO, Module.class);
         module.setCourse(course);
         course.getModules().add(module);
@@ -59,18 +59,18 @@ public class ModuleService {
     }
 
     public List<Module> getAllModulesByCourse(Long courseId) {
-        return moduleRepository.findAllByCourseOrderByOrderNumAsc(courseService.getCourseById(courseId));
+        return moduleRepository.findAllByCourseOrderByOrderNumAsc(courseServiceImpl.fetchCourseById(courseId));
     }
 
     @Transactional
-    public Module updateModule(UpdateModuleDTO updateModuleDTO, Long id) {
+    public Module updateModule(UpdateModuleRequest updateModuleDTO, Long id) {
         Module module = getModuleById(id);
         modelMapper.map(updateModuleDTO, module);
         return moduleRepository.save(module);
     }
 
     @Transactional
-    public List<Module> updateModules(List<UpdateModuleInCourseDTO> moduleDTOS, Course course) {
+    public List<Module> updateModules(List<UpdateModuleInCourseRequest> moduleDTOS, Course course) {
         Map<Long, Module> currentModulesMap = course.getModules().stream()
                 .collect(Collectors.toMap(Module::getId, Function.identity()));
 
@@ -80,7 +80,7 @@ public class ModuleService {
         return updatedModules;
     }
 
-    private List<Module> mergeModules(List<UpdateModuleInCourseDTO> moduleDTOS,
+    private List<Module> mergeModules(List<UpdateModuleInCourseRequest> moduleDTOS,
                                             Map<Long, Module> currentModulesMap, Course course) {
         return moduleDTOS.stream().map(moduleDTO -> {
             Module module;

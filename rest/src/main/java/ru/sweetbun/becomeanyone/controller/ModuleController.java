@@ -3,8 +3,8 @@ package ru.sweetbun.becomeanyone.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.sweetbun.becomeanyone.dto.CreateModuleDTO;
-import ru.sweetbun.becomeanyone.dto.UpdateModuleDTO;
+import ru.sweetbun.becomeanyone.dto.module.request.CreateModuleRequest;
+import ru.sweetbun.becomeanyone.dto.module.request.UpdateModuleRequest;
 import ru.sweetbun.becomeanyone.service.ModuleService;
 
 import static org.springframework.http.ResponseEntity.ok;
@@ -17,7 +17,7 @@ public class ModuleController {
     private final ModuleService moduleService;
 
     @PostMapping
-    public ResponseEntity<?> createModule(@PathVariable("courseId") Long courseId, @RequestBody CreateModuleDTO moduleDTO) {
+    public ResponseEntity<?> createModule(@PathVariable("courseId") Long courseId, @RequestBody CreateModuleRequest moduleDTO) {
         return ok(moduleService.createModule(moduleDTO, courseId));
     }
 
@@ -32,7 +32,7 @@ public class ModuleController {
     }
 
     @PatchMapping("{id}")
-    public ResponseEntity<?> updateModule(@PathVariable("id") Long id, @RequestBody UpdateModuleDTO updateModuleDTO) {
+    public ResponseEntity<?> updateModule(@PathVariable("id") Long id, @RequestBody UpdateModuleRequest updateModuleDTO) {
         return ok(moduleService.updateModule(updateModuleDTO, id));
     }
 

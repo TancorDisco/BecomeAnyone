@@ -45,7 +45,6 @@ public class Course {
     private LocalDate updatedAt;
 
     @Builder.Default
-    @JsonManagedReference
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
     private List<Module> modules = new ArrayList<>();
 }

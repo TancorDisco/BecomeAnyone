@@ -27,7 +27,7 @@ public class EnrollmentService {
 
     private final ModelMapper modelMapper;
 
-    private final CourseService courseService;
+    private final CourseServiceImpl courseServiceImpl;
     @Lazy
     private final ProgressService progressService;
 
@@ -38,7 +38,7 @@ public class EnrollmentService {
         Progress progress = progressService.createProgress();
         Enrollment enrollment = Enrollment.builder()
                 .student(securityUtils.getCurrentUser())
-                .course(courseService.getCourseById(courseId))
+                .course(courseServiceImpl.fetchCourseById(courseId))
                 .enrollmentDate(LocalDate.now())
                 .progress(progress)
                 .status(NOT_STARTED)
@@ -69,7 +69,7 @@ public class EnrollmentService {
     @Transactional
     public long deleteEnrollment(Long courseId) {
         User student = securityUtils.getCurrentUser();
-        Course course = courseService.getCourseById(courseId);
+        Course course = courseServiceImpl.fetchCourseById(courseId);
         enrollmentRepository.deleteByStudentAndCourse(student, course);
         return courseId;
     }

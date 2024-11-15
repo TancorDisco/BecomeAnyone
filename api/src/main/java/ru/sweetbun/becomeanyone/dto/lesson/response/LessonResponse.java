@@ -1,16 +1,17 @@
-package ru.sweetbun.becomeanyone.dto;
+package ru.sweetbun.becomeanyone.dto.lesson.response;
 
 import lombok.*;
-
-import lombok.Builder;
 
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpdateLessonInCourseDTO {
+public class LessonResponse {
+
     private Long id;
     private String title;
+    //private Content content;
     private int orderNum;
+    //private List<Test> tests;
 }

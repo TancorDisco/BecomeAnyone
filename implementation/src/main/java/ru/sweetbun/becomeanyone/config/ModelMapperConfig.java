@@ -8,6 +8,10 @@ import org.springframework.context.annotation.Configuration;
 import ru.sweetbun.becomeanyone.domain.entity.*;
 import ru.sweetbun.becomeanyone.domain.entity.Module;
 import ru.sweetbun.becomeanyone.dto.*;
+import ru.sweetbun.becomeanyone.dto.course.CourseRequest;
+import ru.sweetbun.becomeanyone.dto.lesson.request.UpdateLessonInCourseRequest;
+import ru.sweetbun.becomeanyone.dto.module.request.CreateModuleRequest;
+import ru.sweetbun.becomeanyone.dto.module.request.UpdateModuleInCourseRequest;
 
 @Configuration
 public class ModelMapperConfig {
@@ -27,19 +31,19 @@ public class ModelMapperConfig {
                 .setMethodAccessLevel(org.modelmapper.config.Configuration.AccessLevel.PUBLIC)
                 .setFieldMatchingEnabled(true);
 
-        modelMapper.createTypeMap(UpdateModuleInCourseDTO.class, Module.class)
+        modelMapper.createTypeMap(UpdateModuleInCourseRequest.class, Module.class)
                 .addMappings(mapper -> {
                     mapper.skip(Module::setId);
                     mapper.skip(Module::setLessons);
                 });
 
-        modelMapper.createTypeMap(UpdateLessonInCourseDTO.class, Lesson.class)
+        modelMapper.createTypeMap(UpdateLessonInCourseRequest.class, Lesson.class)
                 .addMappings(mapper -> mapper.skip(Lesson::setId));
 
-        modelMapper.createTypeMap(CreateModuleDTO.class, Module.class)
+        modelMapper.createTypeMap(CreateModuleRequest.class, Module.class)
                 .addMappings(mapper -> mapper.skip(Module::setLessons));
 
-        modelMapper.createTypeMap(CourseDTO.class, Course.class)
+        modelMapper.createTypeMap(CourseRequest.class, Course.class)
                 .addMappings(mapper -> mapper.skip(Course::setModules));
 
         modelMapper.createTypeMap(QuestionDTO.class, Question.class)

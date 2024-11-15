@@ -19,7 +19,7 @@ public class TestResultService {
 
     private final EnrollmentService enrollmentService;
 
-    private final CourseService courseService;
+    private final CourseServiceImpl courseServiceImpl;
 
     private final ProgressService progressService;
 
@@ -28,12 +28,12 @@ public class TestResultService {
     @Autowired
     public TestResultService(TestResultRepository testResultRepository, SecurityUtils securityUtils,
                              @Lazy EnrollmentService enrollmentService,
-                             @Lazy CourseService courseService, ProgressService progressService,
+                             @Lazy CourseServiceImpl courseServiceImpl, ProgressService progressService,
                              @Value("${test-result.percentage.acceptable}") double acceptablePercentage) {
         this.testResultRepository = testResultRepository;
         this.securityUtils = securityUtils;
         this.enrollmentService = enrollmentService;
-        this.courseService = courseService;
+        this.courseServiceImpl = courseServiceImpl;
         this.progressService = progressService;
         this.acceptablePercentage = acceptablePercentage;
     }
@@ -41,7 +41,7 @@ public class TestResultService {
     @Transactional
     public TestResult createTestResult(Test test, double percent, Long courseId) {
         User user = securityUtils.getCurrentUser();
-        Course course = courseService.getCourseById(courseId);
+        Course course = courseServiceImpl.fetchCourseById(courseId);
         Enrollment enrollment = enrollmentService.getEnrollmentByStudentAndCourse(user, course);
         Progress progress = enrollment.getProgress();
         TestResult testResult = TestResult.builder()

@@ -1,6 +1,7 @@
-package ru.sweetbun.becomeanyone.dto;
+package ru.sweetbun.becomeanyone.dto.course;
 
 import lombok.*;
+import ru.sweetbun.becomeanyone.dto.module.request.ModuleRequest;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +11,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CourseDTO<T extends ModuleDTO> {
+public class CourseRequest<T extends ModuleRequest> {
     private String title;
     private String description;
     private String requirements;

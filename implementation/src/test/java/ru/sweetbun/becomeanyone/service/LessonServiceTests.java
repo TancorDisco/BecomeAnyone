@@ -12,9 +12,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 import ru.sweetbun.becomeanyone.dto.ContentDTO;
-import ru.sweetbun.becomeanyone.dto.CreateLessonDTO;
-import ru.sweetbun.becomeanyone.dto.UpdateLessonDTO;
-import ru.sweetbun.becomeanyone.dto.UpdateLessonInCourseDTO;
+import ru.sweetbun.becomeanyone.dto.lesson.request.CreateLessonRequest;
+import ru.sweetbun.becomeanyone.dto.lesson.request.UpdateLessonRequest;
+import ru.sweetbun.becomeanyone.dto.lesson.request.UpdateLessonInCourseRequest;
 import ru.sweetbun.becomeanyone.config.ModelMapperConfig;
 import ru.sweetbun.becomeanyone.domain.entity.Content;
 import ru.sweetbun.becomeanyone.domain.entity.Lesson;
@@ -67,7 +67,7 @@ class LessonServiceTests {
 
     @Test
     void createLesson_ValidInput_ShouldReturnCreatedLesson() {
-        CreateLessonDTO lessonDTO = CreateLessonDTO.builder().build();
+        CreateLessonRequest lessonDTO = CreateLessonRequest.builder().build();
         Lesson expectedLesson = new Lesson();
 
         when(moduleService.getModuleById(1L)).thenReturn(module);
@@ -82,7 +82,7 @@ class LessonServiceTests {
 
     @Test
     void createLesson_ModuleNotFound_ShouldThrowException() {
-        CreateLessonDTO lessonDTO = CreateLessonDTO.builder().build();
+        CreateLessonRequest lessonDTO = CreateLessonRequest.builder().build();
 
         when(moduleService.getModuleById(1L)).thenThrow(new ResourceNotFoundException(Module.class, 1L));
 
@@ -110,7 +110,7 @@ class LessonServiceTests {
 
     @Test
     void updateLesson_LessonExists_ShouldUpdateAndReturnLesson() {
-        UpdateLessonDTO updateLessonDTO = UpdateLessonDTO.builder().content(new ContentDTO("", "")).build();
+        UpdateLessonRequest updateLessonRequest = UpdateLessonRequest.builder().content(new ContentDTO("", "")).build();
         Lesson lesson = currentLessonsMap.get(1L);
         Content content =  Content.builder().id(1L).build();
         lesson.setContent(content);
@@ -119,7 +119,7 @@ class LessonServiceTests {
         when(lessonRepository.save(lesson)).thenReturn(lesson);
         when(contentService.updateContent(any(ContentDTO.class), eq(content))).thenReturn(content);
 
-        Lesson result = lessonService.updateLesson(updateLessonDTO, 1L);
+        Lesson result = lessonService.updateLesson(updateLessonRequest, 1L);
 
         assertEquals(lesson, result);
         verify(lessonRepository).save(lesson);
@@ -127,11 +127,11 @@ class LessonServiceTests {
 
     @Test
     void updateLesson_LessonDoesNotExist_ShouldThrowException() {
-        UpdateLessonDTO updateLessonDTO = UpdateLessonDTO.builder().build();
+        UpdateLessonRequest updateLessonRequest = UpdateLessonRequest.builder().build();
 
         when(lessonRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> lessonService.updateLesson(updateLessonDTO, 1L));
+        assertThrows(ResourceNotFoundException.class, () -> lessonService.updateLesson(updateLessonRequest, 1L));
     }
 
     @Test
@@ -160,9 +160,9 @@ class LessonServiceTests {
     @Test
     void updateLessons_ValidInput_ShouldUpdateAndReturnLessons() {
         //Arrange
-        List<UpdateLessonInCourseDTO> lessonDTOS = List.of(
-                new UpdateLessonInCourseDTO(1L, "Updated Lesson 1", 1),
-                new UpdateLessonInCourseDTO(null, "New Lesson", 2)
+        List<UpdateLessonInCourseRequest> lessonDTOS = List.of(
+                new UpdateLessonInCourseRequest(1L, "Updated Lesson 1", 1),
+                new UpdateLessonInCourseRequest(null, "New Lesson", 2)
         );
         module.getLessons().add(currentLessonsMap.get(3L));
 
@@ -185,9 +185,9 @@ class LessonServiceTests {
 
     @Test
     void createLessons_ValidInput_ShouldSaveAllLessons() {
-        List<CreateLessonDTO> lessonDTOS = List.of(
-                CreateLessonDTO.builder().title("Lesson A").build(),
-                CreateLessonDTO.builder().title("Lesson B").build()
+        List<CreateLessonRequest> lessonDTOS = List.of(
+                CreateLessonRequest.builder().title("Lesson A").build(),
+                CreateLessonRequest.builder().title("Lesson B").build()
         );
 
         lessonService.createLessons(lessonDTOS, module);
@@ -197,7 +197,7 @@ class LessonServiceTests {
 
     @Test
     void createLessons_EmptyList_ShouldNotSaveAnything() {
-        List<CreateLessonDTO> emptyLessonDTOS = new ArrayList<>();
+        List<CreateLessonRequest> emptyLessonDTOS = new ArrayList<>();
 
         lessonService.createLessons(emptyLessonDTOS, module);
 
@@ -225,7 +225,7 @@ class LessonServiceTests {
 
     @ParameterizedTest
     @MethodSource("provideTestData")
-    void testUpdateLessons(List<UpdateLessonInCourseDTO> lessonDTOS, List<Lesson> expectedLessons) {
+    void testUpdateLessons(List<UpdateLessonInCourseRequest> lessonDTOS, List<Lesson> expectedLessons) {
         // Arrange
         module.setLessons(new ArrayList<>(currentLessonsMap.values()));
 
@@ -245,8 +245,8 @@ class LessonServiceTests {
                 // 1: Add new lessons and delete old
                 Arguments.of(
                         List.of(
-                                UpdateLessonInCourseDTO.builder().title("New Lesson 1").orderNum(4).build(),
-                                UpdateLessonInCourseDTO.builder().title("New Lesson 2").orderNum(5).build()
+                                UpdateLessonInCourseRequest.builder().title("New Lesson 1").orderNum(4).build(),
+                                UpdateLessonInCourseRequest.builder().title("New Lesson 2").orderNum(5).build()
                         ),
                         List.of(
                                 Lesson.builder().id(4L).title("New Lesson 1").orderNum(4).build(),
@@ -256,8 +256,8 @@ class LessonServiceTests {
                 // 2: Update existing lessons and delete old
                 Arguments.of(
                         List.of(
-                                UpdateLessonInCourseDTO.builder().id(1L).title("Updated Lesson 1").orderNum(1).build(),
-                                UpdateLessonInCourseDTO.builder().id(2L).title("Updated Lesson 2").orderNum(2).build()
+                                UpdateLessonInCourseRequest.builder().id(1L).title("Updated Lesson 1").orderNum(1).build(),
+                                UpdateLessonInCourseRequest.builder().id(2L).title("Updated Lesson 2").orderNum(2).build()
                         ),
                         List.of(
                                 Lesson.builder().id(1L).title("Updated Lesson 1").orderNum(1).build(),
@@ -267,8 +267,8 @@ class LessonServiceTests {
                 // 3: Add new and update existing lessons and delete old
                 Arguments.of(
                         List.of(
-                                UpdateLessonInCourseDTO.builder().id(1L).title("Updated Lesson 1").orderNum(1).build(),
-                                UpdateLessonInCourseDTO.builder().title("New Lesson 3").orderNum(4).build()
+                                UpdateLessonInCourseRequest.builder().id(1L).title("Updated Lesson 1").orderNum(1).build(),
+                                UpdateLessonInCourseRequest.builder().title("New Lesson 3").orderNum(4).build()
                         ),
                         List.of(
                                 Lesson.builder().id(1L).title("Updated Lesson 1").orderNum(1).build(),
@@ -278,11 +278,11 @@ class LessonServiceTests {
                 // 4: Add new lessons
                 Arguments.of(
                         List.of(
-                                UpdateLessonInCourseDTO.builder().id(1L).title("Lesson 1").orderNum(1).build(),
-                                UpdateLessonInCourseDTO.builder().id(2L).title("Lesson 2").orderNum(2).build(),
-                                UpdateLessonInCourseDTO.builder().id(3L).title("Lesson 3").orderNum(3).build(),
-                                UpdateLessonInCourseDTO.builder().title("New Lesson 1").orderNum(4).build(),
-                                UpdateLessonInCourseDTO.builder().title("New Lesson 2").orderNum(5).build()
+                                UpdateLessonInCourseRequest.builder().id(1L).title("Lesson 1").orderNum(1).build(),
+                                UpdateLessonInCourseRequest.builder().id(2L).title("Lesson 2").orderNum(2).build(),
+                                UpdateLessonInCourseRequest.builder().id(3L).title("Lesson 3").orderNum(3).build(),
+                                UpdateLessonInCourseRequest.builder().title("New Lesson 1").orderNum(4).build(),
+                                UpdateLessonInCourseRequest.builder().title("New Lesson 2").orderNum(5).build()
                         ),
                         List.of(
                                 Lesson.builder().id(1L).title("Lesson 1").orderNum(1).build(),
@@ -295,9 +295,9 @@ class LessonServiceTests {
                 // 5: Update existing lessons
                 Arguments.of(
                         List.of(
-                                UpdateLessonInCourseDTO.builder().id(1L).title("Updated Lesson 1").orderNum(1).build(),
-                                UpdateLessonInCourseDTO.builder().id(2L).title("Updated Lesson 2").orderNum(2).build(),
-                                UpdateLessonInCourseDTO.builder().id(3L).title("Lesson 3").orderNum(3).build()
+                                UpdateLessonInCourseRequest.builder().id(1L).title("Updated Lesson 1").orderNum(1).build(),
+                                UpdateLessonInCourseRequest.builder().id(2L).title("Updated Lesson 2").orderNum(2).build(),
+                                UpdateLessonInCourseRequest.builder().id(3L).title("Lesson 3").orderNum(3).build()
                         ),
                         List.of(
                                 Lesson.builder().id(1L).title("Updated Lesson 1").orderNum(1).build(),
@@ -308,10 +308,10 @@ class LessonServiceTests {
                 // 6: Add new and update existing lessons
                 Arguments.of(
                         List.of(
-                                UpdateLessonInCourseDTO.builder().id(1L).title("Updated Lesson 1").orderNum(1).build(),
-                                UpdateLessonInCourseDTO.builder().id(2L).title("Lesson 2").orderNum(2).build(),
-                                UpdateLessonInCourseDTO.builder().id(3L).title("Lesson 3").orderNum(3).build(),
-                                UpdateLessonInCourseDTO.builder().title("New Lesson 3").orderNum(4).build()
+                                UpdateLessonInCourseRequest.builder().id(1L).title("Updated Lesson 1").orderNum(1).build(),
+                                UpdateLessonInCourseRequest.builder().id(2L).title("Lesson 2").orderNum(2).build(),
+                                UpdateLessonInCourseRequest.builder().id(3L).title("Lesson 3").orderNum(3).build(),
+                                UpdateLessonInCourseRequest.builder().title("New Lesson 3").orderNum(4).build()
                         ),
                         List.of(
                                 Lesson.builder().id(1L).title("Updated Lesson 1").orderNum(1).build(),

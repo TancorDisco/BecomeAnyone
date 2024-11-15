@@ -3,8 +3,8 @@ package ru.sweetbun.becomeanyone.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.sweetbun.becomeanyone.dto.CreateLessonDTO;
-import ru.sweetbun.becomeanyone.dto.UpdateLessonDTO;
+import ru.sweetbun.becomeanyone.dto.lesson.request.CreateLessonRequest;
+import ru.sweetbun.becomeanyone.dto.lesson.request.UpdateLessonRequest;
 import ru.sweetbun.becomeanyone.service.LessonService;
 
 import static org.springframework.http.ResponseEntity.ok;
@@ -17,7 +17,7 @@ public class LessonController {
     private final LessonService lessonService;
 
     @PostMapping
-    public ResponseEntity<?> createLesson(@PathVariable("moduleId") Long moduleId, @RequestBody CreateLessonDTO lessonDTO) {
+    public ResponseEntity<?> createLesson(@PathVariable("moduleId") Long moduleId, @RequestBody CreateLessonRequest lessonDTO) {
         return ok(lessonService.createLesson(lessonDTO, moduleId));
     }
 
@@ -32,8 +32,8 @@ public class LessonController {
     }
 
     @PatchMapping("{id}")
-    public ResponseEntity<?> updateLesson(@PathVariable("id") Long id, @RequestBody UpdateLessonDTO updateLessonDTO) {
-        return ok(lessonService.updateLesson(updateLessonDTO, id));
+    public ResponseEntity<?> updateLesson(@PathVariable("id") Long id, @RequestBody UpdateLessonRequest updateLessonRequest) {
+        return ok(lessonService.updateLesson(updateLessonRequest, id));
     }
 
     @DeleteMapping("{id}")
