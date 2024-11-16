@@ -7,7 +7,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ContentDTO {
+public class ContentRequest {
 
     private String text;
     private String videoUrl;

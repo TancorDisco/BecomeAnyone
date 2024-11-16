@@ -27,7 +27,7 @@ import static org.mockito.Mockito.*;
 class TestServiceTests {
 
     @Mock
-    private LessonService lessonService;
+    private LessonServiceImpl lessonServiceImpl;
 
     @Mock
     private TestRepository testRepository;
@@ -49,7 +49,7 @@ class TestServiceTests {
 
     @BeforeEach
     void setUp() {
-        testService = new TestService(lessonService, testRepository, modelMapper, questionService, testResultService);
+        testService = new TestService(lessonServiceImpl, testRepository, modelMapper, questionService, testResultService);
 
         testDTO = new TestDTO("Test Name", "");
         lesson = Lesson.builder().id(1L).build();
@@ -58,7 +58,7 @@ class TestServiceTests {
 
     @Test
     void createTest_LessonExists_TestCreated() {
-        when(lessonService.getLessonById(1L)).thenReturn(lesson);
+        when(lessonServiceImpl.fetchLessonById(1L)).thenReturn(lesson);
         when(testRepository.save(any(ru.sweetbun.becomeanyone.domain.entity.Test.class))).thenAnswer(
                 invocation -> invocation.getArgument(0));
 
@@ -71,7 +71,7 @@ class TestServiceTests {
 
     @Test
     void createTest_LessonNotFound_ThrowsResourceNotFoundException() {
-        when(lessonService.getLessonById(1L)).thenThrow(new ResourceNotFoundException(Lesson.class, 1L));
+        when(lessonServiceImpl.fetchLessonById(1L)).thenThrow(new ResourceNotFoundException(Lesson.class, 1L));
 
         assertThrows(ResourceNotFoundException.class, () -> testService.createTest(testDTO, 1L));
     }
@@ -95,7 +95,7 @@ class TestServiceTests {
 
     @Test
     void getAllTestsByLesson_LessonExists_ReturnsTestList() {
-        when(lessonService.getLessonById(1L)).thenReturn(lesson);
+        when(lessonServiceImpl.fetchLessonById(1L)).thenReturn(lesson);
         when(testRepository.findAllTestsByLesson(lesson)).thenReturn(List.of(test, test));
 
         // Act

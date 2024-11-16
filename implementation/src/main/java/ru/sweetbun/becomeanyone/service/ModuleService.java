@@ -26,7 +26,7 @@ public class ModuleService {
 
     private final ModuleRepository moduleRepository;
     @Lazy
-    private final LessonService lessonService;
+    private final LessonServiceImpl lessonServiceImpl;
 
     private final ModelMapper modelMapper;
     @Lazy
@@ -42,7 +42,7 @@ public class ModuleService {
     public void createModules(List<CreateModuleRequest> moduleDTOS, Course course) {
         for (CreateModuleRequest moduleDTO : moduleDTOS) {
             Module module = moduleRepository.save(createModule(moduleDTO, course));
-            lessonService.createLessons(moduleDTO.getLessons(), module);
+            lessonServiceImpl.createLessons(moduleDTO.getLessons(), module);
         }
     }
 
@@ -93,7 +93,7 @@ public class ModuleService {
                 module = modelMapper.map(moduleDTO, Module.class);
                 module.setCourse(course);
             }
-            module.setLessons(lessonService.updateLessons(moduleDTO.getLessons(), module));
+            module.setLessons(lessonServiceImpl.updateLessons(moduleDTO.getLessons(), module));
             return moduleRepository.save(module);
         }).toList();
     }

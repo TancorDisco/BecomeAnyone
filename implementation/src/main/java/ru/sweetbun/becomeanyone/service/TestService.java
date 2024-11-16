@@ -23,7 +23,7 @@ import java.util.Map;
 @Service
 public class TestService {
 
-    private final LessonService lessonService;
+    private final LessonServiceImpl lessonServiceImpl;
 
     private final TestRepository testRepository;
 
@@ -35,7 +35,7 @@ public class TestService {
 
     @Transactional
     public Test createTest(TestDTO testDTO, Long lessonId) {
-        Lesson lesson = lessonService.getLessonById(lessonId);
+        Lesson lesson = lessonServiceImpl.fetchLessonById(lessonId);
         Test test = modelMapper.map(testDTO, Test.class);
         test.setLesson(lesson);
         lesson.getTests().add(test);
@@ -48,7 +48,7 @@ public class TestService {
     }
 
     public List<Test> getAllTestsByLesson(Long lessonId) {
-        return testRepository.findAllTestsByLesson(lessonService.getLessonById(lessonId));
+        return testRepository.findAllTestsByLesson(lessonServiceImpl.fetchLessonById(lessonId));
     }
 
     @Transactional

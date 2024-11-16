@@ -3,7 +3,7 @@ package ru.sweetbun.becomeanyone.service;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
-import ru.sweetbun.becomeanyone.dto.content.ContentDTO;
+import ru.sweetbun.becomeanyone.dto.content.ContentRequest;
 import ru.sweetbun.becomeanyone.domain.entity.Content;
 import ru.sweetbun.becomeanyone.domain.entity.Video;
 
@@ -15,11 +15,11 @@ public class ContentService {
 
     private final VideoService videoService;
 
-    public Content updateContent(ContentDTO contentDTO, Content content) {
+    public Content updateContent(ContentRequest contentRequest, Content content) {
         if (content == null) content = new Content();
-        modelMapper.map(contentDTO, content);
+        modelMapper.map(contentRequest, content);
         Video currentVideo = content.getVideo();
-        String videoUrl = contentDTO.getVideoUrl();
+        String videoUrl = contentRequest.getVideoUrl();
 
         if (videoUrl != null && !videoUrl.isBlank())  {
             Video video = videoService.updateVideo(videoUrl, currentVideo);

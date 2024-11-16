@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ru.sweetbun.becomeanyone.domain.entity.*;
 import ru.sweetbun.becomeanyone.domain.entity.Module;
-import ru.sweetbun.becomeanyone.dto.content.ContentDTO;
+import ru.sweetbun.becomeanyone.dto.content.ContentRequest;
 import ru.sweetbun.becomeanyone.dto.course.CourseRequest;
 import ru.sweetbun.becomeanyone.dto.lesson.request.UpdateLessonInCourseRequest;
 import ru.sweetbun.becomeanyone.dto.module.request.CreateModuleRequest;
@@ -53,7 +53,7 @@ public class ModelMapperConfig {
         modelMapper.createTypeMap(Test.class, Test.class)
                 .addMappings(mapper -> mapper.skip(Test::setQuestions));
 
-        modelMapper.createTypeMap(ContentDTO.class, Content.class)
+        modelMapper.createTypeMap(ContentRequest.class, Content.class)
                 .addMappings(mapper -> mapper.skip(Content::setVideo));
 
         return modelMapper;

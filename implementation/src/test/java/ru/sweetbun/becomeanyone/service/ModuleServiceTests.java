@@ -33,7 +33,7 @@ import static org.mockito.Mockito.*;
 class ModuleServiceTests {
 
     @Mock
-    private LessonService lessonService;
+    private LessonServiceImpl lessonServiceImpl;
 
     @Mock
     private ModuleRepository moduleRepository;
@@ -51,7 +51,7 @@ class ModuleServiceTests {
 
     @BeforeEach
     public void setUp() {
-        moduleService = new ModuleService(moduleRepository, lessonService, modelMapper, courseServiceImpl);
+        moduleService = new ModuleService(moduleRepository, lessonServiceImpl, modelMapper, courseServiceImpl);
 
         course = Course.builder().id(1L).build();
         currentModulesMap = new HashMap<>();
@@ -197,7 +197,7 @@ class ModuleServiceTests {
         moduleService.createModules(moduleDTOs, course);
 
         verify(moduleRepository, times(moduleDTOs.size())).save(any(Module.class));
-        verify(lessonService, times(moduleDTOs.size())).createLessons(anyList(), any(Module.class));
+        verify(lessonServiceImpl, times(moduleDTOs.size())).createLessons(anyList(), any(Module.class));
     }
 
     @Test
@@ -207,7 +207,7 @@ class ModuleServiceTests {
         moduleService.createModules(emptyModuleDTOs, course);
 
         verify(moduleRepository, never()).save(any(Module.class));
-        verify(lessonService, never()).createLessons(anyList(), any(Module.class));
+        verify(lessonServiceImpl, never()).createLessons(anyList(), any(Module.class));
     }
 
     @ParameterizedTest
@@ -217,7 +217,7 @@ class ModuleServiceTests {
         course.setModules(new ArrayList<>(currentModulesMap.values()));
 
         when(moduleRepository.save(any(Module.class))).thenAnswer(invocation -> invocation.getArgument(0));
-        when(lessonService.updateLessons(any(), any())).thenReturn(List.of());
+        when(lessonServiceImpl.updateLessons(any(), any())).thenReturn(List.of());
 
         // Act
         List<Module> updatedModules = moduleService.updateModules(moduleDTOS, course);
@@ -230,7 +230,7 @@ class ModuleServiceTests {
         }
 
         verify(moduleRepository, times(expectedModules.size())).save(any(Module.class));
-        verify(lessonService, times(moduleDTOS.size())).updateLessons(any(), any());
+        verify(lessonServiceImpl, times(moduleDTOS.size())).updateLessons(any(), any());
     }
 
     private static Stream<Arguments> provideTestData() {

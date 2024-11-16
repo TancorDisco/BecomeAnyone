@@ -1,6 +1,10 @@
 package ru.sweetbun.becomeanyone.dto.lesson.response;
 
 import lombok.*;
+import ru.sweetbun.becomeanyone.dto.content.ContentResponse;
+import ru.sweetbun.becomeanyone.dto.test.response.TestResponse;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -11,7 +15,7 @@ public class LessonResponse {
 
     private Long id;
     private String title;
-    //private Content content;
+    private ContentResponse content;
     private int orderNum;
-    //private List<Test> tests;
+    private List<TestResponse> tests;
 }

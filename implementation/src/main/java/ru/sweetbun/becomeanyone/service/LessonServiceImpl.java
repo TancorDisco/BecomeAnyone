@@ -5,12 +5,14 @@ import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.sweetbun.becomeanyone.contract.LessonService;
 import ru.sweetbun.becomeanyone.dto.lesson.request.CreateLessonRequest;
 import ru.sweetbun.becomeanyone.dto.lesson.request.UpdateLessonRequest;
 import ru.sweetbun.becomeanyone.dto.lesson.request.UpdateLessonInCourseRequest;
 import ru.sweetbun.becomeanyone.domain.entity.Content;
 import ru.sweetbun.becomeanyone.domain.entity.Lesson;
 import ru.sweetbun.becomeanyone.domain.entity.Module;
+import ru.sweetbun.becomeanyone.dto.lesson.response.LessonResponse;
 import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
 import ru.sweetbun.becomeanyone.domain.repository.LessonRepository;
 
@@ -23,7 +25,7 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Service
-public class LessonService {
+public class LessonServiceImpl implements LessonService {
 
     private final LessonRepository lessonRepository;
 
@@ -62,10 +64,12 @@ public class LessonService {
         }).toList();
     }
 
+    @Override
     @Transactional
-    public Lesson createLesson(CreateLessonRequest lessonDTO, Long moduleId) {
+    public LessonResponse createLesson(CreateLessonRequest lessonDTO, Long moduleId) {
         Module module = moduleService.getModuleById(moduleId);
-        return lessonRepository.save(createLesson(lessonDTO, module));
+        Lesson lesson = lessonRepository.save(createLesson(lessonDTO, module));
+        return modelMapper.map(lesson, LessonResponse.class);
     }
 
     @Transactional
@@ -83,28 +87,40 @@ public class LessonService {
         return lesson;
     }
 
-    public Lesson getLessonById(Long id) {
+    public Lesson fetchLessonById(Long id) {
         return lessonRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(Lesson.class, id));
     }
 
-    public List<Lesson> getAllLessonsByModule(Long moduleId) {
-        return lessonRepository.findAllByModuleOrderByOrderNumAsc(moduleService.getModuleById(moduleId));
+    @Override
+    public LessonResponse getLessonById(Long id) {
+        Lesson lesson = fetchLessonById(id);
+        return modelMapper.map(lesson, LessonResponse.class);
     }
 
+    @Override
+    public List<LessonResponse> getAllLessonsByModule(Long moduleId) {
+        return lessonRepository.findAllByModuleOrderByOrderNumAsc(moduleService.getModuleById(moduleId)).stream()
+                .map(lesson -> modelMapper.map(lesson, LessonResponse.class))
+                .toList();
+    }
+
+    @Override
     @Transactional
-    public Lesson updateLesson(UpdateLessonRequest updateLessonRequest, Long id) {
-        Lesson lesson = getLessonById(id);
+    public LessonResponse updateLesson(UpdateLessonRequest updateLessonRequest, Long id) {
+        Lesson lesson = fetchLessonById(id);
         lesson.setTitle(updateLessonRequest.title());
         Content content = contentService.updateContent(updateLessonRequest.content(), lesson.getContent());
         lesson.setContent(content);
         content.setLesson(lesson);
-        return lessonRepository.save(lesson);
+        Lesson savedLesson = lessonRepository.save(lesson);
+        return modelMapper.map(savedLesson, LessonResponse.class);
     }
 
+    @Override
     @Transactional
     public long deleteLessonById(Long id) {
-        Lesson lessonToDelete = getLessonById(id);
+        Lesson lessonToDelete = fetchLessonById(id);
         int orderNum = lessonToDelete.getOrderNum();
         lessonRepository.deleteById(id);
 

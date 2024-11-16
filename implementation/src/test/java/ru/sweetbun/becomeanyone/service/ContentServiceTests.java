@@ -11,7 +11,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 import ru.sweetbun.becomeanyone.config.ModelMapperConfig;
-import ru.sweetbun.becomeanyone.dto.content.ContentDTO;
+import ru.sweetbun.becomeanyone.dto.content.ContentRequest;
 import ru.sweetbun.becomeanyone.domain.entity.Content;
 import ru.sweetbun.becomeanyone.domain.entity.Video;
 
@@ -29,7 +29,7 @@ class ContentServiceTests {
     @InjectMocks
     private ContentService contentService;
 
-    private ContentDTO contentDTO;
+    private ContentRequest contentRequest;
     private Content content;
     private Video video;
 
@@ -37,7 +37,7 @@ class ContentServiceTests {
     void setUp() {
         contentService = new ContentService(modelMapper, videoService);
 
-        contentDTO = new ContentDTO();
+        contentRequest = new ContentRequest();
         content = new Content();
         video = new Video();
     }
@@ -45,12 +45,12 @@ class ContentServiceTests {
     @Test
     void updateContent_ContentAndVideoUrlProvided_ContentUpdatedWithNewVideo() {
         // Arrange
-        contentDTO.setVideoUrl("newVideoUrl");
+        contentRequest.setVideoUrl("newVideoUrl");
         content.setVideo(video);
         when(videoService.updateVideo("newVideoUrl", video)).thenReturn(video);
 
         // Act
-        Content result = contentService.updateContent(contentDTO, content);
+        Content result = contentService.updateContent(contentRequest, content);
 
         // Assert
         verify(videoService).updateVideo("newVideoUrl", video);
@@ -62,10 +62,10 @@ class ContentServiceTests {
     void updateContent_ContentProvidedAndVideoUrlNull_VideoDeleted() {
         // Arrange
         content.setVideo(video);
-        contentDTO.setVideoUrl(null);
+        contentRequest.setVideoUrl(null);
 
         // Act
-        Content result = contentService.updateContent(contentDTO, content);
+        Content result = contentService.updateContent(contentRequest, content);
 
         // Assert
         verify(videoService).deleteVideo(video);
@@ -75,11 +75,11 @@ class ContentServiceTests {
     @Test
     void updateContent_NullContent_ExpectedNewContentCreated() {
         // Arrange
-        contentDTO.setVideoUrl("newVideoUrl");
+        contentRequest.setVideoUrl("newVideoUrl");
         when(videoService.updateVideo("newVideoUrl", null)).thenReturn(video);
 
         // Act
-        Content result = contentService.updateContent(contentDTO, null);
+        Content result = contentService.updateContent(contentRequest, null);
 
         // Assert
         assertNotNull(result);
@@ -93,10 +93,10 @@ class ContentServiceTests {
     void updateContent_VideoUrlEmptyOrNull_VideoDeletedIfPresent(String videoUrl) {
         // Arrange
         content.setVideo(video);
-        contentDTO.setVideoUrl(videoUrl);
+        contentRequest.setVideoUrl(videoUrl);
 
         // Act
-        Content result = contentService.updateContent(contentDTO, content);
+        Content result = contentService.updateContent(contentRequest, content);
 
         // Assert
         verify(videoService).deleteVideo(video);
@@ -106,10 +106,10 @@ class ContentServiceTests {
     @Test
     void updateContent_NoVideoAndNoVideoUrl_VideoRemainsNull() {
         // Arrange
-        contentDTO.setVideoUrl(null);
+        contentRequest.setVideoUrl(null);
 
         // Act
-        Content result = contentService.updateContent(contentDTO, content);
+        Content result = contentService.updateContent(contentRequest, content);
 
         // Assert
         verify(videoService, never()).deleteVideo(any());

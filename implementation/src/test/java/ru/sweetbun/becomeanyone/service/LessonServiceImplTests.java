@@ -11,7 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
-import ru.sweetbun.becomeanyone.dto.content.ContentDTO;
+import ru.sweetbun.becomeanyone.dto.content.ContentRequest;
 import ru.sweetbun.becomeanyone.dto.lesson.request.CreateLessonRequest;
 import ru.sweetbun.becomeanyone.dto.lesson.request.UpdateLessonRequest;
 import ru.sweetbun.becomeanyone.dto.lesson.request.UpdateLessonInCourseRequest;
@@ -19,6 +19,7 @@ import ru.sweetbun.becomeanyone.config.ModelMapperConfig;
 import ru.sweetbun.becomeanyone.domain.entity.Content;
 import ru.sweetbun.becomeanyone.domain.entity.Lesson;
 import ru.sweetbun.becomeanyone.domain.entity.Module;
+import ru.sweetbun.becomeanyone.dto.lesson.response.LessonResponse;
 import ru.sweetbun.becomeanyone .exception.ResourceNotFoundException;
 import ru.sweetbun.becomeanyone.domain.repository.LessonRepository;
 
@@ -30,7 +31,7 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class LessonServiceTests {
+class LessonServiceImplTests {
 
     @Mock
     private LessonRepository lessonRepository;
@@ -44,16 +45,18 @@ class LessonServiceTests {
     private ContentService contentService;
 
     @InjectMocks
-    private LessonService lessonService;
+    private LessonServiceImpl lessonServiceImpl;
 
     private Module module;
     private Map<Long, Lesson> currentLessonsMap;
+    private LessonResponse lessonResponse;
 
     @BeforeEach
     public void setUp() {
-        lessonService = new LessonService(lessonRepository, modelMapper, moduleService, contentService);
+        lessonServiceImpl = new LessonServiceImpl(lessonRepository, modelMapper, moduleService, contentService);
 
         module = Module.builder().id(1L).title("Module 1").build();
+        lessonResponse = new LessonResponse();
 
         Lesson lesson1 = Lesson.builder().id(1L).title("Lesson 1").orderNum(1).module(module).build();
         Lesson lesson2 = Lesson.builder().id(2L).title("Lesson 2").orderNum(2).module(module).build();
@@ -68,15 +71,14 @@ class LessonServiceTests {
     @Test
     void createLesson_ValidInput_ShouldReturnCreatedLesson() {
         CreateLessonRequest lessonDTO = CreateLessonRequest.builder().build();
-        Lesson expectedLesson = new Lesson();
 
         when(moduleService.getModuleById(1L)).thenReturn(module);
-        when(lessonRepository.save(any(Lesson.class))).thenReturn(expectedLesson);
+        when(lessonRepository.save(any(Lesson.class))).thenReturn(currentLessonsMap.get(1L));
 
-        Lesson result = lessonService.createLesson(lessonDTO, 1L);
+        LessonResponse result = lessonServiceImpl.createLesson(lessonDTO, 1L);
 
         assertNotNull(result);
-        assertEquals(expectedLesson, result);
+        assertEquals(lessonResponse, result);
         verify(lessonRepository).save(any(Lesson.class));
     }
 
@@ -86,40 +88,40 @@ class LessonServiceTests {
 
         when(moduleService.getModuleById(1L)).thenThrow(new ResourceNotFoundException(Module.class, 1L));
 
-        assertThrows(ResourceNotFoundException.class, () -> lessonService.createLesson(lessonDTO, 1L));
+        assertThrows(ResourceNotFoundException.class, () -> lessonServiceImpl.createLesson(lessonDTO, 1L));
     }
 
     @Test
-    void getLessonById_LessonExists_ShouldReturnLesson() {
+    void fetchLessonById_LessonExists_ShouldReturnLesson() {
         Lesson lesson = currentLessonsMap.get(1L);
 
         when(lessonRepository.findById(1L)).thenReturn(Optional.of(lesson));
 
-        Lesson result = lessonService.getLessonById(1L);
+        Lesson result = lessonServiceImpl.fetchLessonById(1L);
 
         assertEquals(lesson, result);
         verify(lessonRepository).findById(1L);
     }
 
     @Test
-    void getLessonById_LessonDoesNotExist_ShouldThrowException() {
+    void fetchLessonById_LessonDoesNotExist_ShouldThrowException() {
         when(lessonRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> lessonService.getLessonById(1L));
+        assertThrows(ResourceNotFoundException.class, () -> lessonServiceImpl.fetchLessonById(1L));
     }
 
     @Test
     void updateLesson_LessonExists_ShouldUpdateAndReturnLesson() {
-        UpdateLessonRequest updateLessonRequest = UpdateLessonRequest.builder().content(new ContentDTO("", "")).build();
+        UpdateLessonRequest updateLessonRequest = UpdateLessonRequest.builder().content(new ContentRequest("", "")).build();
         Lesson lesson = currentLessonsMap.get(1L);
         Content content =  Content.builder().id(1L).build();
         lesson.setContent(content);
 
         when(lessonRepository.findById(1L)).thenReturn(Optional.of(lesson));
         when(lessonRepository.save(lesson)).thenReturn(lesson);
-        when(contentService.updateContent(any(ContentDTO.class), eq(content))).thenReturn(content);
+        when(contentService.updateContent(any(ContentRequest.class), eq(content))).thenReturn(content);
 
-        Lesson result = lessonService.updateLesson(updateLessonRequest, 1L);
+        LessonResponse result = lessonServiceImpl.updateLesson(updateLessonRequest, 1L);
 
         assertEquals(lesson, result);
         verify(lessonRepository).save(lesson);
@@ -131,7 +133,7 @@ class LessonServiceTests {
 
         when(lessonRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> lessonService.updateLesson(updateLessonRequest, 1L));
+        assertThrows(ResourceNotFoundException.class, () -> lessonServiceImpl.updateLesson(updateLessonRequest, 1L));
     }
 
     @Test
@@ -142,7 +144,7 @@ class LessonServiceTests {
         when(lessonRepository.findByOrderNumGreaterThan(lesson.getOrderNum()))
                 .thenReturn(List.of(currentLessonsMap.get(2L), currentLessonsMap.get(3L)));
 
-        long result = lessonService.deleteLessonById(1L);
+        long result = lessonServiceImpl.deleteLessonById(1L);
 
         assertEquals(1L, result);
         verify(lessonRepository).deleteById(1L);
@@ -154,7 +156,7 @@ class LessonServiceTests {
     void deleteLessonById_LessonDoesNotExist_ShouldThrowException() {
         when(lessonRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> lessonService.deleteLessonById(1L));
+        assertThrows(ResourceNotFoundException.class, () -> lessonServiceImpl.deleteLessonById(1L));
     }
 
     @Test
@@ -167,7 +169,7 @@ class LessonServiceTests {
         module.getLessons().add(currentLessonsMap.get(3L));
 
         //Act
-        List<Lesson> result = lessonService.updateLessons(lessonDTOS, module);
+        List<Lesson> result = lessonServiceImpl.updateLessons(lessonDTOS, module);
 
         //Assert
         assertNotNull(result);
@@ -177,7 +179,7 @@ class LessonServiceTests {
 
     @Test
     void updateLessons_EmptyList_ShouldReturnEmptyList() {
-        List<Lesson> result = lessonService.updateLessons(new ArrayList<>(), module);
+        List<Lesson> result = lessonServiceImpl.updateLessons(new ArrayList<>(), module);
 
         assertTrue(result.isEmpty());
         verify(lessonRepository, never()).deleteAll(any());
@@ -190,7 +192,7 @@ class LessonServiceTests {
                 CreateLessonRequest.builder().title("Lesson B").build()
         );
 
-        lessonService.createLessons(lessonDTOS, module);
+        lessonServiceImpl.createLessons(lessonDTOS, module);
 
         verify(lessonRepository).saveAll(anyList());
     }
@@ -199,7 +201,7 @@ class LessonServiceTests {
     void createLessons_EmptyList_ShouldNotSaveAnything() {
         List<CreateLessonRequest> emptyLessonDTOS = new ArrayList<>();
 
-        lessonService.createLessons(emptyLessonDTOS, module);
+        lessonServiceImpl.createLessons(emptyLessonDTOS, module);
 
         verify(lessonRepository, never()).saveAll(any());
     }
@@ -209,7 +211,7 @@ class LessonServiceTests {
         when(moduleService.getModuleById(1L)).thenReturn(module);
         when(lessonRepository.findAllByModuleOrderByOrderNumAsc(module)).thenReturn(new ArrayList<>(currentLessonsMap.values()));
 
-        List<Lesson> result = lessonService.getAllLessonsByModule(1L);
+        List<LessonResponse> result = lessonServiceImpl.getAllLessonsByModule(1L);
 
         assertNotNull(result);
         assertEquals(3, result.size());
@@ -220,7 +222,7 @@ class LessonServiceTests {
     void getAllLessonsByModule_ModuleDoesNotExist_ShouldThrowException() {
         when(moduleService.getModuleById(1L)).thenThrow(new ResourceNotFoundException(Module.class, 1L));
 
-        assertThrows(ResourceNotFoundException.class, () -> lessonService.getAllLessonsByModule(1L));
+        assertThrows(ResourceNotFoundException.class, () -> lessonServiceImpl.getAllLessonsByModule(1L));
     }
 
     @ParameterizedTest
@@ -230,7 +232,7 @@ class LessonServiceTests {
         module.setLessons(new ArrayList<>(currentLessonsMap.values()));
 
         // Act
-        List<Lesson> updatedLessons = lessonService.updateLessons(lessonDTOS, module);
+        List<Lesson> updatedLessons = lessonServiceImpl.updateLessons(lessonDTOS, module);
 
         // Assert
         assertEquals(expectedLessons.size(), updatedLessons.size());
