@@ -5,11 +5,11 @@
         <groupId>ru.sweetbun</groupId>
         <artifactId>BecomeAnyone</artifactId>
         <version>0.0.1-SNAPSHOT</version>
-        <relativePath/>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>client</artifactId>
-    <packaging>war</packaging>
+    <packaging>jar</packaging>
     <name>BecomeAnyone Client</name>
 
     <dependencies>

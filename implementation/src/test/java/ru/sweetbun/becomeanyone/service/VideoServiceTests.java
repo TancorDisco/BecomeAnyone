@@ -9,8 +9,8 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ru.sweetbun.becomeanyone.domain.entity.Video;
-import ru.sweetbun.becomeanyone.domain.repository.VideoRepository;
+import ru.sweetbun.becomeanyone.entity.Video;
+import ru.sweetbun.becomeanyone.repository.VideoRepository;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.times;

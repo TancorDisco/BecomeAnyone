@@ -11,9 +11,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 import ru.sweetbun.becomeanyone.dto.profile.ProfileRequest;
 import ru.sweetbun.becomeanyone.config.ModelMapperConfig;
-import ru.sweetbun.becomeanyone.domain.entity.Profile;
+import ru.sweetbun.becomeanyone.entity.Profile;
 import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
-import ru.sweetbun.becomeanyone.domain.repository.ProfileRepository;
+import ru.sweetbun.becomeanyone.repository.ProfileRepository;
 
 import java.util.List;
 import java.util.Optional;

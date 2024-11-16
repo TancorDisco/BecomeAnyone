@@ -13,12 +13,12 @@ import ru.sweetbun.becomeanyone.dto.user.request.UserRequest;
 import ru.sweetbun.becomeanyone.contract.AuthService;
 import ru.sweetbun.becomeanyone.contract.ProfileService;
 import ru.sweetbun.becomeanyone.contract.UserService;
-import ru.sweetbun.becomeanyone.domain.entity.Profile;
-import ru.sweetbun.becomeanyone.domain.entity.Role;
-import ru.sweetbun.becomeanyone.domain.entity.User;
+import ru.sweetbun.becomeanyone.entity.Profile;
+import ru.sweetbun.becomeanyone.entity.Role;
+import ru.sweetbun.becomeanyone.entity.User;
 import ru.sweetbun.becomeanyone.dto.user.response.UserResponse;
 import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
-import ru.sweetbun.becomeanyone.domain.repository.UserRepository;
+import ru.sweetbun.becomeanyone.repository.UserRepository;
 import ru.sweetbun.becomeanyone.util.SecurityUtils;
 
 import java.util.List;

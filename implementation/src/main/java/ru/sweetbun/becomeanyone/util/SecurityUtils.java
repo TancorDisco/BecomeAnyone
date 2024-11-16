@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-import ru.sweetbun.becomeanyone.domain.entity.User;
+import ru.sweetbun.becomeanyone.entity.User;
 import ru.sweetbun.becomeanyone.service.UserServiceImpl;
 
 @RequiredArgsConstructor

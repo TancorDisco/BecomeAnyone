@@ -12,8 +12,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 import ru.sweetbun.becomeanyone.config.ModelMapperConfig;
 import ru.sweetbun.becomeanyone.dto.content.ContentRequest;
-import ru.sweetbun.becomeanyone.domain.entity.Content;
-import ru.sweetbun.becomeanyone.domain.entity.Video;
+import ru.sweetbun.becomeanyone.entity.Content;
+import ru.sweetbun.becomeanyone.entity.Video;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;

@@ -11,13 +11,13 @@ import ru.sweetbun.becomeanyone.dto.answer.request.CreateAnswerRequest;
 import ru.sweetbun.becomeanyone.dto.question.request.QuestionRequest;
 import ru.sweetbun.becomeanyone.dto.answer.request.UpdateAnswerRequest;
 import ru.sweetbun.becomeanyone.dto.question.request.QuestionToCheckRequest;
-import ru.sweetbun.becomeanyone.domain.entity.Answer;
-import ru.sweetbun.becomeanyone.domain.entity.Question;
-import ru.sweetbun.becomeanyone.domain.entity.Test;
+import ru.sweetbun.becomeanyone.entity.Answer;
+import ru.sweetbun.becomeanyone.entity.Question;
+import ru.sweetbun.becomeanyone.entity.Test;
 import ru.sweetbun.becomeanyone.dto.question.response.QuestionResponse;
 import ru.sweetbun.becomeanyone.exception.ObjectMustContainException;
 import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
-import ru.sweetbun.becomeanyone.domain.repository.QuestionRepository;
+import ru.sweetbun.becomeanyone.repository.QuestionRepository;
 
 import java.util.*;
 import java.util.stream.Collectors;

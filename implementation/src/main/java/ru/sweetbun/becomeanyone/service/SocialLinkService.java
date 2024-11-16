@@ -5,9 +5,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.sweetbun.becomeanyone.dto.sociallink.SocialLinkRequest;
-import ru.sweetbun.becomeanyone.domain.entity.SocialLink;
+import ru.sweetbun.becomeanyone.entity.SocialLink;
 import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
-import ru.sweetbun.becomeanyone.domain.repository.SocialLinkRepository;
+import ru.sweetbun.becomeanyone.repository.SocialLinkRepository;
 
 import java.util.List;
 

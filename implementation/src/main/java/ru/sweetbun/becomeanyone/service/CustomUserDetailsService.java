@@ -8,7 +8,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.sweetbun.becomeanyone.domain.entity.User;
+import ru.sweetbun.becomeanyone.entity.User;
 
 import java.util.Set;
 import java.util.stream.Collectors;

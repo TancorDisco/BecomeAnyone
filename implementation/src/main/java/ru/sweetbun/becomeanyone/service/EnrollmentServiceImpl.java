@@ -6,19 +6,17 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.sweetbun.becomeanyone.contract.EnrollmentService;
-import ru.sweetbun.becomeanyone.domain.entity.Course;
-import ru.sweetbun.becomeanyone.domain.entity.Enrollment;
-import ru.sweetbun.becomeanyone.domain.entity.Progress;
-import ru.sweetbun.becomeanyone.domain.entity.User;
+import ru.sweetbun.becomeanyone.entity.Course;
+import ru.sweetbun.becomeanyone.entity.Enrollment;
+import ru.sweetbun.becomeanyone.entity.Progress;
+import ru.sweetbun.becomeanyone.entity.User;
 import ru.sweetbun.becomeanyone.dto.enrollment.EnrollmentResponse;
 import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
-import ru.sweetbun.becomeanyone.domain.repository.EnrollmentRepository;
+import ru.sweetbun.becomeanyone.repository.EnrollmentRepository;
 import ru.sweetbun.becomeanyone.util.SecurityUtils;
 
 import java.time.LocalDate;
 import java.util.List;
-
-import static ru.sweetbun.becomeanyone.domain.entity.enums.EnrollmentStatus.*;
 
 @Transactional(readOnly = true)
 @RequiredArgsConstructor

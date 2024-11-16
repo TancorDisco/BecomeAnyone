@@ -4,11 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.sweetbun.becomeanyone.domain.entity.Course;
-import ru.sweetbun.becomeanyone.domain.entity.Progress;
-import ru.sweetbun.becomeanyone.domain.entity.TestResult;
+import ru.sweetbun.becomeanyone.entity.Course;
+import ru.sweetbun.becomeanyone.entity.Progress;
+import ru.sweetbun.becomeanyone.entity.TestResult;
 import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
-import ru.sweetbun.becomeanyone.domain.repository.ProgressRepository;
+import ru.sweetbun.becomeanyone.repository.ProgressRepository;
 
 import java.util.List;
 

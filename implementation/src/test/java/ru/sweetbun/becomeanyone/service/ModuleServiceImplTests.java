@@ -15,11 +15,11 @@ import ru.sweetbun.becomeanyone.dto.module.request.CreateModuleRequest;
 import ru.sweetbun.becomeanyone.dto.module.request.UpdateModuleRequest;
 import ru.sweetbun.becomeanyone.dto.module.request.UpdateModuleInCourseRequest;
 import ru.sweetbun.becomeanyone.config.ModelMapperConfig;
-import ru.sweetbun.becomeanyone.domain.entity.Course;
-import ru.sweetbun.becomeanyone.domain.entity.Module;
+import ru.sweetbun.becomeanyone.entity.Course;
+import ru.sweetbun.becomeanyone.entity.Module;
 import ru.sweetbun.becomeanyone.dto.module.response.ModuleResponse;
 import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
-import ru.sweetbun.becomeanyone.domain.repository.ModuleRepository;
+import ru.sweetbun.becomeanyone.repository.ModuleRepository;
 
 import java.util.*;
 import java.util.stream.Stream;

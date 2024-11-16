@@ -9,9 +9,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 import ru.sweetbun.becomeanyone.dto.sociallink.SocialLinkRequest;
 import ru.sweetbun.becomeanyone.config.ModelMapperConfig;
-import ru.sweetbun.becomeanyone.domain.entity.SocialLink;
+import ru.sweetbun.becomeanyone.entity.SocialLink;
 import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
-import ru.sweetbun.becomeanyone.domain.repository.SocialLinkRepository;
+import ru.sweetbun.becomeanyone.repository.SocialLinkRepository;
 
 import java.util.List;
 import java.util.Optional;

@@ -8,10 +8,10 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.sweetbun.becomeanyone.dto.answer.request.CreateAnswerRequest;
 import ru.sweetbun.becomeanyone.dto.answer.request.UpdateAnswerRequest;
 import ru.sweetbun.becomeanyone.dto.answer.request.AnswerToCheckRequest;
-import ru.sweetbun.becomeanyone.domain.entity.Answer;
-import ru.sweetbun.becomeanyone.domain.entity.Question;
+import ru.sweetbun.becomeanyone.entity.Answer;
+import ru.sweetbun.becomeanyone.entity.Question;
 import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
-import ru.sweetbun.becomeanyone.domain.repository.AnswerRepository;
+import ru.sweetbun.becomeanyone.repository.AnswerRepository;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -4,8 +4,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 
-@SpringBootApplication
-@EnableFeignClients(basePackages = "ru.sweetbun.becomeanyone.client")
+@SpringBootApplication(scanBasePackages = "ru.sweetbun.becomeanyone")
+@EnableFeignClients(basePackages = "ru.sweetbun.becomeanyone")
 public class BecomeAnyoneApplication {
 
 	public static void main(String[] args) {

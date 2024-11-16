@@ -20,11 +20,6 @@
         </dependency>
         <dependency>
             <groupId>ru.sweetbun</groupId>
-            <artifactId>implementation</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ru.sweetbun</groupId>
             <artifactId>client</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -60,10 +55,6 @@
     <build>
         <finalName>rest</finalName>
         <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>

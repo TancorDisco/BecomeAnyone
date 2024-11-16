@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.sweetbun.becomeanyone.domain.entity.Video;
-import ru.sweetbun.becomeanyone.domain.repository.VideoRepository;
+import ru.sweetbun.becomeanyone.entity.Video;
+import ru.sweetbun.becomeanyone.repository.VideoRepository;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

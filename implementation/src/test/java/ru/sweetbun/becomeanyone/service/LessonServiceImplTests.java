@@ -16,12 +16,12 @@ import ru.sweetbun.becomeanyone.dto.lesson.request.CreateLessonRequest;
 import ru.sweetbun.becomeanyone.dto.lesson.request.UpdateLessonRequest;
 import ru.sweetbun.becomeanyone.dto.lesson.request.UpdateLessonInCourseRequest;
 import ru.sweetbun.becomeanyone.config.ModelMapperConfig;
-import ru.sweetbun.becomeanyone.domain.entity.Content;
-import ru.sweetbun.becomeanyone.domain.entity.Lesson;
-import ru.sweetbun.becomeanyone.domain.entity.Module;
+import ru.sweetbun.becomeanyone.entity.Content;
+import ru.sweetbun.becomeanyone.entity.Lesson;
+import ru.sweetbun.becomeanyone.entity.Module;
 import ru.sweetbun.becomeanyone.dto.lesson.response.LessonResponse;
-import ru.sweetbun.becomeanyone .exception.ResourceNotFoundException;
-import ru.sweetbun.becomeanyone.domain.repository.LessonRepository;
+import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
+import ru.sweetbun.becomeanyone.repository.LessonRepository;
 
 import java.util.*;
 import java.util.stream.Stream;

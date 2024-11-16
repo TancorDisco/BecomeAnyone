@@ -9,8 +9,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import ru.sweetbun.becomeanyone.domain.entity.Role;
-import ru.sweetbun.becomeanyone.domain.entity.User;
+import ru.sweetbun.becomeanyone.entity.Role;
+import ru.sweetbun.becomeanyone.entity.User;
 
 import java.util.Collections;
 import java.util.Set;

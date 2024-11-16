@@ -5,9 +5,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.sweetbun.becomeanyone.dto.profile.ProfileRequest;
-import ru.sweetbun.becomeanyone.domain.entity.Profile;
+import ru.sweetbun.becomeanyone.entity.Profile;
 import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
-import ru.sweetbun.becomeanyone.domain.repository.ProfileRepository;
+import ru.sweetbun.becomeanyone.repository.ProfileRepository;
 
 import java.util.List;
 

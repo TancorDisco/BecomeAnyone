@@ -14,11 +14,11 @@ import ru.sweetbun.becomeanyone.dto.question.request.QuestionRequest;
 import ru.sweetbun.becomeanyone.dto.answer.request.UpdateAnswerRequest;
 import ru.sweetbun.becomeanyone.dto.question.request.QuestionToCheckRequest;
 import ru.sweetbun.becomeanyone.config.ModelMapperConfig;
-import ru.sweetbun.becomeanyone.domain.entity.Question;
+import ru.sweetbun.becomeanyone.entity.Question;
 import ru.sweetbun.becomeanyone.dto.question.response.QuestionResponse;
 import ru.sweetbun.becomeanyone.exception.ObjectMustContainException;
 import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
-import ru.sweetbun.becomeanyone.domain.repository.QuestionRepository;
+import ru.sweetbun.becomeanyone.repository.QuestionRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -59,7 +59,7 @@ class QuestionServiceImplTests {
         QuestionRequest<CreateAnswerRequest> questionRequest = new QuestionRequest<>();
         questionRequest.setAnswers(answers);
         Long testId = 1L;
-        ru.sweetbun.becomeanyone.domain.entity.Test test = new ru.sweetbun.becomeanyone.domain.entity.Test();
+        ru.sweetbun.becomeanyone.entity.Test test = new ru.sweetbun.becomeanyone.entity.Test();
 
         when(testServiceImpl.fetchTestById(testId)).thenReturn(test);
         when(questionRepository.save(any(Question.class))).thenReturn(question);
@@ -106,7 +106,7 @@ class QuestionServiceImplTests {
     @Test
     void getAllQuestionsByTest_ExistingTest_ReturnsQuestions() {
         Long testId = 1L;
-        ru.sweetbun.becomeanyone.domain.entity.Test test = new ru.sweetbun.becomeanyone.domain.entity.Test();
+        ru.sweetbun.becomeanyone.entity.Test test = new ru.sweetbun.becomeanyone.entity.Test();
         List<Question> questions = List.of(question);
         when(testServiceImpl.fetchTestById(testId)).thenReturn(test);
         when(questionRepository.findAllQuestionsByTest(test)).thenReturn(questions);
