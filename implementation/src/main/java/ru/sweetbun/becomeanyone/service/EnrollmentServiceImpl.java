@@ -56,8 +56,11 @@ public class EnrollmentServiceImpl implements EnrollmentService {
                 .orElseThrow(() -> new ResourceNotFoundException(Enrollment.class, id));
     }
 
-    public List<Enrollment> getAllEnrollmentsByStudent() {
-        return enrollmentRepository.findAllByStudent(securityUtils.getCurrentUser());
+    @Override
+    public List<EnrollmentResponse> getAllEnrollmentsByCurrentStudent() {
+        return enrollmentRepository.findAllByStudent(securityUtils.getCurrentUser()).stream()
+                .map(enrollment -> modelMapper.map(enrollment, EnrollmentResponse.class))
+                .toList();
     }
 
     @Transactional

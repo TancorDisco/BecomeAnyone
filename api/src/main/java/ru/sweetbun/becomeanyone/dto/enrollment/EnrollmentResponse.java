@@ -17,9 +17,8 @@ import java.time.LocalDate;
 public class EnrollmentResponse {
 
     private Long id;
-    @JsonBackReference
-    private UserResponse user;
     @JsonManagedReference
+    private UserResponse student;
     private CourseResponse course;
     private LocalDate enrollmentDate;
     private ProgressResponse progress;

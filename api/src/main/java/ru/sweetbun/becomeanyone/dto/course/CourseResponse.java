@@ -16,7 +16,6 @@ import java.util.List;
 public class CourseResponse {
 
     private Long id;
-    @JsonBackReference
     private UserResponse teacher;
     private String title;
     private String description;

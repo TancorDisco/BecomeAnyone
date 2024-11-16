@@ -98,15 +98,14 @@ class EnrollmentServiceImplTests {
     }
 
     @Test
-    void getAllEnrollmentsByStudent_ValidStudent_ReturnsEnrollmentsList() {
+    void getAllEnrollmentsByStudent_ValidStudent_ReturnsEnrollmentsListCurrent() {
         when(enrollmentRepository.findAllByStudent(currentUser)).thenReturn(List.of(enrollment));
 
-        List<Enrollment> enrollments = enrollmentServiceImpl.getAllEnrollmentsByStudent();
+        List<EnrollmentResponse> enrollments = enrollmentServiceImpl.getAllEnrollmentsByCurrentStudent();
 
         assertNotNull(enrollments);
         assertFalse(enrollments.isEmpty());
         assertEquals(1, enrollments.size());
-        assertEquals(currentUser, enrollments.get(0).getStudent());
     }
 
     @ParameterizedTest

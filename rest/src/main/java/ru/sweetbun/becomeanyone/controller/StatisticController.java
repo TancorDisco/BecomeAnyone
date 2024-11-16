@@ -5,17 +5,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.sweetbun.becomeanyone.service.EnrollmentServiceImpl;
+import ru.sweetbun.becomeanyone.contract.EnrollmentService;
 
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/profile/statistics")
 public class StatisticController {
 
-    private final EnrollmentServiceImpl enrollmentServiceImpl;
+    private final EnrollmentService enrollmentService;
 
     @GetMapping
     public ResponseEntity<?> getAllEnrollmentsByStudent() {
-        return ResponseEntity.ok(enrollmentServiceImpl.getAllEnrollmentsByStudent());
+        return ResponseEntity.ok(enrollmentService.getAllEnrollmentsByCurrentStudent());
     }
 }
