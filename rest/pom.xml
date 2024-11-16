@@ -20,6 +20,11 @@
         </dependency>
         <dependency>
             <groupId>ru.sweetbun</groupId>
+            <artifactId>implementation</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ru.sweetbun</groupId>
             <artifactId>client</artifactId>
             <version>${project.version}</version>
         </dependency>

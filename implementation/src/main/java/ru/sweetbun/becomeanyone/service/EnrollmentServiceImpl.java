@@ -18,6 +18,8 @@ import ru.sweetbun.becomeanyone.util.SecurityUtils;
 import java.time.LocalDate;
 import java.util.List;
 
+import static ru.sweetbun.becomeanyone.entity.enums.EnrollmentStatus.*;
+
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Service
