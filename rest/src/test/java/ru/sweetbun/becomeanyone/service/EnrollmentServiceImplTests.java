@@ -76,7 +76,7 @@ class EnrollmentServiceImplTests {
         EnrollmentResponse createdEnrollment = enrollmentServiceImpl.createEnrollment(1L);
 
         assertNotNull(createdEnrollment);
-        assertEquals(EnrollmentStatus.NOT_STARTED, createdEnrollment.getStatus());
+        assertEquals(EnrollmentStatus.NOT_STARTED.toString(), createdEnrollment.getStatus());
         verify(enrollmentRepository, times(1)).save(any(Enrollment.class));
     }
 
