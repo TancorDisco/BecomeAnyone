@@ -14,6 +14,7 @@ import ru.sweetbun.becomeanyone.config.ModelMapperConfig;
 import ru.sweetbun.becomeanyone.domain.entity.Lesson;
 import ru.sweetbun.becomeanyone.domain.entity.Question;
 import ru.sweetbun.becomeanyone.domain.entity.TestResult;
+import ru.sweetbun.becomeanyone.dto.test.response.TestResponse;
 import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
 import ru.sweetbun.becomeanyone.domain.repository.TestRepository;
 
@@ -24,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class TestServiceTests {
+class TestServiceImplTests {
 
     @Mock
     private LessonServiceImpl lessonServiceImpl;
@@ -41,7 +42,7 @@ class TestServiceTests {
     private TestResultService testResultService;
 
     @InjectMocks
-    private TestService testService;
+    private TestServiceImpl testServiceImpl;
 
     private TestRequest testRequest;
     private ru.sweetbun.becomeanyone.domain.entity.Test test;
@@ -49,7 +50,7 @@ class TestServiceTests {
 
     @BeforeEach
     void setUp() {
-        testService = new TestService(lessonServiceImpl, testRepository, modelMapper, questionServiceImpl, testResultService);
+        testServiceImpl = new TestServiceImpl(lessonServiceImpl, testRepository, modelMapper, questionServiceImpl, testResultService);
 
         testRequest = new TestRequest("Test Name", "");
         lesson = Lesson.builder().id(1L).build();
@@ -62,7 +63,7 @@ class TestServiceTests {
         when(testRepository.save(any(ru.sweetbun.becomeanyone.domain.entity.Test.class))).thenAnswer(
                 invocation -> invocation.getArgument(0));
 
-        ru.sweetbun.becomeanyone.domain.entity.Test result = testService.createTest(testRequest, 1L);
+        TestResponse result = testServiceImpl.createTest(testRequest, 1L);
 
         assertNotNull(result);
         assertEquals("Test Name", result.getTitle());
@@ -73,24 +74,24 @@ class TestServiceTests {
     void createTest_LessonNotFound_ThrowsResourceNotFoundException() {
         when(lessonServiceImpl.fetchLessonById(1L)).thenThrow(new ResourceNotFoundException(Lesson.class, 1L));
 
-        assertThrows(ResourceNotFoundException.class, () -> testService.createTest(testRequest, 1L));
+        assertThrows(ResourceNotFoundException.class, () -> testServiceImpl.createTest(testRequest, 1L));
     }
 
     @Test
-    void getTestById_TestExists_ReturnsTest() {
+    void fetchTestById_TestExists_ReturnsTest() {
         when(testRepository.findById(1L)).thenReturn(Optional.of(test));
 
-        ru.sweetbun.becomeanyone.domain.entity.Test result = testService.getTestById(1L);
+        ru.sweetbun.becomeanyone.domain.entity.Test result = testServiceImpl.fetchTestById(1L);
 
         assertNotNull(result);
         assertEquals(1L, result.getId());
     }
 
     @Test
-    void getTestById_TestNotFound_ThrowsResourceNotFoundException() {
+    void fetchTestById_TestNotFound_ThrowsResourceNotFoundException() {
         when(testRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> testService.getTestById(1L));
+        assertThrows(ResourceNotFoundException.class, () -> testServiceImpl.fetchTestById(1L));
     }
 
     @Test
@@ -99,7 +100,7 @@ class TestServiceTests {
         when(testRepository.findAllTestsByLesson(lesson)).thenReturn(List.of(test, test));
 
         // Act
-        List<ru.sweetbun.becomeanyone.domain.entity.Test> result = testService.getAllTestsByLesson(1L);
+        List<TestResponse> result = testServiceImpl.getAllTestsByLesson(1L);
 
         // Assert
         assertNotNull(result);
@@ -111,7 +112,7 @@ class TestServiceTests {
         when(testRepository.findById(1L)).thenReturn(Optional.of(test));
         when(testRepository.save(any(ru.sweetbun.becomeanyone.domain.entity.Test.class))).thenReturn(test);
 
-        ru.sweetbun.becomeanyone.domain.entity.Test result = testService.updateTest(testRequest, 1L);
+        TestResponse result = testServiceImpl.updateTest(testRequest, 1L);
 
         assertNotNull(result);
         assertEquals("Test Name", result.getTitle());
@@ -121,14 +122,14 @@ class TestServiceTests {
     void updateTest_TestNotFound_ThrowsResourceNotFoundException() {
         when(testRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> testService.updateTest(testRequest, 1L));
+        assertThrows(ResourceNotFoundException.class, () -> testServiceImpl.updateTest(testRequest, 1L));
     }
 
     @Test
     void deleteTestById_TestExists_TestDeleted() {
         when(testRepository.findById(1L)).thenReturn(Optional.of(test));
 
-        long deletedId = testService.deleteTestById(1L);
+        long deletedId = testServiceImpl.deleteTestById(1L);
 
         assertEquals(1L, deletedId);
         verify(testRepository).deleteById(1L);
@@ -138,7 +139,7 @@ class TestServiceTests {
     void deleteTestById_TestNotFound_ThrowsResourceNotFoundException() {
         when(testRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> testService.deleteTestById(1L));
+        assertThrows(ResourceNotFoundException.class, () -> testServiceImpl.deleteTestById(1L));
     }
 
     @Test
@@ -150,7 +151,7 @@ class TestServiceTests {
         lenient().when(questionServiceImpl.checkQuestions(anyList(), anyList())).thenReturn(List.of(new Question()));
         when(testResultService.createTestResult(any(), anyDouble(), anyLong())).thenReturn(new TestResult());
 
-        var result = testService.checkTest(testToCheckRequest, 1L, 1L);
+        var result = testServiceImpl.checkTest(testToCheckRequest, 1L, 1L);
 
         assertNotNull(result);
         assertNotNull(result.get("test"));
@@ -162,6 +163,6 @@ class TestServiceTests {
         TestToCheckRequest testToCheckRequest = new TestToCheckRequest(null);
         when(testRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> testService.checkTest(testToCheckRequest, 1L, 1L));
+        assertThrows(ResourceNotFoundException.class, () -> testServiceImpl.checkTest(testToCheckRequest, 1L, 1L));
     }
 }

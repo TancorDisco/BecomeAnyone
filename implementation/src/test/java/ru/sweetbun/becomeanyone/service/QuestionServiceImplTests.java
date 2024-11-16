@@ -32,7 +32,7 @@ import static org.mockito.Mockito.when;
 class QuestionServiceImplTests {
 
     @Mock
-    private TestService testService;
+    private TestServiceImpl testServiceImpl;
 
     @Mock
     private AnswerService answerService;
@@ -49,7 +49,7 @@ class QuestionServiceImplTests {
 
     @BeforeEach
     void setUp() {
-        questionServiceImpl = new QuestionServiceImpl(testService, answerService, questionRepository, modelMapper);
+        questionServiceImpl = new QuestionServiceImpl(testServiceImpl, answerService, questionRepository, modelMapper);
         question = new Question();
     }
 
@@ -61,7 +61,7 @@ class QuestionServiceImplTests {
         Long testId = 1L;
         ru.sweetbun.becomeanyone.domain.entity.Test test = new ru.sweetbun.becomeanyone.domain.entity.Test();
 
-        when(testService.getTestById(testId)).thenReturn(test);
+        when(testServiceImpl.fetchTestById(testId)).thenReturn(test);
         when(questionRepository.save(any(Question.class))).thenReturn(question);
 
         QuestionResponse result = questionServiceImpl.createQuestion(questionRequest, testId);
@@ -108,7 +108,7 @@ class QuestionServiceImplTests {
         Long testId = 1L;
         ru.sweetbun.becomeanyone.domain.entity.Test test = new ru.sweetbun.becomeanyone.domain.entity.Test();
         List<Question> questions = List.of(question);
-        when(testService.getTestById(testId)).thenReturn(test);
+        when(testServiceImpl.fetchTestById(testId)).thenReturn(test);
         when(questionRepository.findAllQuestionsByTest(test)).thenReturn(questions);
 
         List<QuestionResponse> result = questionServiceImpl.getAllQuestionsByTest(testId);

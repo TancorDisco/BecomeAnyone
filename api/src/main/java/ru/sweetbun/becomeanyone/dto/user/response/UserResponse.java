@@ -1,7 +1,6 @@
 package ru.sweetbun.becomeanyone.dto.user.response;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
 import ru.sweetbun.becomeanyone.dto.enrollment.EnrollmentResponse;
 import ru.sweetbun.becomeanyone.dto.profile.ProfileResponse;

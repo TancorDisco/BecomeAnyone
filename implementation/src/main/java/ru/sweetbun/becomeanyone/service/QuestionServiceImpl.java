@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 @Service
 public class QuestionServiceImpl implements QuestionService {
     @Lazy
-    private final TestService testService;
+    private final TestServiceImpl testServiceImpl;
     @Lazy
     private final AnswerService answerService;
 
@@ -38,7 +38,7 @@ public class QuestionServiceImpl implements QuestionService {
     @Override
     @Transactional
     public QuestionResponse createQuestion(QuestionRequest<CreateAnswerRequest> questionRequest, Long testId) {
-        Test test = testService.getTestById(testId);
+        Test test = testServiceImpl.fetchTestById(testId);
         List<CreateAnswerRequest> answerDTOS = questionRequest.getAnswers();
         validateAnswers(answerDTOS);
         Question question = modelMapper.map(questionRequest, Question.class);
@@ -62,7 +62,7 @@ public class QuestionServiceImpl implements QuestionService {
 
     @Override
     public List<QuestionResponse> getAllQuestionsByTest(Long testId) {
-        return questionRepository.findAllQuestionsByTest(testService.getTestById(testId)).stream()
+        return questionRepository.findAllQuestionsByTest(testServiceImpl.fetchTestById(testId)).stream()
                 .map(question -> modelMapper.map(question, QuestionResponse.class))
                 .toList();
     }
