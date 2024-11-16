@@ -3,10 +3,10 @@ package ru.sweetbun.becomeanyone.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.sweetbun.becomeanyone.dto.answer.request.CreateAnswerDTO;
-import ru.sweetbun.becomeanyone.dto.question.request.QuestionDTO;
-import ru.sweetbun.becomeanyone.dto.answer.request.UpdateAnswerDTO;
-import ru.sweetbun.becomeanyone.service.QuestionService;
+import ru.sweetbun.becomeanyone.contract.QuestionService;
+import ru.sweetbun.becomeanyone.dto.answer.request.CreateAnswerRequest;
+import ru.sweetbun.becomeanyone.dto.answer.request.UpdateAnswerRequest;
+import ru.sweetbun.becomeanyone.dto.question.request.QuestionRequest;
 
 import static org.springframework.http.ResponseEntity.ok;
 
@@ -19,8 +19,8 @@ public class QuestionController {
 
     @PostMapping
     public ResponseEntity<?> createQuestion(@PathVariable("testId") Long testId,
-                                            @RequestBody QuestionDTO<CreateAnswerDTO> questionDTO) {
-        return ok(questionService.createQuestion(questionDTO, testId));
+                                            @RequestBody QuestionRequest<CreateAnswerRequest> questionRequest) {
+        return ok(questionService.createQuestion(questionRequest, testId));
     }
 
     @GetMapping
@@ -35,8 +35,8 @@ public class QuestionController {
 
     @PatchMapping("{id}")
     public ResponseEntity<?> updateQuestion(@PathVariable("id") Long id,
-                                            @RequestBody QuestionDTO<UpdateAnswerDTO> questionDTO) {
-        return ok(questionService.updateQuestion(questionDTO, id));
+                                            @RequestBody QuestionRequest<UpdateAnswerRequest> questionRequest) {
+        return ok(questionService.updateQuestion(questionRequest, id));
     }
 
     @DeleteMapping("{id}")

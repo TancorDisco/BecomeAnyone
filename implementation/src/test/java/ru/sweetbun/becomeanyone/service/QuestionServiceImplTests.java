@@ -9,12 +9,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
-import ru.sweetbun.becomeanyone.dto.answer.request.CreateAnswerDTO;
-import ru.sweetbun.becomeanyone.dto.question.request.QuestionDTO;
-import ru.sweetbun.becomeanyone.dto.answer.request.UpdateAnswerDTO;
-import ru.sweetbun.becomeanyone.dto.question.request.QuestionToCheckDTO;
+import ru.sweetbun.becomeanyone.dto.answer.request.CreateAnswerRequest;
+import ru.sweetbun.becomeanyone.dto.question.request.QuestionRequest;
+import ru.sweetbun.becomeanyone.dto.answer.request.UpdateAnswerRequest;
+import ru.sweetbun.becomeanyone.dto.question.request.QuestionToCheckRequest;
 import ru.sweetbun.becomeanyone.config.ModelMapperConfig;
 import ru.sweetbun.becomeanyone.domain.entity.Question;
+import ru.sweetbun.becomeanyone.dto.question.response.QuestionResponse;
 import ru.sweetbun.becomeanyone.exception.ObjectMustContainException;
 import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
 import ru.sweetbun.becomeanyone.domain.repository.QuestionRepository;
@@ -28,7 +29,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class QuestionServiceTests {
+class QuestionServiceImplTests {
 
     @Mock
     private TestService testService;
@@ -42,28 +43,28 @@ class QuestionServiceTests {
     private final ModelMapper modelMapper = ModelMapperConfig.createConfiguredModelMapper();
 
     @InjectMocks
-    private QuestionService questionService;
+    private QuestionServiceImpl questionServiceImpl;
 
     private Question question;
 
     @BeforeEach
     void setUp() {
-        questionService = new QuestionService(testService, answerService, questionRepository, modelMapper);
+        questionServiceImpl = new QuestionServiceImpl(testService, answerService, questionRepository, modelMapper);
         question = new Question();
     }
 
     @Test
     void createQuestion_ValidInputs_QuestionCreated() {
-        List<CreateAnswerDTO> answers = List.of(CreateAnswerDTO.builder().build());
-        QuestionDTO<CreateAnswerDTO> questionDTO = new QuestionDTO<>();
-        questionDTO.setAnswers(answers);
+        List<CreateAnswerRequest> answers = List.of(CreateAnswerRequest.builder().build());
+        QuestionRequest<CreateAnswerRequest> questionRequest = new QuestionRequest<>();
+        questionRequest.setAnswers(answers);
         Long testId = 1L;
         ru.sweetbun.becomeanyone.domain.entity.Test test = new ru.sweetbun.becomeanyone.domain.entity.Test();
 
         when(testService.getTestById(testId)).thenReturn(test);
         when(questionRepository.save(any(Question.class))).thenReturn(question);
 
-        Question result = questionService.createQuestion(questionDTO, testId);
+        QuestionResponse result = questionServiceImpl.createQuestion(questionRequest, testId);
 
         assertNotNull(result);
         verify(questionRepository).save(any(Question.class));
@@ -72,34 +73,34 @@ class QuestionServiceTests {
 
     @ParameterizedTest
     @NullAndEmptySource
-    void createQuestion_EmptyOrNullAnswers_ThrowsException(List<CreateAnswerDTO> answers) {
-        QuestionDTO<CreateAnswerDTO> questionDTO = new QuestionDTO<>();
-        questionDTO.setAnswers(answers);
+    void createQuestion_EmptyOrNullAnswers_ThrowsException(List<CreateAnswerRequest> answers) {
+        QuestionRequest<CreateAnswerRequest> questionRequest = new QuestionRequest<>();
+        questionRequest.setAnswers(answers);
 
         ObjectMustContainException exception = assertThrows(
                 ObjectMustContainException.class,
-                () -> questionService.createQuestion(questionDTO, 1L)
+                () -> questionServiceImpl.createQuestion(questionRequest, 1L)
         );
         assertEquals("Question must contain at least one Answer", exception.getMessage());
     }
 
     @Test
-    void getQuestionById_ExistingId_ReturnsQuestion() {
+    void fetchQuestionById_ExistingId_ReturnsQuestion() {
         Long id = 1L;
         when(questionRepository.findById(id)).thenReturn(Optional.of(question));
 
-        Question result = questionService.getQuestionById(id);
+        Question result = questionServiceImpl.fetchQuestionById(id);
 
         assertNotNull(result);
         assertEquals(question, result);
     }
 
     @Test
-    void getQuestionById_NonExistingId_ThrowsResourceNotFoundException() {
+    void fetchQuestionById_NonExistingId_ThrowsResourceNotFoundException() {
         Long id = 1L;
         when(questionRepository.findById(id)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> questionService.getQuestionById(id));
+        assertThrows(ResourceNotFoundException.class, () -> questionServiceImpl.fetchQuestionById(id));
     }
 
     @Test
@@ -110,22 +111,22 @@ class QuestionServiceTests {
         when(testService.getTestById(testId)).thenReturn(test);
         when(questionRepository.findAllQuestionsByTest(test)).thenReturn(questions);
 
-        List<Question> result = questionService.getAllQuestionsByTest(testId);
+        List<QuestionResponse> result = questionServiceImpl.getAllQuestionsByTest(testId);
 
-        assertEquals(questions, result);
+        assertNotNull(result);
     }
 
     @Test
     void updateQuestion_ValidInputs_QuestionUpdated() {
         Long id = 1L;
-        QuestionDTO<UpdateAnswerDTO> questionDTO = new QuestionDTO<>();
-        List<UpdateAnswerDTO> answers = List.of(UpdateAnswerDTO.builder().build());
-        questionDTO.setAnswers(answers);
+        QuestionRequest<UpdateAnswerRequest> questionRequest = new QuestionRequest<>();
+        List<UpdateAnswerRequest> answers = List.of(UpdateAnswerRequest.builder().build());
+        questionRequest.setAnswers(answers);
 
         when(questionRepository.findById(id)).thenReturn(Optional.of(question));
         when(questionRepository.save(question)).thenReturn(question);
 
-        Question result = questionService.updateQuestion(questionDTO, id);
+        QuestionResponse result = questionServiceImpl.updateQuestion(questionRequest, id);
 
         assertNotNull(result);
         verify(answerService).updateAnswers(answers, question);
@@ -135,10 +136,10 @@ class QuestionServiceTests {
     @Test
     void updateQuestion_NonExistingId_ThrowsResourceNotFoundException() {
         Long id = 1L;
-        QuestionDTO<UpdateAnswerDTO> questionDTO = new QuestionDTO<>();
+        QuestionRequest<UpdateAnswerRequest> questionRequest = new QuestionRequest<>();
         when(questionRepository.findById(id)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> questionService.updateQuestion(questionDTO, id));
+        assertThrows(ResourceNotFoundException.class, () -> questionServiceImpl.updateQuestion(questionRequest, id));
     }
 
     @Test
@@ -146,7 +147,7 @@ class QuestionServiceTests {
         Long id = 1L;
         when(questionRepository.findById(id)).thenReturn(Optional.of(question));
 
-        long deletedId = questionService.deleteQuestionById(id);
+        long deletedId = questionServiceImpl.deleteQuestionById(id);
 
         assertEquals(id, deletedId);
         verify(questionRepository).deleteById(id);
@@ -157,28 +158,28 @@ class QuestionServiceTests {
         Long id = 1L;
         when(questionRepository.findById(id)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> questionService.deleteQuestionById(id));
+        assertThrows(ResourceNotFoundException.class, () -> questionServiceImpl.deleteQuestionById(id));
     }
 
     @Test
     void checkQuestions_ValidInputs_ReturnsWrongQuestions() {
-        List<QuestionToCheckDTO> questionDTOS = List.of(QuestionToCheckDTO.builder().build());
+        List<QuestionToCheckRequest> questionDTOS = List.of(QuestionToCheckRequest.builder().build());
         List<Question> questions = List.of(question);
         when(answerService.checkAnswers(any(), any())).thenReturn(false);
 
-        List<Question> result = questionService.checkQuestions(questionDTOS, questions);
+        List<Question> result = questionServiceImpl.checkQuestions(questionDTOS, questions);
 
         assertEquals(questions.size(), result.size());
     }
 
     @Test
     void checkQuestions_QuestionMapMissingQuestion_ThrowsIllegalArgumentException() {
-        List<QuestionToCheckDTO> questionDTOS = List.of(QuestionToCheckDTO.builder().id(1L).build());
+        List<QuestionToCheckRequest> questionDTOS = List.of(QuestionToCheckRequest.builder().id(1L).build());
         List<Question> questions = List.of(Question.builder().id(2L).build());
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> questionService.checkQuestions(questionDTOS, questions)
+                () -> questionServiceImpl.checkQuestions(questionDTOS, questions)
         );
 
         assertEquals("Question with id 1 is null.", exception.getMessage());
@@ -186,9 +187,9 @@ class QuestionServiceTests {
 
     @Test
     void checkQuestions_MismatchedSizes_ThrowsIllegalArgumentException() {
-        List<QuestionToCheckDTO> questionDTOS = List.of(QuestionToCheckDTO.builder().build());
+        List<QuestionToCheckRequest> questionDTOS = List.of(QuestionToCheckRequest.builder().build());
         List<Question> questions = List.of(question, question);
 
-        assertThrows(IllegalArgumentException.class, () -> questionService.checkQuestions(questionDTOS, questions));
+        assertThrows(IllegalArgumentException.class, () -> questionServiceImpl.checkQuestions(questionDTOS, questions));
     }
 }

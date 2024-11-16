@@ -5,8 +5,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.sweetbun.becomeanyone.dto.test.request.TestDTO;
-import ru.sweetbun.becomeanyone.dto.test.request.TestToCheckDTO;
+import ru.sweetbun.becomeanyone.dto.test.request.TestRequest;
+import ru.sweetbun.becomeanyone.dto.test.request.TestToCheckRequest;
 import ru.sweetbun.becomeanyone.domain.entity.Lesson;
 import ru.sweetbun.becomeanyone.domain.entity.Question;
 import ru.sweetbun.becomeanyone.domain.entity.Test;
@@ -29,14 +29,14 @@ public class TestService {
 
     private final ModelMapper modelMapper;
     @Lazy
-    private final QuestionService questionService;
+    private final QuestionServiceImpl questionServiceImpl;
 
     private final TestResultService testResultService;
 
     @Transactional
-    public Test createTest(TestDTO testDTO, Long lessonId) {
+    public Test createTest(TestRequest testRequest, Long lessonId) {
         Lesson lesson = lessonServiceImpl.fetchLessonById(lessonId);
-        Test test = modelMapper.map(testDTO, Test.class);
+        Test test = modelMapper.map(testRequest, Test.class);
         test.setLesson(lesson);
         lesson.getTests().add(test);
         return testRepository.save(test);
@@ -52,9 +52,9 @@ public class TestService {
     }
 
     @Transactional
-    public Test updateTest(TestDTO testDTO, Long id) {
+    public Test updateTest(TestRequest testRequest, Long id) {
         Test test = getTestById(id);
-        modelMapper.map(testDTO, test);
+        modelMapper.map(testRequest, test);
         return testRepository.save(test);
     }
 
@@ -65,11 +65,11 @@ public class TestService {
         return id;
     }
 
-    public Map<String, Object> checkTest(TestToCheckDTO testDTO, Long id, Long courseId) {
+    public Map<String, Object> checkTest(TestToCheckRequest testDTO, Long id, Long courseId) {
         Test test = getTestById(id);
         List<Question> questions = test.getQuestions();
         Test testToSend = modelMapper.map(test, Test.class);
-        List<Question> wrongQuestions = questionService.checkQuestions(testDTO.questions(), questions);
+        List<Question> wrongQuestions = questionServiceImpl.checkQuestions(testDTO.questions(), questions);
         testToSend.setQuestions(wrongQuestions);
         TestResult testResult = testResultService.createTestResult(test,
                 calculatePercent(wrongQuestions.size(), questions.size()), courseId);

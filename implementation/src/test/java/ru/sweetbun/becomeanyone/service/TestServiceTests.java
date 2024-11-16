@@ -7,9 +7,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
-import ru.sweetbun.becomeanyone.dto.test.request.TestDTO;
-import ru.sweetbun.becomeanyone.dto.question.request.QuestionToCheckDTO;
-import ru.sweetbun.becomeanyone.dto.test.request.TestToCheckDTO;
+import ru.sweetbun.becomeanyone.dto.test.request.TestRequest;
+import ru.sweetbun.becomeanyone.dto.question.request.QuestionToCheckRequest;
+import ru.sweetbun.becomeanyone.dto.test.request.TestToCheckRequest;
 import ru.sweetbun.becomeanyone.config.ModelMapperConfig;
 import ru.sweetbun.becomeanyone.domain.entity.Lesson;
 import ru.sweetbun.becomeanyone.domain.entity.Question;
@@ -35,7 +35,7 @@ class TestServiceTests {
     private final ModelMapper modelMapper = ModelMapperConfig.createConfiguredModelMapper();
 
     @Mock
-    private QuestionService questionService;
+    private QuestionServiceImpl questionServiceImpl;
 
     @Mock
     private TestResultService testResultService;
@@ -43,15 +43,15 @@ class TestServiceTests {
     @InjectMocks
     private TestService testService;
 
-    private TestDTO testDTO;
+    private TestRequest testRequest;
     private ru.sweetbun.becomeanyone.domain.entity.Test test;
     private Lesson lesson;
 
     @BeforeEach
     void setUp() {
-        testService = new TestService(lessonServiceImpl, testRepository, modelMapper, questionService, testResultService);
+        testService = new TestService(lessonServiceImpl, testRepository, modelMapper, questionServiceImpl, testResultService);
 
-        testDTO = new TestDTO("Test Name", "");
+        testRequest = new TestRequest("Test Name", "");
         lesson = Lesson.builder().id(1L).build();
         test = ru.sweetbun.becomeanyone.domain.entity.Test.builder().id(1L).lesson(lesson).build();
     }
@@ -62,7 +62,7 @@ class TestServiceTests {
         when(testRepository.save(any(ru.sweetbun.becomeanyone.domain.entity.Test.class))).thenAnswer(
                 invocation -> invocation.getArgument(0));
 
-        ru.sweetbun.becomeanyone.domain.entity.Test result = testService.createTest(testDTO, 1L);
+        ru.sweetbun.becomeanyone.domain.entity.Test result = testService.createTest(testRequest, 1L);
 
         assertNotNull(result);
         assertEquals("Test Name", result.getTitle());
@@ -73,7 +73,7 @@ class TestServiceTests {
     void createTest_LessonNotFound_ThrowsResourceNotFoundException() {
         when(lessonServiceImpl.fetchLessonById(1L)).thenThrow(new ResourceNotFoundException(Lesson.class, 1L));
 
-        assertThrows(ResourceNotFoundException.class, () -> testService.createTest(testDTO, 1L));
+        assertThrows(ResourceNotFoundException.class, () -> testService.createTest(testRequest, 1L));
     }
 
     @Test
@@ -111,7 +111,7 @@ class TestServiceTests {
         when(testRepository.findById(1L)).thenReturn(Optional.of(test));
         when(testRepository.save(any(ru.sweetbun.becomeanyone.domain.entity.Test.class))).thenReturn(test);
 
-        ru.sweetbun.becomeanyone.domain.entity.Test result = testService.updateTest(testDTO, 1L);
+        ru.sweetbun.becomeanyone.domain.entity.Test result = testService.updateTest(testRequest, 1L);
 
         assertNotNull(result);
         assertEquals("Test Name", result.getTitle());
@@ -121,7 +121,7 @@ class TestServiceTests {
     void updateTest_TestNotFound_ThrowsResourceNotFoundException() {
         when(testRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> testService.updateTest(testDTO, 1L));
+        assertThrows(ResourceNotFoundException.class, () -> testService.updateTest(testRequest, 1L));
     }
 
     @Test
@@ -143,14 +143,14 @@ class TestServiceTests {
 
     @Test
     void checkTest_ValidData_ReturnsTestWithResults() {
-        TestToCheckDTO testToCheckDTO = new TestToCheckDTO(List.of(
-                new QuestionToCheckDTO(1L, true, null)));
+        TestToCheckRequest testToCheckRequest = new TestToCheckRequest(List.of(
+                new QuestionToCheckRequest(1L, true, null)));
         test.setQuestions(List.of(Question.builder().id(1L).build()));
         when(testRepository.findById(1L)).thenReturn(Optional.of(test));
-        lenient().when(questionService.checkQuestions(anyList(), anyList())).thenReturn(List.of(new Question()));
+        lenient().when(questionServiceImpl.checkQuestions(anyList(), anyList())).thenReturn(List.of(new Question()));
         when(testResultService.createTestResult(any(), anyDouble(), anyLong())).thenReturn(new TestResult());
 
-        var result = testService.checkTest(testToCheckDTO, 1L, 1L);
+        var result = testService.checkTest(testToCheckRequest, 1L, 1L);
 
         assertNotNull(result);
         assertNotNull(result.get("test"));
@@ -159,9 +159,9 @@ class TestServiceTests {
 
     @Test
     void checkTest_TestNotFound_ThrowsResourceNotFoundException() {
-        TestToCheckDTO testToCheckDTO = new TestToCheckDTO(null);
+        TestToCheckRequest testToCheckRequest = new TestToCheckRequest(null);
         when(testRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> testService.checkTest(testToCheckDTO, 1L, 1L));
+        assertThrows(ResourceNotFoundException.class, () -> testService.checkTest(testToCheckRequest, 1L, 1L));
     }
 }

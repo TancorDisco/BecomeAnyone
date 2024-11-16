@@ -3,8 +3,8 @@ package ru.sweetbun.becomeanyone.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.sweetbun.becomeanyone.dto.test.request.TestDTO;
-import ru.sweetbun.becomeanyone.dto.test.request.TestToCheckDTO;
+import ru.sweetbun.becomeanyone.dto.test.request.TestRequest;
+import ru.sweetbun.becomeanyone.dto.test.request.TestToCheckRequest;
 import ru.sweetbun.becomeanyone.service.TestService;
 
 import static org.springframework.http.ResponseEntity.ok;
@@ -17,8 +17,8 @@ public class TestController {
     private final TestService testService;
 
     @PostMapping
-    public ResponseEntity<?> createTest(@PathVariable("lessonId") Long lessonId, @RequestBody TestDTO testDTO) {
-        return ok(testService.createTest(testDTO, lessonId));
+    public ResponseEntity<?> createTest(@PathVariable("lessonId") Long lessonId, @RequestBody TestRequest testRequest) {
+        return ok(testService.createTest(testRequest, lessonId));
     }
 
     @GetMapping
@@ -32,8 +32,8 @@ public class TestController {
     }
 
     @PatchMapping("{id}")
-    public ResponseEntity<?> updateTest(@PathVariable("id") Long id, @RequestBody TestDTO testDTO) {
-        return ok(testService.updateTest(testDTO, id));
+    public ResponseEntity<?> updateTest(@PathVariable("id") Long id, @RequestBody TestRequest testRequest) {
+        return ok(testService.updateTest(testRequest, id));
     }
 
     @DeleteMapping("{id}")
@@ -42,7 +42,7 @@ public class TestController {
     }
 
     @PostMapping("{id}/check")
-    public ResponseEntity<?> checkTest(@PathVariable("id") Long id, @RequestBody TestToCheckDTO testDTO,
+    public ResponseEntity<?> checkTest(@PathVariable("id") Long id, @RequestBody TestToCheckRequest testDTO,
                                        @PathVariable("courseId") Long courseId) {
         return ok(testService.checkTest(testDTO, id, courseId));
     }

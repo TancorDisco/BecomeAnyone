@@ -11,9 +11,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
-import ru.sweetbun.becomeanyone.dto.answer.request.CreateAnswerDTO;
-import ru.sweetbun.becomeanyone.dto.answer.request.UpdateAnswerDTO;
-import ru.sweetbun.becomeanyone.dto.answer.request.AnswerToCheckDTO;
+import ru.sweetbun.becomeanyone.dto.answer.request.CreateAnswerRequest;
+import ru.sweetbun.becomeanyone.dto.answer.request.UpdateAnswerRequest;
+import ru.sweetbun.becomeanyone.dto.answer.request.AnswerToCheckRequest;
 import ru.sweetbun.becomeanyone.config.ModelMapperConfig;
 import ru.sweetbun.becomeanyone.domain.entity.Answer;
 import ru.sweetbun.becomeanyone.domain.entity.Question;
@@ -36,31 +36,31 @@ class AnswerServiceTests {
     private final ModelMapper modelMapper = ModelMapperConfig.createConfiguredModelMapper();
 
     @Mock
-    private QuestionService questionService;
+    private QuestionServiceImpl questionServiceImpl;
 
     @InjectMocks
     private AnswerService answerService;
 
     private Question question;
     private Answer answer;
-    private CreateAnswerDTO answerDTO;
+    private CreateAnswerRequest answerDTO;
 
     @BeforeEach
     void setup() {
-        answerService = new AnswerService(answerRepository, modelMapper, questionService);
+        answerService = new AnswerService(answerRepository, modelMapper, questionServiceImpl);
 
         question = Question.builder().id(1L).build();
         answer = Answer.builder().id(1L).answerText("Answer").question(question).build();
         question.getAnswers().add(answer);
 
-        answerDTO = CreateAnswerDTO.builder().build();
+        answerDTO = CreateAnswerRequest.builder().build();
     }
 
     @Test
     void createAnswers_ValidAnswerDTOs_SavesAllAnswers() {
-        CreateAnswerDTO answerDTO1 = new CreateAnswerDTO("Answer 1", true);
-        CreateAnswerDTO answerDTO2 = new CreateAnswerDTO("Answer 2", false);
-        List<CreateAnswerDTO> answerDTOS = List.of(answerDTO1, answerDTO2);
+        CreateAnswerRequest answerDTO1 = new CreateAnswerRequest("Answer 1", true);
+        CreateAnswerRequest answerDTO2 = new CreateAnswerRequest("Answer 2", false);
+        List<CreateAnswerRequest> answerDTOS = List.of(answerDTO1, answerDTO2);
 
         answerService.createAnswers(answerDTOS, question);
 
@@ -72,7 +72,7 @@ class AnswerServiceTests {
 
     @Test
     void createAnswer_QuestionExists_ReturnsSavedAnswer() {
-        when(questionService.getQuestionById(1L)).thenReturn(question);
+        when(questionServiceImpl.fetchQuestionById(1L)).thenReturn(question);
         when(answerRepository.save(any(Answer.class))).thenReturn(answer);
 
         Answer createdAnswer = answerService.createAnswer(answerDTO, 1L);
@@ -83,7 +83,7 @@ class AnswerServiceTests {
 
     @Test
     void createAnswer_QuestionNotFound_ThrowsResourceNotFoundException() {
-        when(questionService.getQuestionById(1L)).thenThrow(new ResourceNotFoundException(Question.class, 1L));
+        when(questionServiceImpl.fetchQuestionById(1L)).thenThrow(new ResourceNotFoundException(Question.class, 1L));
 
         assertThrows(ResourceNotFoundException.class, () -> answerService.createAnswer(answerDTO, 1L));
         verify(answerRepository, never()).save(any(Answer.class));
@@ -126,9 +126,9 @@ class AnswerServiceTests {
     @Test
     void updateAnswers_ValidAnswerDTOs_CallsDeleteAllAndSaveAll() {
         // Arrange
-        List<UpdateAnswerDTO> updateAnswerDTOS = List.of(
-                new UpdateAnswerDTO(1L, "Updated Answer 1", false),
-                new UpdateAnswerDTO(null, "New Answer", true));
+        List<UpdateAnswerRequest> updateAnswerDTOS = List.of(
+                new UpdateAnswerRequest(1L, "Updated Answer 1", false),
+                new UpdateAnswerRequest(null, "New Answer", true));
 
         // Act
         List<Answer> result = answerService.updateAnswers(updateAnswerDTOS, question);
@@ -173,7 +173,7 @@ class AnswerServiceTests {
 
     @ParameterizedTest
     @MethodSource("checkAnswersData")
-    void checkAnswers_VariousCases_ReturnsExpectedResult(List<AnswerToCheckDTO> answerDTOs, List<Answer> answers, boolean expectedResult) {
+    void checkAnswers_VariousCases_ReturnsExpectedResult(List<AnswerToCheckRequest> answerDTOs, List<Answer> answers, boolean expectedResult) {
         boolean result = answerService.checkAnswers(answerDTOs, answers);
 
         assertEquals(expectedResult, result);
@@ -184,15 +184,15 @@ class AnswerServiceTests {
         Answer answer2 = Answer.builder().id(2L).correct(false).build();
         Answer answer3 = Answer.builder().id(2L).correct(true).build();
 
-        AnswerToCheckDTO answerDTO1 = new AnswerToCheckDTO(1L, true);
-        AnswerToCheckDTO answerDTO2 = new AnswerToCheckDTO(2L, false);
+        AnswerToCheckRequest answerDTO1 = new AnswerToCheckRequest(1L, true);
+        AnswerToCheckRequest answerDTO2 = new AnswerToCheckRequest(2L, false);
 
         return Stream.of(
                 Arguments.of(List.of(answerDTO1), List.of(answer1), true),
-                Arguments.of(List.of(new AnswerToCheckDTO(1L, false)), List.of(answer1), false),
+                Arguments.of(List.of(new AnswerToCheckRequest(1L, false)), List.of(answer1), false),
                 Arguments.of(List.of(answerDTO1, answerDTO2), List.of(answer1, answer2), true),
                 Arguments.of(
-                        List.of(answerDTO1, new AnswerToCheckDTO(2L, true)),
+                        List.of(answerDTO1, new AnswerToCheckRequest(2L, true)),
                         List.of(answer1, answer3),
                         true)
         );
@@ -200,7 +200,7 @@ class AnswerServiceTests {
 
     @ParameterizedTest
     @MethodSource("invalidCheckAnswersData")
-    void checkAnswers_InvalidCases_ThrowsIllegalArgumentException(List<AnswerToCheckDTO> answerDTOs, List<Answer> answers) {
+    void checkAnswers_InvalidCases_ThrowsIllegalArgumentException(List<AnswerToCheckRequest> answerDTOs, List<Answer> answers) {
         Assertions.assertThrows(IllegalArgumentException.class, () -> answerService.checkAnswers(answerDTOs, answers));
     }
 
@@ -208,12 +208,12 @@ class AnswerServiceTests {
         Answer answer1 = Answer.builder().id(1L).correct(true).build();
         Answer answer2 = Answer.builder().id(2L).correct(false).build();
 
-        AnswerToCheckDTO answerDTO1 = new AnswerToCheckDTO(1L, true);
-        AnswerToCheckDTO answerDTO2 = new AnswerToCheckDTO(2L, false);
+        AnswerToCheckRequest answerDTO1 = new AnswerToCheckRequest(1L, true);
+        AnswerToCheckRequest answerDTO2 = new AnswerToCheckRequest(2L, false);
 
         return Stream.of(
                 Arguments.of(List.of(answerDTO1, answerDTO2), List.of(answer1)),
-                Arguments.of(List.of(new AnswerToCheckDTO(3L, true)), List.of(answer1)),
+                Arguments.of(List.of(new AnswerToCheckRequest(3L, true)), List.of(answer1)),
                 Arguments.of(List.of(answerDTO2, answerDTO2), List.of(answer1, answer2)),
                 Arguments.of(List.of(answerDTO1, answerDTO1), List.of(answer1, answer2), false)
         );
@@ -221,7 +221,7 @@ class AnswerServiceTests {
 
     @ParameterizedTest
     @MethodSource("provideTestData")
-    void testUpdateAnswers(List<UpdateAnswerDTO> answerDTOS, List<Answer> expectedAnswers) {
+    void testUpdateAnswers(List<UpdateAnswerRequest> answerDTOS, List<Answer> expectedAnswers) {
         // Act
         List<Answer> updatedAnswers = answerService.updateAnswers(answerDTOS, question);
 
@@ -238,9 +238,9 @@ class AnswerServiceTests {
                 // 1: Add new answers
                 Arguments.of(
                         List.of(
-                                UpdateAnswerDTO.builder().id(1L).answerText("Answer").correct(false).build(),
-                                UpdateAnswerDTO.builder().answerText("New Answer 1").correct(true).build(),
-                                UpdateAnswerDTO.builder().answerText("New Answer 2").correct(false).build()
+                                UpdateAnswerRequest.builder().id(1L).answerText("Answer").correct(false).build(),
+                                UpdateAnswerRequest.builder().answerText("New Answer 1").correct(true).build(),
+                                UpdateAnswerRequest.builder().answerText("New Answer 2").correct(false).build()
                         ),
                         List.of(
                                 Answer.builder().id(1L).answerText("Answer").correct(false).build(),
@@ -251,7 +251,7 @@ class AnswerServiceTests {
                 // 2: Update existing answers
                 Arguments.of(
                         List.of(
-                                UpdateAnswerDTO.builder().id(1L).answerText("Updated Answer 1").correct(false).build()
+                                UpdateAnswerRequest.builder().id(1L).answerText("Updated Answer 1").correct(false).build()
                         ),
                         List.of(
                                 Answer.builder().id(1L).answerText("Updated Answer 1").correct(false).build()
@@ -260,8 +260,8 @@ class AnswerServiceTests {
                 // 3: Add new and update existing answers
                 Arguments.of(
                         List.of(
-                                UpdateAnswerDTO.builder().id(1L).answerText("Updated Answer 1").correct(false).build(),
-                                UpdateAnswerDTO.builder().answerText("New Answer 3").correct(true).build()
+                                UpdateAnswerRequest.builder().id(1L).answerText("Updated Answer 1").correct(false).build(),
+                                UpdateAnswerRequest.builder().answerText("New Answer 3").correct(true).build()
                         ),
                         List.of(
                                 Answer.builder().id(1L).answerText("Updated Answer 1").correct(false).build(),
@@ -271,8 +271,8 @@ class AnswerServiceTests {
                 // 4: Add new answers & delete old
                 Arguments.of(
                         List.of(
-                                UpdateAnswerDTO.builder().answerText("New Answer 1").correct(true).build(),
-                                UpdateAnswerDTO.builder().answerText("New Answer 2").correct(false).build()
+                                UpdateAnswerRequest.builder().answerText("New Answer 1").correct(true).build(),
+                                UpdateAnswerRequest.builder().answerText("New Answer 2").correct(false).build()
                         ),
                         List.of(
                                 Answer.builder().id(2L).answerText("New Answer 1").correct(true).build(),

@@ -1,6 +1,6 @@
 package ru.sweetbun.becomeanyone.dto.test.request;
 
-public record TestDTO (
+public record TestRequest(
         String title,
         String description
 ) {

@@ -1,18 +1,18 @@
 package ru.sweetbun.becomeanyone.dto.question.request;
 
 import lombok.Builder;
-import ru.sweetbun.becomeanyone.dto.answer.request.AnswerToCheckDTO;
+import ru.sweetbun.becomeanyone.dto.answer.request.AnswerToCheckRequest;
 
 import java.util.List;
 
 @Builder
-public record QuestionToCheckDTO(
+public record QuestionToCheckRequest(
         Long id,
         boolean hasSeveralCorrectAnswers,
-        List<AnswerToCheckDTO> answers
+        List<AnswerToCheckRequest> answers
 ) {
 
-    public QuestionToCheckDTO {
+    public QuestionToCheckRequest {
         if (answers == null) answers = List.of();
     }
 }

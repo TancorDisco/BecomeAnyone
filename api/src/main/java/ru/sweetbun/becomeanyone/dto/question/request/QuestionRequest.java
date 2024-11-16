@@ -1,7 +1,7 @@
 package ru.sweetbun.becomeanyone.dto.question.request;
 
 import lombok.*;
-import ru.sweetbun.becomeanyone.dto.answer.request.AnswerDTO;
+import ru.sweetbun.becomeanyone.dto.answer.request.AnswerRequest;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +11,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class QuestionDTO<T extends AnswerDTO> {
+public class QuestionRequest<T extends AnswerRequest> {
     private String questionText;
     private boolean hasSeveralCorrectAnswers;
     private String explanation;

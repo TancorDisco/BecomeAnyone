@@ -12,7 +12,7 @@ import ru.sweetbun.becomeanyone.dto.course.CourseRequest;
 import ru.sweetbun.becomeanyone.dto.lesson.request.UpdateLessonInCourseRequest;
 import ru.sweetbun.becomeanyone.dto.module.request.CreateModuleRequest;
 import ru.sweetbun.becomeanyone.dto.module.request.UpdateModuleInCourseRequest;
-import ru.sweetbun.becomeanyone.dto.question.request.QuestionDTO;
+import ru.sweetbun.becomeanyone.dto.question.request.QuestionRequest;
 
 @Configuration
 public class ModelMapperConfig {
@@ -47,7 +47,7 @@ public class ModelMapperConfig {
         modelMapper.createTypeMap(CourseRequest.class, Course.class)
                 .addMappings(mapper -> mapper.skip(Course::setModules));
 
-        modelMapper.createTypeMap(QuestionDTO.class, Question.class)
+        modelMapper.createTypeMap(QuestionRequest.class, Question.class)
                 .addMappings(mapper -> mapper.skip(Question::setAnswers));
 
         modelMapper.createTypeMap(Test.class, Test.class)

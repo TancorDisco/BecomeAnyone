@@ -7,7 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
-import ru.sweetbun.becomeanyone.dto.sociallink.SocialLinkDTO;
+import ru.sweetbun.becomeanyone.dto.sociallink.SocialLinkRequest;
 import ru.sweetbun.becomeanyone.config.ModelMapperConfig;
 import ru.sweetbun.becomeanyone.domain.entity.SocialLink;
 import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
@@ -40,7 +40,7 @@ class SocialLinkServiceTests {
 
     @Test
     void createSocialLink_ValidDTO_Success() {
-        SocialLinkDTO dto = new SocialLinkDTO("VK", "...");
+        SocialLinkRequest dto = new SocialLinkRequest("VK", "...");
         when(socialLinkRepository.save(any(SocialLink.class))).thenReturn(socialLink);
 
         SocialLink result = socialLinkService.createSocialLink(dto);
@@ -85,7 +85,7 @@ class SocialLinkServiceTests {
     @Test
     void updateSocialLink_ExistingId_ReturnsUpdatedSocialLink() {
         Long id = 1L;
-        SocialLinkDTO dto = new SocialLinkDTO("VK", "...");
+        SocialLinkRequest dto = new SocialLinkRequest("VK", "...");
         SocialLink existingLink = socialLink;
         SocialLink updatedLink = socialLink;
 
@@ -103,7 +103,7 @@ class SocialLinkServiceTests {
     @Test
     void updateSocialLink_NonExistingId_ThrowsResourceNotFoundException() {
         Long id = 1L;
-        SocialLinkDTO dto = new SocialLinkDTO("VK", "...");
+        SocialLinkRequest dto = new SocialLinkRequest("VK", "...");
 
         when(socialLinkRepository.findById(id)).thenReturn(Optional.empty());
 

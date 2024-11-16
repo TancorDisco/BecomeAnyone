@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.sweetbun.becomeanyone.dto.sociallink.SocialLinkDTO;
+import ru.sweetbun.becomeanyone.dto.sociallink.SocialLinkRequest;
 import ru.sweetbun.becomeanyone.domain.entity.SocialLink;
 import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
 import ru.sweetbun.becomeanyone.domain.repository.SocialLinkRepository;
@@ -21,8 +21,8 @@ public class SocialLinkService {
     private final ModelMapper modelMapper;
 
     @Transactional
-    public SocialLink createSocialLink(SocialLinkDTO socialLinkDTO) {
-        SocialLink socialLink = modelMapper.map(socialLinkDTO, SocialLink.class);
+    public SocialLink createSocialLink(SocialLinkRequest socialLinkRequest) {
+        SocialLink socialLink = modelMapper.map(socialLinkRequest, SocialLink.class);
         return socialLinkRepository.save(socialLink);
     }
 
@@ -36,9 +36,9 @@ public class SocialLinkService {
     }
 
     @Transactional
-    public SocialLink updateSocialLink(SocialLinkDTO socialLinkDTO, Long id) {
+    public SocialLink updateSocialLink(SocialLinkRequest socialLinkRequest, Long id) {
         SocialLink socialLink = getSocialLinkById(id);
-        modelMapper.map(socialLinkDTO, socialLink);
+        modelMapper.map(socialLinkRequest, socialLink);
         return socialLinkRepository.save(socialLink);
     }
 
