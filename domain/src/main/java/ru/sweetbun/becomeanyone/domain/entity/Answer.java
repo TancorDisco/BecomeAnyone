@@ -1,6 +1,5 @@
 package ru.sweetbun.becomeanyone.domain.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 

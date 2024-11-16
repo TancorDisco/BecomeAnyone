@@ -1,16 +1,16 @@
 package ru.sweetbun.becomeanyone.domain.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "social_links")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class SocialLink {
@@ -20,17 +20,14 @@ public class SocialLink {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @JsonBackReference
     @ManyToOne
     @JoinColumn(name = "profile_id")
     private Profile profile;
 
-    @NotEmpty
     @Size(max = 50)
-    @Column(name = "platform")
+    @Column(name = "platform", nullable = false)
     private String platform;
 
-    @NotEmpty
-    @Column(name = "url")
+    @Column(name = "url", nullable = false)
     private String url;
 }
