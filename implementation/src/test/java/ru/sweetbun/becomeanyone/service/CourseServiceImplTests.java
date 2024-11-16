@@ -38,7 +38,7 @@ class CourseServiceImplTests {
     private final ModelMapper modelMapper = ModelMapperConfig.createConfiguredModelMapper();
 
     @Mock
-    private ModuleService moduleService;
+    private ModuleServiceImpl moduleServiceImpl;
 
     @Mock
     private UserServiceImpl userServiceImpl;
@@ -50,7 +50,7 @@ class CourseServiceImplTests {
 
     @BeforeEach
     void setUp() {
-        courseServiceImpl = new CourseServiceImpl(courseRepository, modelMapper, moduleService, securityUtils, userServiceImpl);
+        courseServiceImpl = new CourseServiceImpl(courseRepository, modelMapper, moduleServiceImpl, securityUtils, userServiceImpl);
 
         course = new Course();
     }
@@ -68,7 +68,7 @@ class CourseServiceImplTests {
 
         assertNotNull(createdCourse);
         verify(courseRepository, times(1)).save(any(Course.class));
-        verify(moduleService, times(1)).createModules(any(List.class), any(Course.class));
+        verify(moduleServiceImpl, times(1)).createModules(any(List.class), any(Course.class));
     }
 
     @Test
@@ -164,7 +164,7 @@ class CourseServiceImplTests {
         courseDTO.setModules(List.of(new UpdateModuleInCourseRequest()));
 
         when(courseRepository.findById(courseId)).thenReturn(Optional.of(course));
-        when(moduleService.updateModules(courseDTO.getModules(), course)).thenReturn(List.of());
+        when(moduleServiceImpl.updateModules(courseDTO.getModules(), course)).thenReturn(List.of());
         when(courseRepository.save(any(Course.class))).thenReturn(course);
 
         CourseResponse updatedCourse = courseServiceImpl.updateCourseById(courseId, courseDTO);

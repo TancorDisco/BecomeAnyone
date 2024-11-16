@@ -3,9 +3,9 @@ package ru.sweetbun.becomeanyone.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.sweetbun.becomeanyone.contract.ModuleService;
 import ru.sweetbun.becomeanyone.dto.module.request.CreateModuleRequest;
 import ru.sweetbun.becomeanyone.dto.module.request.UpdateModuleRequest;
-import ru.sweetbun.becomeanyone.service.ModuleService;
 
 import static org.springframework.http.ResponseEntity.ok;
 

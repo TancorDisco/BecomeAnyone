@@ -39,7 +39,7 @@ class LessonServiceImplTests {
     private final ModelMapper modelMapper = ModelMapperConfig.createConfiguredModelMapper();
 
     @Mock
-    private ModuleService moduleService;
+    private ModuleServiceImpl moduleServiceImpl;
 
     @Mock
     private ContentService contentService;
@@ -53,7 +53,7 @@ class LessonServiceImplTests {
 
     @BeforeEach
     public void setUp() {
-        lessonServiceImpl = new LessonServiceImpl(lessonRepository, modelMapper, moduleService, contentService);
+        lessonServiceImpl = new LessonServiceImpl(lessonRepository, modelMapper, moduleServiceImpl, contentService);
 
         module = Module.builder().id(1L).title("Module 1").build();
         lessonResponse = new LessonResponse();
@@ -72,7 +72,7 @@ class LessonServiceImplTests {
     void createLesson_ValidInput_ShouldReturnCreatedLesson() {
         CreateLessonRequest lessonDTO = CreateLessonRequest.builder().build();
 
-        when(moduleService.getModuleById(1L)).thenReturn(module);
+        when(moduleServiceImpl.fetchModuleById(1L)).thenReturn(module);
         when(lessonRepository.save(any(Lesson.class))).thenReturn(currentLessonsMap.get(1L));
 
         LessonResponse result = lessonServiceImpl.createLesson(lessonDTO, 1L);
@@ -86,7 +86,7 @@ class LessonServiceImplTests {
     void createLesson_ModuleNotFound_ShouldThrowException() {
         CreateLessonRequest lessonDTO = CreateLessonRequest.builder().build();
 
-        when(moduleService.getModuleById(1L)).thenThrow(new ResourceNotFoundException(Module.class, 1L));
+        when(moduleServiceImpl.fetchModuleById(1L)).thenThrow(new ResourceNotFoundException(Module.class, 1L));
 
         assertThrows(ResourceNotFoundException.class, () -> lessonServiceImpl.createLesson(lessonDTO, 1L));
     }
@@ -208,7 +208,7 @@ class LessonServiceImplTests {
 
     @Test
     void getAllLessonsByModule_ModuleExists_ShouldReturnLessons() {
-        when(moduleService.getModuleById(1L)).thenReturn(module);
+        when(moduleServiceImpl.fetchModuleById(1L)).thenReturn(module);
         when(lessonRepository.findAllByModuleOrderByOrderNumAsc(module)).thenReturn(new ArrayList<>(currentLessonsMap.values()));
 
         List<LessonResponse> result = lessonServiceImpl.getAllLessonsByModule(1L);
@@ -220,7 +220,7 @@ class LessonServiceImplTests {
 
     @Test
     void getAllLessonsByModule_ModuleDoesNotExist_ShouldThrowException() {
-        when(moduleService.getModuleById(1L)).thenThrow(new ResourceNotFoundException(Module.class, 1L));
+        when(moduleServiceImpl.fetchModuleById(1L)).thenThrow(new ResourceNotFoundException(Module.class, 1L));
 
         assertThrows(ResourceNotFoundException.class, () -> lessonServiceImpl.getAllLessonsByModule(1L));
     }

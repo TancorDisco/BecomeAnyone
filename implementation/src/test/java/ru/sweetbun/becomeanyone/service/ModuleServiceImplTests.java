@@ -17,6 +17,7 @@ import ru.sweetbun.becomeanyone.dto.module.request.UpdateModuleInCourseRequest;
 import ru.sweetbun.becomeanyone.config.ModelMapperConfig;
 import ru.sweetbun.becomeanyone.domain.entity.Course;
 import ru.sweetbun.becomeanyone.domain.entity.Module;
+import ru.sweetbun.becomeanyone.dto.module.response.ModuleResponse;
 import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
 import ru.sweetbun.becomeanyone.domain.repository.ModuleRepository;
 
@@ -30,7 +31,7 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class ModuleServiceTests {
+class ModuleServiceImplTests {
 
     @Mock
     private LessonServiceImpl lessonServiceImpl;
@@ -44,14 +45,14 @@ class ModuleServiceTests {
     private CourseServiceImpl courseServiceImpl;
 
     @InjectMocks
-    private ModuleService moduleService;
+    private ModuleServiceImpl moduleServiceImpl;
 
     private Course course;
     private Map<Long, Module> currentModulesMap;
 
     @BeforeEach
     public void setUp() {
-        moduleService = new ModuleService(moduleRepository, lessonServiceImpl, modelMapper, courseServiceImpl);
+        moduleServiceImpl = new ModuleServiceImpl(moduleRepository, lessonServiceImpl, modelMapper, courseServiceImpl);
 
         course = Course.builder().id(1L).build();
         currentModulesMap = new HashMap<>();
@@ -71,10 +72,9 @@ class ModuleServiceTests {
         when(courseServiceImpl.fetchCourseById(anyLong())).thenReturn(course);
         when(moduleRepository.save(any(Module.class))).thenAnswer(i -> i.getArguments()[0]);
 
-        Module result = moduleService.createModule(moduleDTO, course.getId());
+        ModuleResponse result = moduleServiceImpl.createModule(moduleDTO, course.getId());
 
         assertNotNull(result);
-        assertEquals(course, result.getCourse());
         verify(moduleRepository).save(any(Module.class));
     }
 
@@ -83,24 +83,24 @@ class ModuleServiceTests {
         CreateModuleRequest moduleDTO = new CreateModuleRequest();
         when(courseServiceImpl.fetchCourseById(anyLong())).thenThrow(new ResourceNotFoundException(Course.class, 1L));
 
-        assertThrows(ResourceNotFoundException.class, () -> moduleService.createModule(moduleDTO, 1L));
+        assertThrows(ResourceNotFoundException.class, () -> moduleServiceImpl.createModule(moduleDTO, 1L));
     }
 
     @Test
-    void getModuleById_ExistingId_ReturnsModule() {
+    void fetchModuleById_ExistingId_ReturnsModule() {
         Module module = currentModulesMap.get(1L);
         when(moduleRepository.findById(1L)).thenReturn(Optional.of(module));
 
-        Module result = moduleService.getModuleById(1L);
+        Module result = moduleServiceImpl.fetchModuleById(1L);
 
         assertEquals(module, result);
     }
 
     @Test
-    void getModuleById_NonexistentId_ThrowsResourceNotFoundException() {
+    void fetchModuleById_NonexistentId_ThrowsResourceNotFoundException() {
         when(moduleRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> moduleService.getModuleById(1L));
+        assertThrows(ResourceNotFoundException.class, () -> moduleServiceImpl.fetchModuleById(1L));
     }
 
     @Test
@@ -110,7 +110,7 @@ class ModuleServiceTests {
         when(moduleRepository.findById(anyLong())).thenReturn(Optional.of(module));
         when(moduleRepository.save(any(Module.class))).thenReturn(module);
 
-        Module result = moduleService.updateModule(updateDTO, 1L);
+        ModuleResponse result = moduleServiceImpl.updateModule(updateDTO, 1L);
 
         assertEquals(module, result);
         verify(moduleRepository).save(module);
@@ -121,7 +121,7 @@ class ModuleServiceTests {
         UpdateModuleRequest updateDTO = UpdateModuleRequest.builder().build();
         when(moduleRepository.findById(anyLong())).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> moduleService.updateModule(updateDTO, 1L));
+        assertThrows(ResourceNotFoundException.class, () -> moduleServiceImpl.updateModule(updateDTO, 1L));
     }
 
     @Test
@@ -131,7 +131,7 @@ class ModuleServiceTests {
         when(moduleRepository.findByOrderNumGreaterThan(module.getOrderNum()))
                 .thenReturn(List.of(currentModulesMap.get(2L), currentModulesMap.get(3L)));
 
-        long result = moduleService.deleteModuleById(1L);
+        long result = moduleServiceImpl.deleteModuleById(1L);
 
         assertEquals(1L, result);
         verify(moduleRepository).deleteById(1L);
@@ -143,7 +143,7 @@ class ModuleServiceTests {
     void deleteModuleById_NonexistentId_ThrowsResourceNotFoundException() {
         when(moduleRepository.findById(anyLong())).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> moduleService.deleteModuleById(1L));
+        assertThrows(ResourceNotFoundException.class, () -> moduleServiceImpl.deleteModuleById(1L));
     }
 
     @Test
@@ -152,7 +152,7 @@ class ModuleServiceTests {
         course.setModules(List.of(currentModulesMap.get(1L), currentModulesMap.get(2L)));
         when(moduleRepository.save(any(Module.class))).thenAnswer(i -> i.getArguments()[0]);
 
-        List<Module> result = moduleService.updateModules(updateDTOs, course);
+        List<Module> result = moduleServiceImpl.updateModules(updateDTOs, course);
 
         assertNotNull(result);
         assertEquals(updateDTOs.size(), result.size());
@@ -163,7 +163,7 @@ class ModuleServiceTests {
     void updateModules_EmptyList_NoModulesUpdatedOrDeleted() {
         List<UpdateModuleInCourseRequest> emptyUpdateDTOs = new ArrayList<>();
 
-        List<Module> result = moduleService.updateModules(emptyUpdateDTOs, course);
+        List<Module> result = moduleServiceImpl.updateModules(emptyUpdateDTOs, course);
 
         assertTrue(result.isEmpty());
         verify(moduleRepository, never()).deleteAll(anyList());
@@ -176,7 +176,7 @@ class ModuleServiceTests {
         when(courseServiceImpl.fetchCourseById(courseId)).thenReturn(new Course());
         when(moduleRepository.findAllByCourseOrderByOrderNumAsc(any(Course.class))).thenReturn(modules);
 
-        List<Module> result = moduleService.getAllModulesByCourse(courseId);
+        List<ModuleResponse> result = moduleServiceImpl.getAllModulesByCourse(courseId);
 
         assertEquals(modules.size(), result.size());
         assertTrue(result.get(0).getOrderNum() < result.get(1).getOrderNum());
@@ -186,7 +186,7 @@ class ModuleServiceTests {
     void getAllModulesByCourse_NonexistentCourseId_ThrowsResourceNotFoundException() {
         when(courseServiceImpl.fetchCourseById(anyLong())).thenThrow(new ResourceNotFoundException(Course.class, 1L));
 
-        assertThrows(ResourceNotFoundException.class, () -> moduleService.getAllModulesByCourse(1L));
+        assertThrows(ResourceNotFoundException.class, () -> moduleServiceImpl.getAllModulesByCourse(1L));
     }
 
     @Test
@@ -194,7 +194,7 @@ class ModuleServiceTests {
         List<CreateModuleRequest> moduleDTOs = List.of(new CreateModuleRequest(), new CreateModuleRequest());
         when(moduleRepository.save(any(Module.class))).thenAnswer(i -> i.getArguments()[0]);
 
-        moduleService.createModules(moduleDTOs, course);
+        moduleServiceImpl.createModules(moduleDTOs, course);
 
         verify(moduleRepository, times(moduleDTOs.size())).save(any(Module.class));
         verify(lessonServiceImpl, times(moduleDTOs.size())).createLessons(anyList(), any(Module.class));
@@ -204,7 +204,7 @@ class ModuleServiceTests {
     void createModules_EmptyList_NoModulesCreated() {
         List<CreateModuleRequest> emptyModuleDTOs = new ArrayList<>();
 
-        moduleService.createModules(emptyModuleDTOs, course);
+        moduleServiceImpl.createModules(emptyModuleDTOs, course);
 
         verify(moduleRepository, never()).save(any(Module.class));
         verify(lessonServiceImpl, never()).createLessons(anyList(), any(Module.class));
@@ -220,7 +220,7 @@ class ModuleServiceTests {
         when(lessonServiceImpl.updateLessons(any(), any())).thenReturn(List.of());
 
         // Act
-        List<Module> updatedModules = moduleService.updateModules(moduleDTOS, course);
+        List<Module> updatedModules = moduleServiceImpl.updateModules(moduleDTOS, course);
 
         // Assert
         assertEquals(expectedModules.size(), updatedModules.size());

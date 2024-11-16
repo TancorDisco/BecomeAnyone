@@ -33,7 +33,7 @@ public class CourseServiceImpl implements CourseService {
 
     private final ModelMapper modelMapper;
     @Lazy
-    private final ModuleService moduleService;
+    private final ModuleServiceImpl moduleServiceImpl;
 
     private final SecurityUtils securityUtils;
 
@@ -49,7 +49,7 @@ public class CourseServiceImpl implements CourseService {
         course.setTeacher(user);
 
         Course savedCourse = courseRepository.save(course);
-        moduleService.createModules(courseRequest.getModules(), savedCourse);
+        moduleServiceImpl.createModules(courseRequest.getModules(), savedCourse);
         return modelMapper.map(savedCourse, CourseResponse.class);
     }
 
@@ -83,7 +83,7 @@ public class CourseServiceImpl implements CourseService {
     public CourseResponse updateCourseById(Long id, CourseRequest<UpdateModuleInCourseRequest> courseRequest) {
         Course course = fetchCourseById(id);
         modelMapper.map(courseRequest, course);
-        course.setModules(moduleService.updateModules(courseRequest.getModules(), course));
+        course.setModules(moduleServiceImpl.updateModules(courseRequest.getModules(), course));
         course.setUpdatedAt(now());
         Course savedCourse = courseRepository.save(course);
         return modelMapper.map(savedCourse, CourseResponse.class);

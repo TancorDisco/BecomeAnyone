@@ -31,7 +31,7 @@ public class LessonServiceImpl implements LessonService {
 
     private final ModelMapper modelMapper;
     @Lazy
-    private final ModuleService moduleService;
+    private final ModuleServiceImpl moduleServiceImpl;
 
     private final ContentService contentService;
 
@@ -67,7 +67,7 @@ public class LessonServiceImpl implements LessonService {
     @Override
     @Transactional
     public LessonResponse createLesson(CreateLessonRequest lessonDTO, Long moduleId) {
-        Module module = moduleService.getModuleById(moduleId);
+        Module module = moduleServiceImpl.fetchModuleById(moduleId);
         Lesson lesson = lessonRepository.save(createLesson(lessonDTO, module));
         return modelMapper.map(lesson, LessonResponse.class);
     }
@@ -100,7 +100,7 @@ public class LessonServiceImpl implements LessonService {
 
     @Override
     public List<LessonResponse> getAllLessonsByModule(Long moduleId) {
-        return lessonRepository.findAllByModuleOrderByOrderNumAsc(moduleService.getModuleById(moduleId)).stream()
+        return lessonRepository.findAllByModuleOrderByOrderNumAsc(moduleServiceImpl.fetchModuleById(moduleId)).stream()
                 .map(lesson -> modelMapper.map(lesson, LessonResponse.class))
                 .toList();
     }

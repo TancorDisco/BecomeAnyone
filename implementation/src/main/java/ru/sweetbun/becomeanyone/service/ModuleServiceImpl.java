@@ -5,11 +5,13 @@ import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.sweetbun.becomeanyone.contract.ModuleService;
 import ru.sweetbun.becomeanyone.dto.module.request.CreateModuleRequest;
 import ru.sweetbun.becomeanyone.dto.module.request.UpdateModuleRequest;
 import ru.sweetbun.becomeanyone.dto.module.request.UpdateModuleInCourseRequest;
 import ru.sweetbun.becomeanyone.domain.entity.Course;
 import ru.sweetbun.becomeanyone.domain.entity.Module;
+import ru.sweetbun.becomeanyone.dto.module.response.ModuleResponse;
 import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
 import ru.sweetbun.becomeanyone.domain.repository.ModuleRepository;
 
@@ -22,7 +24,7 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 @Service
 @RequiredArgsConstructor
-public class ModuleService {
+public class ModuleServiceImpl implements ModuleService {
 
     private final ModuleRepository moduleRepository;
     @Lazy
@@ -32,10 +34,12 @@ public class ModuleService {
     @Lazy
     private final CourseServiceImpl courseServiceImpl;
 
+    @Override
     @Transactional
-    public Module createModule(CreateModuleRequest moduleDTO, Long courseId) {
+    public ModuleResponse createModule(CreateModuleRequest moduleDTO, Long courseId) {
         Course course = courseServiceImpl.fetchCourseById(courseId);
-        return moduleRepository.save(createModule(moduleDTO, course));
+        Module module = moduleRepository.save(createModule(moduleDTO, course));
+        return modelMapper.map(module, ModuleResponse.class);
     }
 
     @Transactional
@@ -53,20 +57,31 @@ public class ModuleService {
         return module;
     }
 
-    public Module getModuleById(Long id) {
+    @Override
+    public ModuleResponse getModuleById(Long id) {
+        Module module = fetchModuleById(id);
+        return modelMapper.map(module, ModuleResponse.class);
+    }
+
+    public Module fetchModuleById(Long id) {
         return moduleRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(Module.class, id));
     }
 
-    public List<Module> getAllModulesByCourse(Long courseId) {
-        return moduleRepository.findAllByCourseOrderByOrderNumAsc(courseServiceImpl.fetchCourseById(courseId));
+    @Override
+    public List<ModuleResponse> getAllModulesByCourse(Long courseId) {
+        return moduleRepository.findAllByCourseOrderByOrderNumAsc(courseServiceImpl.fetchCourseById(courseId)).stream()
+                .map(module -> modelMapper.map(module, ModuleResponse.class))
+                .toList();
     }
 
+    @Override
     @Transactional
-    public Module updateModule(UpdateModuleRequest updateModuleDTO, Long id) {
-        Module module = getModuleById(id);
+    public ModuleResponse updateModule(UpdateModuleRequest updateModuleDTO, Long id) {
+        Module module = fetchModuleById(id);
         modelMapper.map(updateModuleDTO, module);
-        return moduleRepository.save(module);
+        Module savedModule = moduleRepository.save(module);
+        return modelMapper.map(savedModule, ModuleResponse.class);
     }
 
     @Transactional
@@ -98,10 +113,10 @@ public class ModuleService {
         }).toList();
     }
 
-
+    @Override
     @Transactional
     public long deleteModuleById(Long id) {
-        Module moduleToDelete = getModuleById(id);
+        Module moduleToDelete = fetchModuleById(id);
         int orderNum = moduleToDelete.getOrderNum();
         moduleRepository.deleteById(id);
 
