@@ -87,9 +87,7 @@ public class CourseServiceImpl implements CourseService {
         course.getModules().forEach(module -> module.setCourse(course));
         course.setUpdatedAt(now());
         Course savedCourse = courseRepository.save(course);
-        CourseResponse response = modelMapper.map(savedCourse, CourseResponse.class);
-        return response;
-        //return modelMapper.map(savedCourse, CourseResponse.class);
+        return modelMapper.map(savedCourse, CourseResponse.class);
     }
 
     @Override

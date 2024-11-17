@@ -1,8 +1,6 @@
 package ru.sweetbun.becomeanyone.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.sweetbun.becomeanyone.dto.course.CourseRequest;
@@ -12,7 +10,6 @@ import ru.sweetbun.becomeanyone.service.CourseServiceImpl;
 
 import static org.springframework.http.ResponseEntity.ok;
 
-@Slf4j
 @RequiredArgsConstructor
 @RequestMapping("client/courses")
 @RestController
