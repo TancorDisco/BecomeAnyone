@@ -9,6 +9,6 @@ import ru.sweetbun.becomeanyone.dto.user.response.UserResponse;
 @FeignClient(name = "authService", url = "http://localhost:8080")
 public interface AuthServiceClient {
 
-    @PostMapping("/client/auth/register")
+    @PostMapping("/auth/register")
     UserResponse registerUser(@RequestBody UserRequest userRequest);
 }
