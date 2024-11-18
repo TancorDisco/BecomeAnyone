@@ -3,9 +3,9 @@ package ru.sweetbun.becomeanyone.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.sweetbun.becomeanyone.contract.LessonService;
 import ru.sweetbun.becomeanyone.dto.lesson.request.CreateLessonRequest;
 import ru.sweetbun.becomeanyone.dto.lesson.request.UpdateLessonRequest;
-import ru.sweetbun.becomeanyone.service.LessonServiceImpl;
 
 import static org.springframework.http.ResponseEntity.ok;
 
@@ -14,7 +14,7 @@ import static org.springframework.http.ResponseEntity.ok;
 @RestController
 public class LessonClientController {
 
-    private final LessonServiceImpl lessonService;
+    private final LessonService lessonService;
 
     @PostMapping
     public ResponseEntity<?> createLesson(@PathVariable("moduleId") Long moduleId, @RequestBody CreateLessonRequest lessonDTO) {

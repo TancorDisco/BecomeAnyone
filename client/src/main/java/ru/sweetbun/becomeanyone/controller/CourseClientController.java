@@ -3,10 +3,10 @@ package ru.sweetbun.becomeanyone.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.sweetbun.becomeanyone.contract.CourseService;
 import ru.sweetbun.becomeanyone.dto.course.CourseRequest;
 import ru.sweetbun.becomeanyone.dto.module.request.CreateModuleRequest;
 import ru.sweetbun.becomeanyone.dto.module.request.UpdateModuleInCourseRequest;
-import ru.sweetbun.becomeanyone.service.CourseServiceImpl;
 
 import static org.springframework.http.ResponseEntity.ok;
 
@@ -15,7 +15,7 @@ import static org.springframework.http.ResponseEntity.ok;
 @RestController
 public class CourseClientController {
 
-    private final CourseServiceImpl courseService;
+    private final CourseService courseService;
 
     @PostMapping
     public ResponseEntity<?> createCourse(@RequestBody CourseRequest<CreateModuleRequest> courseRequest) {

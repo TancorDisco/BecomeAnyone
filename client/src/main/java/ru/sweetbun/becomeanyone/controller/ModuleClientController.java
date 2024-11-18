@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.sweetbun.becomeanyone.contract.ModuleService;
 import ru.sweetbun.becomeanyone.dto.module.request.CreateModuleRequest;
 import ru.sweetbun.becomeanyone.dto.module.request.UpdateModuleRequest;
-import ru.sweetbun.becomeanyone.service.ModuleServiceImpl;
 
 import static org.springframework.http.ResponseEntity.ok;
 
@@ -15,7 +14,7 @@ import static org.springframework.http.ResponseEntity.ok;
 @RequestMapping("/client/courses/{courseId}/modules")
 public class ModuleClientController {
 
-    private final ModuleServiceImpl moduleService;
+    private final ModuleService moduleService;
 
     @PostMapping
     public ResponseEntity<?> createModule(@PathVariable("courseId") Long courseId, @RequestBody CreateModuleRequest moduleDTO) {

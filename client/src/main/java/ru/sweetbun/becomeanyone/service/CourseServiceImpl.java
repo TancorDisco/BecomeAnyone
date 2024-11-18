@@ -12,7 +12,6 @@ import ru.sweetbun.becomeanyone.feign.CourseServiceClient;
 
 import java.util.List;
 
-@Profile("feign")
 @Service
 @RequiredArgsConstructor
 public class CourseServiceImpl implements CourseService {

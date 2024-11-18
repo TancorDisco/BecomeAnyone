@@ -15,7 +15,6 @@ import ru.sweetbun.becomeanyone.feign.UserServiceClient;
 
 import java.util.List;
 
-@Profile("feign")
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService, AuthService, ProfileService {

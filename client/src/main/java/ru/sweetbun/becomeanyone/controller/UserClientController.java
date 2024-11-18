@@ -2,6 +2,7 @@ package ru.sweetbun.becomeanyone.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import ru.sweetbun.becomeanyone.contract.UserService;
 import ru.sweetbun.becomeanyone.dto.user.request.UserRequest;
 import ru.sweetbun.becomeanyone.dto.user.response.UserResponse;
 import ru.sweetbun.becomeanyone.service.UserServiceImpl;
@@ -13,7 +14,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserClientController {
 
-    private final UserServiceImpl userService;
+    private final UserService userService;
 
     @GetMapping("/{id}")
     public UserResponse getUserById(@PathVariable Long id) {

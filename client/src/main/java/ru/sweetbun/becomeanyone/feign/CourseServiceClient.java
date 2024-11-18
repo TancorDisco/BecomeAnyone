@@ -9,22 +9,23 @@ import ru.sweetbun.becomeanyone.dto.module.request.UpdateModuleInCourseRequest;
 
 import java.util.List;
 
+@RequestMapping("/courses")
 @FeignClient(name = "courseService", url = "http://localhost:8080")
 public interface CourseServiceClient {
 
-    @PostMapping("/courses")
+    @PostMapping
     CourseResponse createCourse(@RequestBody CourseRequest<CreateModuleRequest> rq);
 
-    @GetMapping("/courses")
+    @GetMapping
     List<CourseResponse> getAllCourses(@RequestParam(required = false) Long teacherId,
                                        @RequestParam(required = false) String q);
 
-    @GetMapping("/courses/{id}")
+    @GetMapping("{id}")
     CourseResponse getCourseById(@PathVariable Long id);
 
-    @PatchMapping("/courses/{id}")
+    @PatchMapping("{id}")
     CourseResponse updateCourseById(@PathVariable Long id, @RequestBody CourseRequest<UpdateModuleInCourseRequest> rq);
 
-    @DeleteMapping("/courses/{id}")
+    @DeleteMapping("{id}")
     long deleteCourseById(@PathVariable Long id);
 }

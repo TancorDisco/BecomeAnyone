@@ -3,7 +3,7 @@ package ru.sweetbun.becomeanyone.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.sweetbun.becomeanyone.service.EnrollmentServiceImpl;
+import ru.sweetbun.becomeanyone.contract.EnrollmentService;
 
 import static org.springframework.http.ResponseEntity.ok;
 
@@ -12,7 +12,7 @@ import static org.springframework.http.ResponseEntity.ok;
 @RequestMapping("client/courses/{courseId}/enrollments")
 public class EnrollmentClientController {
 
-    private final EnrollmentServiceImpl enrollmentService;
+    private final EnrollmentService enrollmentService;
 
     @PostMapping
     public ResponseEntity<?> enrollInTheCourse(@PathVariable("courseId") Long courseId) {

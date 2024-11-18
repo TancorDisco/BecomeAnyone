@@ -7,18 +7,19 @@ import ru.sweetbun.becomeanyone.dto.user.response.UserResponse;
 
 import java.util.List;
 
+@RequestMapping("/users")
 @FeignClient(name = "userService", url = "http://localhost:8080")
 public interface UserServiceClient {
 
-    @GetMapping("/users/{id}")
+    @GetMapping("{id}")
     UserResponse getUserById(@PathVariable Long id);
 
-    @GetMapping("/users")
+    @GetMapping
     List<UserResponse> getAllUsers();
 
-    @PatchMapping("/users/{id}")
+    @PatchMapping("{id}")
     UserResponse updateUser(@PathVariable Long id, @RequestBody UserRequest userRequest);
 
-    @DeleteMapping("/users/{id}")
+    @DeleteMapping("{id}")
     long deleteUserById(@PathVariable Long id);
 }
