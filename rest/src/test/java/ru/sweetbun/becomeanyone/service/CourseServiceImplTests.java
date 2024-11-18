@@ -10,6 +10,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.jpa.domain.Specification;
 import ru.sweetbun.becomeanyone.config.ModelMapperConfig;
 import ru.sweetbun.becomeanyone.entity.Course;
+import ru.sweetbun.becomeanyone.entity.Module;
 import ru.sweetbun.becomeanyone.entity.User;
 import ru.sweetbun.becomeanyone.repository.CourseRepository;
 import ru.sweetbun.becomeanyone.dto.course.CourseRequest;
@@ -19,6 +20,7 @@ import ru.sweetbun.becomeanyone.dto.module.request.UpdateModuleInCourseRequest;
 import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
 import ru.sweetbun.becomeanyone.util.SecurityUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -164,13 +166,12 @@ class CourseServiceImplTests {
         courseDTO.setModules(List.of(new UpdateModuleInCourseRequest()));
 
         when(courseRepository.findById(courseId)).thenReturn(Optional.of(course));
-        when(moduleServiceImpl.updateModules(courseDTO.getModules(), course)).thenReturn(List.of());
-        when(courseRepository.save(any(Course.class))).thenReturn(course);
+        when(moduleServiceImpl.updateModules(courseDTO.getModules(), course)).thenReturn(List.of(new Module()));
 
         CourseResponse updatedCourse = courseServiceImpl.updateCourseById(courseId, courseDTO);
 
         assertNotNull(updatedCourse);
-        verify(courseRepository, times(1)).save(course);
+        assertEquals(updatedCourse.getModules().size(), 1);
     }
 
     @Test

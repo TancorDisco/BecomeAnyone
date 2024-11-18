@@ -154,7 +154,7 @@ class TestServiceImplTests {
         var result = testServiceImpl.checkTest(testToCheckRequest, 1L, 1L);
 
         assertNotNull(result);
-        assertNotNull(result.get("test"));
+        assertNotNull(result.get("testWithWrongAnswers"));
         assertNotNull(result.get("testResult"));
     }
 

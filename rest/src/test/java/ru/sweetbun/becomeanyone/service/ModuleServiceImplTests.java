@@ -150,7 +150,6 @@ class ModuleServiceImplTests {
     void updateModules_ValidInput_ModulesUpdated() {
         List<UpdateModuleInCourseRequest> updateDTOs = List.of(new UpdateModuleInCourseRequest(), new UpdateModuleInCourseRequest());
         course.setModules(List.of(currentModulesMap.get(1L), currentModulesMap.get(2L)));
-        when(moduleRepository.save(any(Module.class))).thenAnswer(i -> i.getArguments()[0]);
 
         List<Module> result = moduleServiceImpl.updateModules(updateDTOs, course);
 
@@ -215,8 +214,6 @@ class ModuleServiceImplTests {
     void testUpdateModules(List<UpdateModuleInCourseRequest> moduleDTOS, List<Module> expectedModules) {
         // Arrange
         course.setModules(new ArrayList<>(currentModulesMap.values()));
-
-        when(moduleRepository.save(any(Module.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(lessonServiceImpl.updateLessons(any(), any())).thenReturn(List.of());
 
         // Act
@@ -228,8 +225,6 @@ class ModuleServiceImplTests {
             assertEquals(expectedModules.get(i).getTitle(), updatedModules.get(i).getTitle());
             assertEquals(expectedModules.get(i).getOrderNum(), updatedModules.get(i).getOrderNum());
         }
-
-        verify(moduleRepository, times(expectedModules.size())).save(any(Module.class));
         verify(lessonServiceImpl, times(moduleDTOS.size())).updateLessons(any(), any());
     }
 

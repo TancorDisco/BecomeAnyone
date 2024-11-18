@@ -124,13 +124,11 @@ class QuestionServiceImplTests {
         questionRequest.setAnswers(answers);
 
         when(questionRepository.findById(id)).thenReturn(Optional.of(question));
-        when(questionRepository.save(question)).thenReturn(question);
 
         QuestionResponse result = questionServiceImpl.updateQuestion(questionRequest, id);
 
         assertNotNull(result);
         verify(answerService).updateAnswers(answers, question);
-        verify(questionRepository).save(question);
     }
 
     @Test
