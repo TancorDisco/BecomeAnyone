@@ -75,8 +75,7 @@ public class QuestionServiceImpl implements QuestionService {
         validateAnswers(answerDTOS);
         modelMapper.map(questionRequest, question);
         question.setAnswers(answerService.updateAnswers(answerDTOS, question));
-        Question savedQuestion = questionRepository.save(question);
-        return modelMapper.map(savedQuestion, QuestionResponse.class);
+        return modelMapper.map(question, QuestionResponse.class);
     }
 
     @Override

@@ -96,7 +96,7 @@ public class TestServiceImpl implements TestService {
         TestResponse testResponse = modelMapper.map(testToSend, TestResponse.class);
         TestResultResponse testResultResponse = modelMapper.map(testResult, TestResultResponse.class);
         Map<String, Object> response = new HashMap<>();
-        response.put("test", testResponse);
+        response.put("testWithWrongAnswers", testResponse);
         response.put("testResult", testResultResponse);
         return response;
     }

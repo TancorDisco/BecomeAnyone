@@ -1,7 +1,6 @@
 package ru.sweetbun.becomeanyone.dto.testresult;
 
 import lombok.*;
-import ru.sweetbun.becomeanyone.dto.test.response.TestResponse;
 
 @Getter
 @Setter
