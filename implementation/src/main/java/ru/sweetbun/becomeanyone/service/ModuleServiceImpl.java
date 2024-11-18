@@ -109,7 +109,8 @@ public class ModuleServiceImpl implements ModuleService {
                 module.setCourse(course);
             }
             module.setLessons(lessonServiceImpl.updateLessons(moduleDTO.getLessons(), module));
-            return moduleRepository.save(module);
+            return module;
+            //return moduleRepository.save(module);
         }).toList();
     }
 
