@@ -11,6 +11,5 @@ import ru.sweetbun.becomeanyone.dto.test.response.TestResponse;
 public class TestResultResponse {
 
     private Long id;
-    private TestResponse test;
     private double percent;
 }
