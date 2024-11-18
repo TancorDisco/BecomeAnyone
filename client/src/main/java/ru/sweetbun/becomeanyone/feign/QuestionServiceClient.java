@@ -9,24 +9,23 @@ import ru.sweetbun.becomeanyone.dto.question.response.QuestionResponse;
 
 import java.util.List;
 
-@RequestMapping("/courses/{courseId}/modules/{moduleId}/lessons/{lessonId}/tests/{testId}/questions")
 @FeignClient(name = "questionService", url = "http://localhost:8080")
 public interface QuestionServiceClient {
 
-    @PostMapping
+    @PostMapping("/courses/{courseId}/modules/{moduleId}/lessons/{lessonId}/tests/{testId}/questions")
     QuestionResponse createQuestion(@RequestBody QuestionRequest<CreateAnswerRequest> questionRequest,
                                     @PathVariable("testId") Long testId);
 
-    @GetMapping
+    @GetMapping("/courses/{courseId}/modules/{moduleId}/lessons/{lessonId}/tests/{testId}/questions")
     List<QuestionResponse> getAllQuestionsByTest(@PathVariable("testId") Long testId);
 
-    @GetMapping("{id}")
+    @GetMapping("/courses/{courseId}/modules/{moduleId}/lessons/{lessonId}/tests/{testId}/questions/{id}")
     QuestionResponse getQuestionById(@PathVariable("id") Long id);
 
-    @PatchMapping("{id}")
+    @PatchMapping("/courses/{courseId}/modules/{moduleId}/lessons/{lessonId}/tests/{testId}/questions/{id}")
     QuestionResponse updateQuestion(@RequestBody QuestionRequest<UpdateAnswerRequest> questionRequest,
                                     @PathVariable("id") Long id);
 
-    @DeleteMapping("{id}")
+    @DeleteMapping("/courses/{courseId}/modules/{moduleId}/lessons/{lessonId}/tests/{testId}/questions/{id}")
     long deleteQuestionById(@PathVariable("id") Long id);
 }

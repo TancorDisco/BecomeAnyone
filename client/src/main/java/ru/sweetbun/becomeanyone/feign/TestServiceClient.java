@@ -9,26 +9,25 @@ import ru.sweetbun.becomeanyone.dto.test.response.TestResponse;
 import java.util.List;
 import java.util.Map;
 
-@RequestMapping("/courses/{courseId}/modules/{moduleId}/lessons/{lessonId}/tests")
 @FeignClient(name = "testService", url = "http://localhost:8080")
 public interface TestServiceClient {
 
-    @PostMapping
+    @PostMapping("/courses/{courseId}/modules/{moduleId}/lessons/{lessonId}/tests")
     TestResponse createTest(@RequestBody TestRequest testRequest, @PathVariable("lessonId") Long lessonId);
 
-    @GetMapping
+    @GetMapping("/courses/{courseId}/modules/{moduleId}/lessons/{lessonId}/tests")
     List<TestResponse> getAllTestsByLesson(@PathVariable("lessonId") Long lessonId);
 
-    @GetMapping("{id}")
+    @GetMapping("/courses/{courseId}/modules/{moduleId}/lessons/{lessonId}/tests/{id}")
     TestResponse getTestById(@PathVariable("id") Long id);
 
-    @PatchMapping("{id}")
+    @PatchMapping("/courses/{courseId}/modules/{moduleId}/lessons/{lessonId}/tests/{id}")
     TestResponse updateTest(@RequestBody TestRequest testRequest, @PathVariable("id") Long id);
 
-    @DeleteMapping("{id}")
+    @DeleteMapping("/courses/{courseId}/modules/{moduleId}/lessons/{lessonId}/tests/{id}")
     long deleteTestById(@PathVariable("id") Long id);
 
-    @PostMapping("{id}/check")
+    @PostMapping("/courses/{courseId}/modules/{moduleId}/lessons/{lessonId}/tests/{id}/check")
     Map<String, Object> checkTest(@RequestBody TestToCheckRequest testDTO, @PathVariable("id") Long id,
                                   @PathVariable("courseId") Long courseId);
 }

@@ -8,22 +8,21 @@ import ru.sweetbun.becomeanyone.dto.lesson.response.LessonResponse;
 
 import java.util.List;
 
-@RequestMapping("/courses/{courseId}/modules/{moduleId}/lessons")
 @FeignClient(name = "lessonService", url = "http://localhost:8080")
 public interface LessonServiceClient {
 
-    @PostMapping
+    @PostMapping("/courses/{courseId}/modules/{moduleId}/lessons")
     LessonResponse createLesson(@RequestBody CreateLessonRequest lessonDTO, @PathVariable("moduleId") Long moduleId);
 
-    @GetMapping
+    @GetMapping("/courses/{courseId}/modules/{moduleId}/lessons")
     List<LessonResponse> getAllLessonsByModule(@PathVariable("moduleId") Long moduleId);
 
-    @GetMapping("{id}")
+    @GetMapping("/courses/{courseId}/modules/{moduleId}/lessons/{id}")
     LessonResponse getLessonById(@PathVariable("id") Long id);
 
-    @PatchMapping("{id}")
+    @PatchMapping("/courses/{courseId}/modules/{moduleId}/lessons/{id}")
     LessonResponse updateLesson(@RequestBody UpdateLessonRequest updateLessonRequest, @PathVariable("id") Long id);
 
-    @DeleteMapping("{id}")
+    @DeleteMapping("/courses/{courseId}/modules/{moduleId}/lessons/{id}")
     long deleteLessonById(@PathVariable("id") Long id);
 }
