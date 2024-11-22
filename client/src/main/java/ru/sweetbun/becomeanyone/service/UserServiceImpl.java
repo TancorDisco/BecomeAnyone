@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.sweetbun.becomeanyone.contract.AuthService;
 import ru.sweetbun.becomeanyone.contract.ProfileService;
 import ru.sweetbun.becomeanyone.contract.UserService;
+import ru.sweetbun.becomeanyone.dto.auth.LoginRequest;
 import ru.sweetbun.becomeanyone.dto.profile.ProfileRequest;
 import ru.sweetbun.becomeanyone.dto.user.request.UserRequest;
 import ru.sweetbun.becomeanyone.dto.user.response.UserResponse;
@@ -25,6 +26,10 @@ public class UserServiceImpl implements UserService, AuthService, ProfileService
 
     public UserResponse register(UserRequest userRequest) {
         return authServiceClient.registerUser(userRequest);
+    }
+
+    public String login(LoginRequest loginRequest, boolean rememberMe) {
+        return authServiceClient.login(loginRequest, rememberMe);
     }
 
     public UserResponse getUserById(Long id) {

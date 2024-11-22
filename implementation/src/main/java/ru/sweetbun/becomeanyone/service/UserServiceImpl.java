@@ -8,20 +8,22 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.sweetbun.becomeanyone.dto.profile.ProfileRequest;
-import ru.sweetbun.becomeanyone.dto.user.request.UserRequest;
 import ru.sweetbun.becomeanyone.contract.AuthService;
 import ru.sweetbun.becomeanyone.contract.ProfileService;
 import ru.sweetbun.becomeanyone.contract.UserService;
+import ru.sweetbun.becomeanyone.dto.auth.LoginRequest;
+import ru.sweetbun.becomeanyone.dto.profile.ProfileRequest;
+import ru.sweetbun.becomeanyone.dto.user.request.UserRequest;
+import ru.sweetbun.becomeanyone.dto.user.response.UserResponse;
 import ru.sweetbun.becomeanyone.entity.Profile;
 import ru.sweetbun.becomeanyone.entity.Role;
 import ru.sweetbun.becomeanyone.entity.User;
-import ru.sweetbun.becomeanyone.dto.user.response.UserResponse;
 import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
 import ru.sweetbun.becomeanyone.repository.UserRepository;
 import ru.sweetbun.becomeanyone.util.SecurityUtils;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @org.springframework.context.annotation.Profile("default")
 @Transactional(readOnly = true)
@@ -42,6 +44,8 @@ public class UserServiceImpl implements UserService, ProfileService, AuthService
     @Lazy
     private final SecurityUtils securityUtils;
 
+    private final TokenService tokenService;
+
     @Override
     @Transactional
     public UserResponse register(UserRequest userRequest) {
@@ -54,6 +58,32 @@ public class UserServiceImpl implements UserService, ProfileService, AuthService
         return modelMapper.map(savedUser, UserResponse.class);
     }
 
+    @Override
+    public String login(LoginRequest loginRequest, boolean rememberMe) {
+        String username = loginRequest.username();
+        log.info("Attempting login for user: {}", username);
+
+        List<String> roles = authenticate(loginRequest);
+        if (roles.isEmpty())
+            log.warn("No roles found for user: {}", username);
+
+        return "Bearer " + tokenService.generateToken(username, roles, rememberMe);
+    }
+
+    private List<String> authenticate(LoginRequest loginRequest) {
+        String username = loginRequest.username();
+        log.info("Authenticating user: {}", username);
+
+        User user = getUserByUsername(username);
+        String rawPasswordWithSalt = loginRequest.password()/* + user.getSalt()*/;
+        if (!passwordEncoder.matches(rawPasswordWithSalt, user.getPassword())) {
+            log.error("Invalid username or password for user: {}", username);
+            throw new UsernameNotFoundException("Invalid username or password");
+        }
+        return user.getRoles().stream()
+                .map(Role::getName)
+                .collect(Collectors.toList());
+    }
 
     public User fetchUserById(Long id) {
         return userRepository.findById(id)

@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.sweetbun.becomeanyone.dto.auth.LoginRequest;
 import ru.sweetbun.becomeanyone.dto.user.request.UserRequest;
 import ru.sweetbun.becomeanyone.contract.AuthService;
 
@@ -27,8 +28,8 @@ public class AuthController {
 
     @Operation(summary = "Авторизация пользователя", description = "Авторизация пользователя в системе")
     @PostMapping("/login")
-    public ResponseEntity<?> loginUser() {
-        //TODO внедрить JWT
-        return ResponseEntity.ok("Logged in successfully");
+    public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest,
+                                       @RequestParam(required = false) boolean rememberMe) {
+        return ResponseEntity.ok(authService.login(loginRequest, rememberMe));
     }
 }

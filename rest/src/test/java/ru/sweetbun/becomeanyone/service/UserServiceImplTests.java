@@ -48,6 +48,9 @@ class UserServiceImplTests {
     @Mock
     private SecurityUtils securityUtils;
 
+    @Mock
+    private TokenService tokenService;
+
     @InjectMocks
     private UserServiceImpl userServiceImpl;
 
@@ -61,7 +64,7 @@ class UserServiceImplTests {
     @BeforeEach
     void setUp() {
         userServiceImpl = new UserServiceImpl(userRepository, passwordEncoder, modelMapper, roleService,
-                profileService, securityUtils);
+                profileService, securityUtils, tokenService);
 
         userRequest = UserRequest.builder().username("password").build();
         userResponse = UserResponse.builder().id(1L).build();
