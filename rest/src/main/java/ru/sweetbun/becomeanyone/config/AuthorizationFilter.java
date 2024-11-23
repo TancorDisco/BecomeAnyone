@@ -36,7 +36,7 @@ public class AuthorizationFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
-        return path.startsWith("/auth/");
+        return path.startsWith("/auth/login") || path.startsWith("/auth/register");
     }
 
     @Override
@@ -72,7 +72,6 @@ public class AuthorizationFilter extends OncePerRequestFilter {
             );
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            log.info("Token for user: {} with roles: {}", username, authorities);
         }
 
         filterChain.doFilter(request, response);

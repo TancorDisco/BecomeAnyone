@@ -32,6 +32,10 @@ public class UserServiceImpl implements UserService, AuthService, ProfileService
         return authServiceClient.login(loginRequest, rememberMe);
     }
 
+    public String logout(String authHeader) {
+        return authServiceClient.logout(authHeader);
+    }
+
     public UserResponse getUserById(Long id) {
         return userServiceClient.getUserById(id);
     }

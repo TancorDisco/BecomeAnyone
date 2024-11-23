@@ -48,6 +48,8 @@ public class UserServiceImpl implements UserService, ProfileService, AuthService
 
     private final TokenService tokenService;
 
+    private final TokenBlacklistService tokenBlacklistService;
+
     @Override
     @Transactional
     public UserResponse register(UserRequest userRequest) {
@@ -81,6 +83,14 @@ public class UserServiceImpl implements UserService, ProfileService, AuthService
             log.warn("No roles found for user: {}", username);
 
         return "Bearer " + tokenService.generateToken(username, roles, rememberMe);
+    }
+
+    @Override
+    public String logout(String authHeader) {
+        String token = authHeader.substring(7);
+        long expInMinutes = tokenService.getExpirationTimeInMinutes(token);
+        tokenBlacklistService.addTokenToBlacklist(token, expInMinutes);
+        return "Logged out successfully";
     }
 
     private List<String> authenticate(LoginRequest loginRequest) {

@@ -8,4 +8,5 @@ public interface AuthService {
 
     UserResponse register(UserRequest userRequest);
     String login(LoginRequest loginRequest, boolean rememberMe);
+    String logout(String authHeader);
 }
