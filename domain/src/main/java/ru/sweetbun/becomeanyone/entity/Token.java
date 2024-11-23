@@ -11,6 +11,7 @@ import org.springframework.data.redis.core.RedisHash;
 public class Token {
     @Id
     private String id;
+    private String username;
     private String status;
     private long expirationTime;
 }

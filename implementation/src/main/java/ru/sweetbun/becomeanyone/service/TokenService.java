@@ -22,18 +22,26 @@ public class TokenService {
     @Value("${jwt.secret}")
     private String jwtSecret;
 
-    private final long TOKEN_VALIDITY = 43_200_000;
-    private final long TOKEN_REMEMBER_ME_VALIDITY = 2_592_000_000L;
+    private final long ACCESS_TOKEN_VALIDITY = 3_600_000; // 1 час
+    private final long REFRESH_TOKEN_VALIDITY = 604_800_000; // 7 дней
+    private final long REFRESH_TOKEN_REMEMBER_ME_VALIDITY = 2_592_000_000L; // 30 дней
 
-    public String generateToken(String username, List<String> roles, boolean rememberMe) {
+    public String generateAccessToken(String username, List<String> roles) {
         log.info("Generating token for user: {} with roles: {}", username, roles);
-        long validity = rememberMe ? TOKEN_REMEMBER_ME_VALIDITY : TOKEN_VALIDITY;
+        return JWT.create()
+                .withSubject(username)
+                .withIssuedAt(new Date())
+                .withExpiresAt(new Date(System.currentTimeMillis() + ACCESS_TOKEN_VALIDITY))
+                .withClaim("roles", roles)
+                .sign(getAlgorithm());
+    }
 
+    public String generateRefreshToken(String username, boolean rememberMe) {
+        long validity = (rememberMe) ? REFRESH_TOKEN_REMEMBER_ME_VALIDITY : REFRESH_TOKEN_VALIDITY;
         return JWT.create()
                 .withSubject(username)
                 .withIssuedAt(new Date())
                 .withExpiresAt(new Date(System.currentTimeMillis() + validity))
-                .withClaim("roles", roles)
                 .sign(getAlgorithm());
     }
 
@@ -60,10 +68,10 @@ public class TokenService {
         return decodedJWT.getSubject();
     }
 
-    public long getExpirationTimeInMinutes(String token) {
+    public long getExpirationTimeInMills(String token) {
         DecodedJWT decodedJWT = getVerifier().verify(token);
         Date exporationDate = decodedJWT.getExpiresAt();
-        return (exporationDate.getTime() - new Date().getTime()) / 60_000;
+        return exporationDate.getTime() - new Date().getTime();
     }
 
     public List<GrantedAuthority> getAuthoritiesFromToken(String token) {

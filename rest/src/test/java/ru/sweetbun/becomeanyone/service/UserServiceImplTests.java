@@ -9,17 +9,16 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import ru.sweetbun.becomeanyone.dto.role.RoleResponse;
-import ru.sweetbun.becomeanyone.entity.Profile;
-import ru.sweetbun.becomeanyone.entity.Role;
-import ru.sweetbun.becomeanyone.entity.User;
-import ru.sweetbun.becomeanyone.util.SecurityUtils;
+import ru.sweetbun.becomeanyone.config.ModelMapperConfig;
 import ru.sweetbun.becomeanyone.dto.profile.ProfileRequest;
 import ru.sweetbun.becomeanyone.dto.user.request.UserRequest;
 import ru.sweetbun.becomeanyone.dto.user.response.UserResponse;
-import ru.sweetbun.becomeanyone.config.ModelMapperConfig;
+import ru.sweetbun.becomeanyone.entity.Profile;
+import ru.sweetbun.becomeanyone.entity.Role;
+import ru.sweetbun.becomeanyone.entity.User;
 import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
 import ru.sweetbun.becomeanyone.repository.UserRepository;
+import ru.sweetbun.becomeanyone.util.SecurityUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -54,6 +53,9 @@ class UserServiceImplTests {
     @Mock
     private TokenBlacklistService tokenBlacklistService;
 
+    @Mock
+    private RefreshTokenService refreshTokenService;
+
     @InjectMocks
     private UserServiceImpl userServiceImpl;
 
@@ -67,7 +69,7 @@ class UserServiceImplTests {
     @BeforeEach
     void setUp() {
         userServiceImpl = new UserServiceImpl(userRepository, passwordEncoder, modelMapper, roleService,
-                profileService, securityUtils, tokenService, tokenBlacklistService);
+                profileService, securityUtils, tokenService, tokenBlacklistService, refreshTokenService);
 
         userRequest = UserRequest.builder().username("password").build();
         userResponse = UserResponse.builder().id(1L).build();

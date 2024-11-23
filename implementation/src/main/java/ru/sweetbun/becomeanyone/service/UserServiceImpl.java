@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -13,6 +14,7 @@ import ru.sweetbun.becomeanyone.contract.ProfileService;
 import ru.sweetbun.becomeanyone.contract.UserService;
 import ru.sweetbun.becomeanyone.dto.auth.LoginRequest;
 import ru.sweetbun.becomeanyone.dto.profile.ProfileRequest;
+import ru.sweetbun.becomeanyone.dto.token.RefreshTokenRequest;
 import ru.sweetbun.becomeanyone.dto.user.request.UserRequest;
 import ru.sweetbun.becomeanyone.dto.user.response.UserResponse;
 import ru.sweetbun.becomeanyone.entity.Profile;
@@ -24,7 +26,9 @@ import ru.sweetbun.becomeanyone.util.SecurityUtils;
 
 import java.security.SecureRandom;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @org.springframework.context.annotation.Profile("default")
@@ -50,6 +54,8 @@ public class UserServiceImpl implements UserService, ProfileService, AuthService
 
     private final TokenBlacklistService tokenBlacklistService;
 
+    private final RefreshTokenService refreshTokenService;
+
     @Override
     @Transactional
     public UserResponse register(UserRequest userRequest) {
@@ -74,7 +80,7 @@ public class UserServiceImpl implements UserService, ProfileService, AuthService
     }
 
     @Override
-    public String login(LoginRequest loginRequest, boolean rememberMe) {
+    public Map<String, String> login(LoginRequest loginRequest, boolean rememberMe) {
         String username = loginRequest.username();
         log.info("Attempting login for user: {}", username);
 
@@ -82,15 +88,45 @@ public class UserServiceImpl implements UserService, ProfileService, AuthService
         if (roles.isEmpty())
             log.warn("No roles found for user: {}", username);
 
-        return "Bearer " + tokenService.generateToken(username, roles, rememberMe);
+        String accessKey = tokenService.generateAccessToken(username, roles);
+        String refreshToken = tokenService.generateRefreshToken(username, rememberMe);
+        refreshTokenService.saveRefreshToken(username, refreshToken, tokenService.getExpirationTimeInMills(refreshToken));
+
+        Map<String, String> tokens = new HashMap<>();
+        tokens.put("accessToken", "Bearer " + accessKey);
+        tokens.put("refreshToken", refreshToken);
+        return tokens;
     }
 
     @Override
     public String logout(String authHeader) {
-        String token = authHeader.substring(7);
-        long expInMinutes = tokenService.getExpirationTimeInMinutes(token);
-        tokenBlacklistService.addTokenToBlacklist(token, expInMinutes);
+        String token = getAccessTokenFromAuthHeader(authHeader);
+        long expInMills = tokenService.getExpirationTimeInMills(token);
+        tokenBlacklistService.addTokenToBlacklist(token, expInMills);
+
+        String username = tokenService.getUsernameFromToken(token);
+        refreshTokenService.deleteAllRefreshTokensForUser(username);
         return "Logged out successfully";
+    }
+
+    @Override
+    public Map<String, String> refreshAccessToken(RefreshTokenRequest request, String authHeader) {
+        String accessToken = getAccessTokenFromAuthHeader(authHeader);
+        String refreshToken = request.value();
+        refreshTokenService.isRefreshTokenValid(refreshToken);
+        String username = tokenService.getUsernameFromToken(refreshToken);
+        List<String> roles = tokenService.getAuthoritiesFromToken(accessToken).stream()
+                .map(GrantedAuthority::getAuthority)
+                .toList();
+        String newAccessToken = tokenService.generateAccessToken(username, roles);
+        return Map.of(
+                "accessToken", "Bearer " + newAccessToken,
+                "refreshToken", refreshToken
+        );
+    }
+
+    private String getAccessTokenFromAuthHeader(String authHeader) {
+        return authHeader.substring(7);
     }
 
     private List<String> authenticate(LoginRequest loginRequest) {

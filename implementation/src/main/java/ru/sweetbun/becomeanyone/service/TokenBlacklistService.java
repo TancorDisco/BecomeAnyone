@@ -5,19 +5,17 @@ import org.springframework.stereotype.Service;
 import ru.sweetbun.becomeanyone.entity.Token;
 import ru.sweetbun.becomeanyone.repository.TokenRepository;
 
-import java.time.Duration;
-
 @RequiredArgsConstructor
 @Service
 public class TokenBlacklistService {
 
     private final TokenRepository tokenRepository;
 
-    public void addTokenToBlacklist(String token, long expInMinutes) {
+    public void addTokenToBlacklist(String token, long expInMills) {
         Token tokenEntity = Token.builder()
                 .id(token)
                 .status("blacklisted")
-                .expirationTime(System.currentTimeMillis() + Duration.ofMinutes(expInMinutes).toMillis())
+                .expirationTime(System.currentTimeMillis() + expInMills)
                 .build();
         tokenRepository.save(tokenEntity);
     }
