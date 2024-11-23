@@ -22,6 +22,8 @@ import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
 import ru.sweetbun.becomeanyone.repository.UserRepository;
 import ru.sweetbun.becomeanyone.util.SecurityUtils;
 
+import java.security.SecureRandom;
+import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -49,13 +51,24 @@ public class UserServiceImpl implements UserService, ProfileService, AuthService
     @Override
     @Transactional
     public UserResponse register(UserRequest userRequest) {
+        if (userRepository.findByUsername(userRequest.username()).isPresent())
+            throw new IllegalArgumentException("User already exists");
         User user = modelMapper.map(userRequest, User.class);
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        String salt = generateSalt();
+        user.setSalt(salt);
+        user.setPassword(passwordEncoder.encode(user.getPassword() + salt));
         Role role = roleService.getRoleByName("ROLE_STUDENT");
         log.info("Default role of user: {}", role.getName());
         user.getRoles().add(role);
         User savedUser = userRepository.save(user);
         return modelMapper.map(savedUser, UserResponse.class);
+    }
+
+    private String generateSalt() {
+        SecureRandom random = new SecureRandom();
+        byte[] saltBytes = new byte[16];
+        random.nextBytes(saltBytes);
+        return Base64.getEncoder().encodeToString(saltBytes);
     }
 
     @Override
@@ -75,7 +88,7 @@ public class UserServiceImpl implements UserService, ProfileService, AuthService
         log.info("Authenticating user: {}", username);
 
         User user = getUserByUsername(username);
-        String rawPasswordWithSalt = loginRequest.password()/* + user.getSalt()*/;
+        String rawPasswordWithSalt = loginRequest.password() + user.getSalt();
         if (!passwordEncoder.matches(rawPasswordWithSalt, user.getPassword())) {
             log.error("Invalid username or password for user: {}", username);
             throw new UsernameNotFoundException("Invalid username or password");
