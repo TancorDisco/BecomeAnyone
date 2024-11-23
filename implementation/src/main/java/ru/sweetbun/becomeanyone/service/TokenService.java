@@ -30,6 +30,7 @@ public class TokenService {
         log.info("Generating token for user: {} with roles: {}", username, roles);
         return JWT.create()
                 .withSubject(username)
+                .withAudience("become-anyone")
                 .withIssuedAt(new Date())
                 .withExpiresAt(new Date(System.currentTimeMillis() + ACCESS_TOKEN_VALIDITY))
                 .withClaim("roles", roles)
@@ -40,6 +41,7 @@ public class TokenService {
         long validity = (rememberMe) ? REFRESH_TOKEN_REMEMBER_ME_VALIDITY : REFRESH_TOKEN_VALIDITY;
         return JWT.create()
                 .withSubject(username)
+                .withAudience("become-anyone")
                 .withIssuedAt(new Date())
                 .withExpiresAt(new Date(System.currentTimeMillis() + validity))
                 .sign(getAlgorithm());
@@ -55,7 +57,13 @@ public class TokenService {
 
     public boolean validateToken(String token) {
         try {
-            getVerifier().verify(token);
+            DecodedJWT jwt = getVerifier().verify(token);
+
+            List<String> audience = jwt.getAudience();
+            if (!audience.contains("become-anyone")) {
+                log.error("Token audience is invalid: " + audience);
+                return false;
+            }
         } catch (JWTVerificationException e) {
             log.error("Token is invalid: " + e.getMessage());
             return false;
