@@ -1,26 +1,28 @@
 package ru.sweetbun.becomeanyone.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.sweetbun.becomeanyone.entity.Token;
+import ru.sweetbun.becomeanyone.repository.TokenRepository;
 
 import java.time.Duration;
 
+@RequiredArgsConstructor
 @Service
 public class TokenBlacklistService {
 
-    private final RedisTemplate<String, String> redisTemplate;
-
-    @Autowired
-    public TokenBlacklistService(RedisTemplate<String, String> redisTemplate) {
-        this.redisTemplate = redisTemplate;
-    }
+    private final TokenRepository tokenRepository;
 
     public void addTokenToBlacklist(String token, long expInMinutes) {
-        redisTemplate.opsForValue().set(token, "blacklisted", Duration.ofMinutes(expInMinutes));
+        Token tokenEntity = Token.builder()
+                .id(token)
+                .status("blacklisted")
+                .expirationTime(System.currentTimeMillis() + Duration.ofMinutes(expInMinutes).toMillis())
+                .build();
+        tokenRepository.save(tokenEntity);
     }
 
     public boolean isTokenBlacklisted(String token) {
-        return Boolean.TRUE.equals(redisTemplate.hasKey(token));
+        return tokenRepository.existsById(token);
     }
 }
