@@ -2,15 +2,18 @@ package ru.sweetbun.becomeanyone.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.sweetbun.becomeanyone.entity.Token;
 import ru.sweetbun.becomeanyone.repository.TokenRepository;
 
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Service
 public class RefreshTokenService {
 
     private final TokenRepository tokenRepository;
 
+    @Transactional
     public void saveRefreshToken(String username, String refreshToken, long expirationTime) {
         Token tokenEntity = Token.builder()
                 .id(refreshToken)
@@ -29,10 +32,12 @@ public class RefreshTokenService {
         return true;
     }
 
+    @Transactional
     public void deleteRefreshToken(String refreshToken) {
         tokenRepository.deleteById(refreshToken);
     }
 
+    @Transactional
     public void deleteAllRefreshTokensForUser(String username) {
         tokenRepository.findAll().forEach(token -> {
             String name = token.getUsername();

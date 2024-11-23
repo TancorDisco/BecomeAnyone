@@ -39,7 +39,7 @@ class UserServiceImplTests {
     private final ModelMapper modelMapper = ModelMapperConfig.createConfiguredModelMapper();
 
     @Mock
-    private RoleService roleService;
+    private RoleServiceImpl roleServiceImpl;
 
     @Mock
     private ProfileService profileService;
@@ -68,7 +68,7 @@ class UserServiceImplTests {
 
     @BeforeEach
     void setUp() {
-        userServiceImpl = new UserServiceImpl(userRepository, passwordEncoder, modelMapper, roleService,
+        userServiceImpl = new UserServiceImpl(userRepository, passwordEncoder, modelMapper, roleServiceImpl,
                 profileService, securityUtils, tokenService, tokenBlacklistService, refreshTokenService);
 
         userRequest = UserRequest.builder().username("password").build();
@@ -83,8 +83,8 @@ class UserServiceImplTests {
 
     @Test
     void register_ValidUserDTO_UserSavedWithRole() {
-        when(passwordEncoder.encode(userRequest.password())).thenReturn("encodedPassword");
-        when(roleService.getRoleByName("ROLE_STUDENT")).thenReturn(role);
+        when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
+        when(roleServiceImpl.getRoleByName("ROLE_STUDENT")).thenReturn(role);
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         UserResponse result = userServiceImpl.register(userRequest);
@@ -95,7 +95,7 @@ class UserServiceImplTests {
 
     @Test
     void register_InvalidRole_ThrowsException() {
-        when(roleService.getRoleByName("ROLE_STUDENT")).thenThrow(new RuntimeException("Role not found"));
+        when(roleServiceImpl.getRoleByName("ROLE_STUDENT")).thenThrow(new RuntimeException("Role not found"));
 
         assertThrows(RuntimeException.class, () -> userServiceImpl.register(userRequest));
         verify(userRepository, never()).save(any(User.class));

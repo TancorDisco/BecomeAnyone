@@ -43,8 +43,8 @@ public class UserServiceImpl implements UserService, ProfileService, AuthService
     private final PasswordEncoder passwordEncoder;
 
     private final ModelMapper modelMapper;
-
-    private final RoleService roleService;
+    @Lazy
+    private final RoleServiceImpl roleServiceImpl;
 
     private final ru.sweetbun.becomeanyone.service.ProfileService profileService;
     @Lazy
@@ -65,7 +65,7 @@ public class UserServiceImpl implements UserService, ProfileService, AuthService
         String salt = generateSalt();
         user.setSalt(salt);
         user.setPassword(passwordEncoder.encode(user.getPassword() + salt));
-        Role role = roleService.getRoleByName("ROLE_STUDENT");
+        Role role = roleServiceImpl.getRoleByName("ROLE_STUDENT");
         log.info("Default role of user: {}", role.getName());
         user.getRoles().add(role);
         User savedUser = userRepository.save(user);
