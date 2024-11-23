@@ -26,7 +26,7 @@ public class TokenService {
     private final long REFRESH_TOKEN_VALIDITY = 604_800_000; // 7 дней
     private final long REFRESH_TOKEN_REMEMBER_ME_VALIDITY = 2_592_000_000L; // 30 дней
 
-    public String generateAccessToken(String username, List<String> roles) {
+    public String generateAccessToken(String username, Long userId, List<String> roles) {
         log.info("Generating token for user: {} with roles: {}", username, roles);
         return JWT.create()
                 .withSubject(username)
@@ -34,6 +34,7 @@ public class TokenService {
                 .withIssuedAt(new Date())
                 .withExpiresAt(new Date(System.currentTimeMillis() + ACCESS_TOKEN_VALIDITY))
                 .withClaim("roles", roles)
+                .withClaim("id", userId)
                 .sign(getAlgorithm());
     }
 
@@ -88,5 +89,10 @@ public class TokenService {
         return roles.stream()
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
+    }
+
+    public Long getUserIdFromToken(String token) {
+        DecodedJWT decodedJWT = getVerifier().verify(token);
+        return decodedJWT.getClaim("id").asLong();
     }
 }

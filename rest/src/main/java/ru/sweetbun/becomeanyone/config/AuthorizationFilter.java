@@ -13,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import ru.sweetbun.becomeanyone.entity.CustomUserPrincipal;
 import ru.sweetbun.becomeanyone.service.TokenBlacklistService;
 import ru.sweetbun.becomeanyone.service.TokenService;
 
@@ -64,11 +65,14 @@ public class AuthorizationFilter extends OncePerRequestFilter {
         }
 
         String username = tokenService.getUsernameFromToken(token);
+        Long userId = tokenService.getUserIdFromToken(token);
         List<GrantedAuthority> authorities = tokenService.getAuthoritiesFromToken(token);
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                    username, null, authorities
+                    new CustomUserPrincipal(userId, username),
+                    null,
+                    authorities
             );
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(authentication);

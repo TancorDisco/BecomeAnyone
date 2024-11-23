@@ -88,7 +88,8 @@ public class UserServiceImpl implements UserService, ProfileService, AuthService
         if (roles.isEmpty())
             log.warn("No roles found for user: {}", username);
 
-        String accessKey = tokenService.generateAccessToken(username, roles);
+        Long userId = getUserByUsername(username).getId();
+        String accessKey = tokenService.generateAccessToken(username, userId,roles);
         String refreshToken = tokenService.generateRefreshToken(username, rememberMe);
         refreshTokenService.saveRefreshToken(username, refreshToken, tokenService.getExpirationTimeInMills(refreshToken));
 
@@ -114,11 +115,13 @@ public class UserServiceImpl implements UserService, ProfileService, AuthService
         String accessToken = getAccessTokenFromAuthHeader(authHeader);
         String refreshToken = request.value();
         refreshTokenService.isRefreshTokenValid(refreshToken);
+
         String username = tokenService.getUsernameFromToken(refreshToken);
+        Long userId = tokenService.getUserIdFromToken(accessToken);
         List<String> roles = tokenService.getAuthoritiesFromToken(accessToken).stream()
                 .map(GrantedAuthority::getAuthority)
                 .toList();
-        String newAccessToken = tokenService.generateAccessToken(username, roles);
+        String newAccessToken = tokenService.generateAccessToken(username, userId, roles);
         return Map.of(
                 "accessToken", "Bearer " + newAccessToken,
                 "refreshToken", refreshToken
