@@ -43,7 +43,7 @@ class CustomUserDetailsServiceTests {
         UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
 
         assertNotNull(userDetails);
-        assertEquals(user.getUsername(), userDetails.getUsername());
+        assertEquals(user.getUsername(), userDetails.username());
         assertEquals(user.getPassword(), userDetails.getPassword());
         assertTrue(userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_USER")));
         verify(userServiceImpl, times(1)).getUserByUsername(username);
@@ -67,7 +67,7 @@ class CustomUserDetailsServiceTests {
         UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
 
         assertNotNull(userDetails);
-        assertEquals(user.getUsername(), userDetails.getUsername());
+        assertEquals(user.getUsername(), userDetails.username());
         assertEquals(0, userDetails.getAuthorities().size());
         verify(userServiceImpl, times(1)).getUserByUsername(username);
     }

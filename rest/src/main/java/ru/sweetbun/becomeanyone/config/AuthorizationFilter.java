@@ -4,8 +4,8 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -13,13 +13,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import ru.sweetbun.becomeanyone.entity.CustomUserPrincipal;
 import ru.sweetbun.becomeanyone.service.TokenBlacklistService;
 import ru.sweetbun.becomeanyone.service.TokenService;
 
 import java.io.IOException;
 import java.util.List;
 
+@RequiredArgsConstructor
 @Slf4j
 @Component
 public class AuthorizationFilter extends OncePerRequestFilter {
@@ -27,12 +27,6 @@ public class AuthorizationFilter extends OncePerRequestFilter {
     private final TokenService tokenService;
 
     private final TokenBlacklistService tokenBlacklistService;
-
-    @Autowired
-    public AuthorizationFilter(TokenService tokenService, TokenBlacklistService tokenBlacklistService) {
-        this.tokenService = tokenService;
-        this.tokenBlacklistService = tokenBlacklistService;
-    }
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
