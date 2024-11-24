@@ -12,7 +12,6 @@ import ru.sweetbun.becomeanyone.contract.CourseService;
 import ru.sweetbun.becomeanyone.dto.course.CourseRequest;
 import ru.sweetbun.becomeanyone.dto.module.request.CreateModuleRequest;
 import ru.sweetbun.becomeanyone.dto.module.request.UpdateModuleInCourseRequest;
-import ru.sweetbun.becomeanyone.aop.CourseOwnerAspect.*;
 
 @Tag(name = "Course Management", description = "API для управления курсами")
 @RequiredArgsConstructor
