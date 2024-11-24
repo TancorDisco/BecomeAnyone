@@ -8,6 +8,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.sweetbun.becomeanyone.aop.CheckCourseOwner;
+import ru.sweetbun.becomeanyone.aop.EnrolledStudentOnly;
 import ru.sweetbun.becomeanyone.contract.FileService;
 
 import java.io.IOException;
@@ -31,6 +32,8 @@ public class FileController {
         return ok(fileService.uploadFile(file, lessonId));
     }
 
+    @EnrolledStudentOnly
+    @Operation(summary = "Получение ссылки на файл")
     @GetMapping("{id}/download-url")
     public ResponseEntity<?> getDownloadUrl(@PathVariable Long id) {
         return ok(fileService.getDownloadUrl(id));
