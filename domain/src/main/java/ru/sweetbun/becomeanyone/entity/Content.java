@@ -3,6 +3,9 @@ package ru.sweetbun.becomeanyone.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "contents")
 @Getter
@@ -27,4 +30,8 @@ public class Content {
     @Builder.Default
     @OneToOne(mappedBy = "content", cascade = CascadeType.ALL)
     private Video video = null;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "content")
+    private List<AttachmentFile> files = new ArrayList<>();
 }
