@@ -43,6 +43,7 @@ public class CourseController {
         return ResponseEntity.ok(courseService.getCourseById(id));
     }
 
+    @PreAuthorize("hasRole('TEACHER')")
     @CheckCourseOwner
     @Operation(summary = "Обновить курс по ID", description = "Обновление данных курса, включая его модули и уроки:" +
             " считывает новые, удаляет ненужные, обновляет оставшиеся")
@@ -53,6 +54,7 @@ public class CourseController {
         return ResponseEntity.ok(courseService.updateCourseById(id, request));
     }
 
+    @PreAuthorize("hasRole('TEACHER')")
     @CheckCourseOwner
     @Operation(summary = "Удалить курс по ID", description = "Удаление курса по его идентификатору")
     @DeleteMapping("/{id}")
