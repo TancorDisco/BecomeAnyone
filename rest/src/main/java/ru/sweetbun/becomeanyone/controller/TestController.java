@@ -4,7 +4,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import ru.sweetbun.becomeanyone.aop.CheckCourseOwner;
 import ru.sweetbun.becomeanyone.contract.TestService;
 import ru.sweetbun.becomeanyone.dto.test.request.TestRequest;
 import ru.sweetbun.becomeanyone.dto.test.request.TestToCheckRequest;
@@ -19,6 +21,8 @@ public class TestController {
 
     private final TestService testService;
 
+    @PreAuthorize("hasRole('TEACHER')")
+    @CheckCourseOwner
     @PostMapping
     @Operation(summary = "Создать тест", description = "Создает новый тест для указанного урока (без вопросов)")
     public ResponseEntity<?> createTest(@PathVariable("lessonId") Long lessonId, @RequestBody TestRequest testRequest) {
@@ -37,12 +41,16 @@ public class TestController {
         return ok(testService.getTestById(id));
     }
 
+    @PreAuthorize("hasRole('TEACHER')")
+    @CheckCourseOwner
     @PatchMapping("{id}")
     @Operation(summary = "Обновить тест", description = "Обновляет информацию о тесте по его ID")
     public ResponseEntity<?> updateTest(@PathVariable("id") Long id, @RequestBody TestRequest testRequest) {
         return ok(testService.updateTest(testRequest, id));
     }
 
+    @PreAuthorize("hasRole('TEACHER')")
+    @CheckCourseOwner
     @DeleteMapping("{id}")
     @Operation(summary = "Удалить тест", description = "Удаляет тест по его ID")
     public ResponseEntity<?> deleteTest(@PathVariable("id") Long id) {

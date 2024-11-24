@@ -133,12 +133,14 @@ class EnrollmentServiceImplTests {
 
     @Test
     void deleteEnrollment_ExistingCourse_ReturnsCourseId() {
-        doNothing().when(enrollmentRepository).deleteByStudentAndCourse(currentUser, course);
+        when(securityUtils.getCurrentUser()).thenReturn(currentUser);
+        when(courseServiceImpl.fetchCourseById(1L)).thenReturn(course);
+        when(enrollmentRepository.findByStudentAndCourse(currentUser, course)).thenReturn(Optional.of(enrollment));
 
         long courseId = enrollmentServiceImpl.deleteEnrollment(1L);
 
         assertEquals(1L, courseId);
-        verify(enrollmentRepository, times(1)).deleteByStudentAndCourse(currentUser, course);
+        verify(enrollmentRepository, times(1)).findByStudentAndCourse(currentUser, course);
     }
 
     @Test

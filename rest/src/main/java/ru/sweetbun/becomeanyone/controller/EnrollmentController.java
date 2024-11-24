@@ -18,15 +18,13 @@ public class EnrollmentController {
 
     private final EnrollmentService enrollmentService;
 
-    @Operation(summary = "Записаться на курс", description = "Запись пользователя на указанный курс"
-    )
+    @Operation(summary = "Записаться на курс", description = "Запись пользователя на указанный курс")
     @PostMapping
     public ResponseEntity<?> enrollInTheCourse(@PathVariable("courseId") Long courseId) {
         return ok(enrollmentService.createEnrollment(courseId));
     }
 
-    @Operation(summary = "Отчислиться от курса", description = "Удаление пользователя из курса"
-    )
+    @Operation(summary = "Отчислиться от курса", description = "Удаление пользователя из курса")
     @DeleteMapping
     public ResponseEntity<?> dropOutOfTheCourse(@PathVariable("courseId") Long courseId) {
         return ok(enrollmentService.deleteEnrollment(courseId));

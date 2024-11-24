@@ -5,8 +5,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.sweetbun.becomeanyone.dto.profile.ProfileRequest;
 import ru.sweetbun.becomeanyone.contract.ProfileService;
+import ru.sweetbun.becomeanyone.dto.profile.ProfileRequest;
 
 import static org.springframework.http.ResponseEntity.ok;
 

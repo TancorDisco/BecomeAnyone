@@ -5,7 +5,9 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import ru.sweetbun.becomeanyone.aop.CheckCourseOwner;
 import ru.sweetbun.becomeanyone.contract.CourseService;
 import ru.sweetbun.becomeanyone.dto.course.CourseRequest;
 import ru.sweetbun.becomeanyone.dto.module.request.CreateModuleRequest;
@@ -13,12 +15,13 @@ import ru.sweetbun.becomeanyone.dto.module.request.UpdateModuleInCourseRequest;
 
 @Tag(name = "Course Management", description = "API для управления курсами")
 @RequiredArgsConstructor
-@RequestMapping("client/courses")
+@RequestMapping("/courses")
 @RestController
 public class CourseController {
 
     private final CourseService courseService;
 
+    @PreAuthorize("hasRole('TEACHER')")
     @Operation(summary = "Создать курс", description = "Создание нового курса с модулями")
     @PostMapping
     public ResponseEntity<?> createCourse(@RequestBody CourseRequest<CreateModuleRequest> request) {
@@ -39,6 +42,8 @@ public class CourseController {
         return ResponseEntity.ok(courseService.getCourseById(id));
     }
 
+    @PreAuthorize("hasRole('TEACHER')")
+    @CheckCourseOwner
     @Operation(summary = "Обновить курс по ID", description = "Обновление данных курса, включая его модули и уроки:" +
             " считывает новые, удаляет ненужные, обновляет оставшиеся")
     @PatchMapping("/{id}")
@@ -48,6 +53,8 @@ public class CourseController {
         return ResponseEntity.ok(courseService.updateCourseById(id, request));
     }
 
+    @PreAuthorize("hasRole('TEACHER')")
+    @CheckCourseOwner
     @Operation(summary = "Удалить курс по ID", description = "Удаление курса по его идентификатору")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteCourse(@PathVariable Long id) {

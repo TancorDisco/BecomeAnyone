@@ -78,7 +78,8 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     public long deleteEnrollment(Long courseId) {
         User student = securityUtils.getCurrentUser();
         Course course = courseServiceImpl.fetchCourseById(courseId);
-        enrollmentRepository.deleteByStudentAndCourse(student, course);
+        Enrollment enrollment = getEnrollmentByStudentAndCourse(student, course);
+        enrollmentRepository.delete(enrollment);
         return courseId;
     }
 

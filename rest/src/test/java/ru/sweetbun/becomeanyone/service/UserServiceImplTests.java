@@ -9,17 +9,16 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import ru.sweetbun.becomeanyone.dto.role.RoleResponse;
-import ru.sweetbun.becomeanyone.entity.Profile;
-import ru.sweetbun.becomeanyone.entity.Role;
-import ru.sweetbun.becomeanyone.entity.User;
-import ru.sweetbun.becomeanyone.util.SecurityUtils;
+import ru.sweetbun.becomeanyone.config.ModelMapperConfig;
 import ru.sweetbun.becomeanyone.dto.profile.ProfileRequest;
 import ru.sweetbun.becomeanyone.dto.user.request.UserRequest;
 import ru.sweetbun.becomeanyone.dto.user.response.UserResponse;
-import ru.sweetbun.becomeanyone.config.ModelMapperConfig;
+import ru.sweetbun.becomeanyone.entity.Profile;
+import ru.sweetbun.becomeanyone.entity.Role;
+import ru.sweetbun.becomeanyone.entity.User;
 import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
 import ru.sweetbun.becomeanyone.repository.UserRepository;
+import ru.sweetbun.becomeanyone.util.SecurityUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -40,13 +39,22 @@ class UserServiceImplTests {
     private final ModelMapper modelMapper = ModelMapperConfig.createConfiguredModelMapper();
 
     @Mock
-    private RoleService roleService;
+    private RoleServiceImpl roleServiceImpl;
 
     @Mock
     private ProfileService profileService;
 
     @Mock
     private SecurityUtils securityUtils;
+
+    @Mock
+    private TokenService tokenService;
+
+    @Mock
+    private TokenBlacklistService tokenBlacklistService;
+
+    @Mock
+    private RefreshTokenService refreshTokenService;
 
     @InjectMocks
     private UserServiceImpl userServiceImpl;
@@ -60,8 +68,8 @@ class UserServiceImplTests {
 
     @BeforeEach
     void setUp() {
-        userServiceImpl = new UserServiceImpl(userRepository, passwordEncoder, modelMapper, roleService,
-                profileService, securityUtils);
+        userServiceImpl = new UserServiceImpl(userRepository, passwordEncoder, modelMapper, roleServiceImpl,
+                profileService, securityUtils, tokenService, tokenBlacklistService, refreshTokenService);
 
         userRequest = UserRequest.builder().username("password").build();
         userResponse = UserResponse.builder().id(1L).build();
@@ -75,8 +83,8 @@ class UserServiceImplTests {
 
     @Test
     void register_ValidUserDTO_UserSavedWithRole() {
-        when(passwordEncoder.encode(userRequest.password())).thenReturn("encodedPassword");
-        when(roleService.getRoleByName("ROLE_STUDENT")).thenReturn(role);
+        when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
+        when(roleServiceImpl.getRoleByName("ROLE_STUDENT")).thenReturn(role);
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         UserResponse result = userServiceImpl.register(userRequest);
@@ -87,7 +95,7 @@ class UserServiceImplTests {
 
     @Test
     void register_InvalidRole_ThrowsException() {
-        when(roleService.getRoleByName("ROLE_STUDENT")).thenThrow(new RuntimeException("Role not found"));
+        when(roleServiceImpl.getRoleByName("ROLE_STUDENT")).thenThrow(new RuntimeException("Role not found"));
 
         assertThrows(RuntimeException.class, () -> userServiceImpl.register(userRequest));
         verify(userRepository, never()).save(any(User.class));
