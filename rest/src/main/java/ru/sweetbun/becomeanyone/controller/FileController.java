@@ -12,6 +12,8 @@ import ru.sweetbun.becomeanyone.contract.FileService;
 
 import java.io.IOException;
 
+import static org.springframework.http.ResponseEntity.ok;
+
 @Tag(name = "File Management", description = "API для управления файлами")
 @RequiredArgsConstructor
 @RestController
@@ -26,6 +28,11 @@ public class FileController {
     @PostMapping
     public ResponseEntity<?> uploadFile(@PathVariable Long lessonId,
                                         @RequestParam("file") MultipartFile file) throws IOException {
-        return ResponseEntity.ok(fileService.uploadFile(file, lessonId));
+        return ok(fileService.uploadFile(file, lessonId));
+    }
+
+    @GetMapping("{id}/download-url")
+    public ResponseEntity<?> getDownloadUrl(@PathVariable Long id) {
+        return ok(fileService.getDownloadUrl(id));
     }
 }

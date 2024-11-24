@@ -7,4 +7,6 @@ import java.io.IOException;
 public interface FileService {
 
     String uploadFile(MultipartFile multipartFile, Long lessonId) throws IOException;
+
+    String getDownloadUrl(Long id);
 }
