@@ -21,6 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.time.Duration;
+import java.util.List;
 import java.util.UUID;
 
 @Transactional(readOnly = true)
@@ -32,24 +33,28 @@ public class FileServiceImpl implements FileService {
     private final String bucketName;
     private final LessonServiceImpl lessonService;
     private final FileRepository fileRepository;
+    private final Long MAX_FILE_SIZE;
 
     @Autowired
     public FileServiceImpl(S3Client s3Client, S3Presigner s3Presigner,
                            @Value("${vk-cloud.storage.bucket-name}") String bucketName, LessonServiceImpl lessonService,
-                           FileRepository fileRepository) {
+                           FileRepository fileRepository,
+                           @Value("${vk-cloud.storage.max-file-size}") Long maxFileSize) {
         this.s3Client = s3Client;
         this.s3Presigner = s3Presigner;
         this.bucketName = bucketName;
         this.lessonService = lessonService;
         this.fileRepository = fileRepository;
+        this.MAX_FILE_SIZE = maxFileSize;
     }
 
     @Transactional
     @Override
     public String uploadFile(MultipartFile file, Long lessonId) throws IOException {
+        validateFile(file);
         String originalFileName = file.getOriginalFilename();
         String key = UUID.randomUUID() + "_" + originalFileName;
-        Path tempFile = Files.createTempFile("upload-", file.getOriginalFilename());
+        Path tempFile = Files.createTempFile("upload-", originalFileName);
         Files.copy(file.getInputStream(), tempFile, StandardCopyOption.REPLACE_EXISTING);
 
         s3Client.putObject(
@@ -63,6 +68,23 @@ public class FileServiceImpl implements FileService {
 
         attachFileToContent(file, lessonId, key);
         return key;
+    }
+
+    private void validateFile(MultipartFile file) {
+        checkFileExtension(file.getOriginalFilename());
+        checkFileSize(file.getSize());
+    }
+
+    private void checkFileExtension(String originalFileName) {
+        String fileExtension = originalFileName.substring(originalFileName.lastIndexOf('.') + 1);
+        if (!List.of("doc", "docx", "pdf", "txt").contains(fileExtension)) {
+            throw new IllegalArgumentException("Unsupported file format");
+        }
+    }
+
+    private void checkFileSize(Long fileSize) {
+        if (fileSize > MAX_FILE_SIZE)
+            throw new IllegalArgumentException("The file being uploaded is too large");
     }
 
     private void attachFileToContent(MultipartFile file, Long lessonId, String key) {
