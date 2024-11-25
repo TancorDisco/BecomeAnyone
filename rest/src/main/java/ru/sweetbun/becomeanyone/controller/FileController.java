@@ -27,7 +27,7 @@ public class FileController {
     @CheckCourseOwner
     @Operation(summary = "Добавить файл", description = "Прикрепление файла к уроку")
     @PostMapping
-    public ResponseEntity<?> uploadFile(@PathVariable Long lessonId,
+    public ResponseEntity<?> uploadFile(@PathVariable("lessonId") Long lessonId,
                                         @RequestParam("file") MultipartFile file) throws IOException {
         return ok(fileService.uploadFile(file, lessonId));
     }
