@@ -11,6 +11,7 @@ import ru.sweetbun.becomeanyone.entity.Content;
 import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
 import ru.sweetbun.becomeanyone.repository.FileRepository;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
@@ -22,6 +23,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.time.Duration;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Transactional(readOnly = true)
@@ -71,13 +73,14 @@ public class FileServiceImpl implements FileService {
     }
 
     private void validateFile(MultipartFile file) {
-        checkFileExtension(file.getOriginalFilename());
+        if (file == null) throw new IllegalArgumentException("File is null");
+        checkFileExtension(Objects.requireNonNull(file.getOriginalFilename()));
         checkFileSize(file.getSize());
     }
 
     private void checkFileExtension(String originalFileName) {
         String fileExtension = originalFileName.substring(originalFileName.lastIndexOf('.') + 1);
-        if (!List.of("doc", "docx", "pdf", "txt").contains(fileExtension)) {
+        if (!List.of("doc", "docx", "pdf").contains(fileExtension)) {
             throw new IllegalArgumentException("Unsupported file format");
         }
     }
@@ -121,5 +124,17 @@ public class FileServiceImpl implements FileService {
     public AttachmentFile fetchFileById(Long id) {
         return fileRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(AttachmentFile.class, id));
+    }
+
+    @Transactional
+    @Override
+    public Long deleteFIle(Long id) {
+        AttachmentFile file = fetchFileById(id);
+        s3Client.deleteObject(DeleteObjectRequest.builder()
+                .bucket(bucketName)
+                .key(file.getKey())
+                .build());
+        fileRepository.delete(file);
+        return id;
     }
 }

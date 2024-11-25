@@ -9,4 +9,6 @@ public interface FileService {
     String uploadFile(MultipartFile multipartFile, Long lessonId) throws IOException;
 
     String getDownloadUrl(Long id);
+
+    Long deleteFIle(Long id);
 }

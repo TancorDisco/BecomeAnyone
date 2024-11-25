@@ -38,4 +38,12 @@ public class FileController {
     public ResponseEntity<?> getDownloadUrl(@PathVariable Long id) {
         return ok(fileService.getDownloadUrl(id));
     }
+
+    @PreAuthorize("hasRole('TEACHER')")
+    @CheckCourseOwner
+    @Operation(summary = "Удалить файл")
+    @DeleteMapping("{id}")
+    public ResponseEntity<?> deleteFile(@PathVariable Long id) {
+        return ok(fileService.deleteFIle(id));
+    }
 }
