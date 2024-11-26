@@ -128,7 +128,7 @@ public class FileServiceImpl implements FileService {
 
     @Transactional
     @Override
-    public Long deleteFIle(Long id) {
+    public Long deleteFile(Long id) {
         AttachmentFile file = fetchFileById(id);
         s3Client.deleteObject(DeleteObjectRequest.builder()
                 .bucket(bucketName)

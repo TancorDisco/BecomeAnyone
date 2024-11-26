@@ -25,7 +25,7 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public Long deleteFIle(Long id) {
+    public Long deleteFile(Long id) {
         return fileServiceClient.deleteFIle(id);
     }
 }

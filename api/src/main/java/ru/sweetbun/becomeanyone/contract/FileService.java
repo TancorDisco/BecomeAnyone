@@ -10,5 +10,5 @@ public interface FileService {
 
     String getDownloadUrl(Long id);
 
-    Long deleteFIle(Long id);
+    Long deleteFile(Long id);
 }

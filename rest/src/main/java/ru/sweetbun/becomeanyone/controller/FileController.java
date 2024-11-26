@@ -44,6 +44,6 @@ public class FileController {
     @Operation(summary = "Удалить файл")
     @DeleteMapping("{id}")
     public ResponseEntity<?> deleteFile(@PathVariable Long id) {
-        return ok(fileService.deleteFIle(id));
+        return ok(fileService.deleteFile(id));
     }
 }
