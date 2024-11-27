@@ -58,6 +58,72 @@ class CourseServiceImplTests {
     }
 
     @Test
+    void isCourseOwner_UserIsOwner_ReturnsTrue() {
+        // Arrange
+        Long courseId = 1L;
+        String username = "teacher";
+        course.setId(courseId);
+        course.setTeacher(User.builder().username(username).build());
+        when(courseRepository.findById(courseId)).thenReturn(Optional.of(course));
+
+        // Act
+        boolean result = courseServiceImpl.isCourseOwner(courseId, username);
+
+        // Assert
+        assertTrue(result);
+    }
+
+    @Test
+    void isCourseOwner_UserIsNotOwner_ReturnsFalse() {
+        // Arrange
+        Long courseId = 1L;
+        String username = "user";
+        User teacher = User.builder().username("teacher").build();
+        course.setTeacher(teacher);
+
+        when(courseRepository.findById(courseId)).thenReturn(Optional.of(course));
+
+        // Act
+        boolean result = courseServiceImpl.isCourseOwner(courseId, username);
+
+        // Assert
+        assertFalse(result);
+    }
+
+    @Test
+    void isCourseOwner_CourseNotFound_ThrowsException() {
+        // Arrange
+        Long courseId = 1L;
+        String username = "teacher";
+
+        when(courseRepository.findById(courseId)).thenThrow(ResourceNotFoundException.class);
+
+        // Act & Assert
+        assertThrows(ResourceNotFoundException.class, () ->
+                courseServiceImpl.isCourseOwner(courseId, username)
+        );
+    }
+
+    @Test
+    void getCourseById_ValidId_ReturnsMappedResponse() {
+        // Arrange
+        Long courseId = 1L;
+        course = Course.builder().id(courseId).title("title").build();
+        CourseResponse courseResponse = CourseResponse.builder().id(courseId).title("title").build();
+
+        when(courseRepository.findById(courseId)).thenReturn(Optional.of(course));
+
+        // Act
+        CourseResponse response = courseServiceImpl.getCourseById(courseId);
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(courseId, response.getId());
+        assertEquals("title", response.getTitle());
+    }
+
+
+    @Test
     void createCourse_ValidCourseDTO_SuccessfulCreation() {
         CourseRequest<CreateModuleRequest> courseDTO = new CourseRequest<>();
         courseDTO.setModules(List.of(new CreateModuleRequest()));

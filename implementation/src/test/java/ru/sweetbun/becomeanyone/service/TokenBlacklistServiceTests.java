@@ -30,7 +30,7 @@ class TokenBlacklistServiceTests {
     }
 
     @Test
-    void testAddTokenToBlacklist_Success() {
+    void addTokenToBlacklist_ValidInput_TokenSavedSuccessfully() {
         long expInMills = 3600000L;
 
         tokenBlacklistService.addTokenToBlacklist(token, expInMills);
@@ -46,7 +46,7 @@ class TokenBlacklistServiceTests {
     }
 
     @Test
-    void testIsTokenBlacklisted_TokenExists() {
+    void isTokenBlacklisted_TokenExists_ReturnsTrue() {
         when(tokenRepository.existsById(token)).thenReturn(true);
 
         boolean isBlacklisted = tokenBlacklistService.isTokenBlacklisted(token);
@@ -56,7 +56,7 @@ class TokenBlacklistServiceTests {
     }
 
     @Test
-    void testIsTokenBlacklisted_TokenDoesNotExist() {
+    void isTokenBlacklisted_TokenDoesNotExist_ReturnsFalse() {
         when(tokenRepository.existsById(token)).thenReturn(false);
 
         boolean isBlacklisted = tokenBlacklistService.isTokenBlacklisted(token);
