@@ -27,6 +27,7 @@
 		<module>implementation</module>
 		<module>rest</module>
 		<module>client</module>
+		<module>coverage</module>
 	</modules>
 	<scm>
 		<connection/>
