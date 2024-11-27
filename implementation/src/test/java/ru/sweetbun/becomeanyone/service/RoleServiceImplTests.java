@@ -7,13 +7,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
-import ru.sweetbun.becomeanyone.contract.UserService;
 import ru.sweetbun.becomeanyone.dto.role.RoleRequest;
 import ru.sweetbun.becomeanyone.config.ModelMapperConfig;
+import ru.sweetbun.becomeanyone.dto.user.response.UserResponse;
 import ru.sweetbun.becomeanyone.entity.Role;
+import ru.sweetbun.becomeanyone.entity.User;
 import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
 import ru.sweetbun.becomeanyone.repository.RoleRepository;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,13 +38,76 @@ class RoleServiceImplTests {
     @InjectMocks
     private RoleServiceImpl roleServiceImpl;
 
+    private User user;
     private Role role;
+    private Role teacherRole;
+    private Role adminRole;
 
     @BeforeEach
     void setUp() {
         roleServiceImpl = new RoleServiceImpl(userService, roleRepository, modelMapper);
 
+        user = User.builder().id(1L).build();
+
+        teacherRole = new Role(1L, "ROLE_TEACHER");
+        adminRole = new Role(2L, "ROLE_ADMIN");
         role = new Role();
+    }
+
+    @Test
+    void appointTeacher_ValidUserId_UserAssignedTeacherRole() {
+        // Arrange
+        when(userService.fetchUserById(1L)).thenReturn(user);
+        when(roleRepository.findByName("ROLE_TEACHER")).thenReturn(Optional.of(teacherRole));
+
+        // Act
+        UserResponse response = roleServiceImpl.appointTeacher(1L);
+
+        // Assert
+        assertNotNull(response);
+        assertTrue(user.getRoles().contains(teacherRole));
+        verify(userService).fetchUserById(1L);
+        verify(roleRepository).findByName("ROLE_TEACHER");
+    }
+
+    @Test
+    void appointTeacher_RoleNotFound_ThrowsResourceNotFoundException() {
+        // Arrange
+        when(userService.fetchUserById(1L)).thenReturn(user);
+        when(roleRepository.findByName("ROLE_TEACHER")).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(ResourceNotFoundException.class, () -> roleServiceImpl.appointTeacher(1L));
+        verify(userService).fetchUserById(1L);
+        verify(roleRepository).findByName("ROLE_TEACHER");
+    }
+
+    @Test
+    void appointAdmin_ValidUserId_UserAssignedAdminRole() {
+        // Arrange
+        when(userService.fetchUserById(1L)).thenReturn(user);
+        when(roleRepository.findByName("ROLE_ADMIN")).thenReturn(Optional.of(adminRole));
+
+        // Act
+        UserResponse response = roleServiceImpl.appointAdmin(1L);
+
+        // Assert
+        assertNotNull(response);
+        assertTrue(user.getRoles().contains(adminRole));
+        verify(userService).fetchUserById(1L);
+        verify(roleRepository).findByName("ROLE_ADMIN");
+    }
+
+    @Test
+    void appointAdmin_RoleNotFound_ThrowsResourceNotFoundException() {
+        // Arrange
+        when(userService.fetchUserById(1L)).thenReturn(user);
+        when(roleRepository.findByName("ROLE_ADMIN")).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(ResourceNotFoundException.class, () -> roleServiceImpl.appointAdmin(1L));
+        verify(userService).fetchUserById(1L);
+        verify(roleRepository).findByName("ROLE_ADMIN");
     }
 
     @Test
