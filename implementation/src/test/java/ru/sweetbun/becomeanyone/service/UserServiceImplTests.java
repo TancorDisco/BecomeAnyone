@@ -3,6 +3,8 @@ package ru.sweetbun.becomeanyone.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -10,6 +12,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import ru.sweetbun.becomeanyone.config.ModelMapperConfig;
+import ru.sweetbun.becomeanyone.dto.auth.LoginRequest;
 import ru.sweetbun.becomeanyone.dto.profile.ProfileRequest;
 import ru.sweetbun.becomeanyone.dto.user.request.UserRequest;
 import ru.sweetbun.becomeanyone.dto.user.response.UserResponse;
@@ -22,6 +25,7 @@ import ru.sweetbun.becomeanyone.util.SecurityUtils;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -57,7 +61,7 @@ class UserServiceImplTests {
     private RefreshTokenService refreshTokenService;
 
     @InjectMocks
-    private UserServiceImpl userServiceImpl;
+    private UserServiceImpl userService;
 
     private UserResponse userResponse;
     private User user;
@@ -68,12 +72,12 @@ class UserServiceImplTests {
 
     @BeforeEach
     void setUp() {
-        userServiceImpl = new UserServiceImpl(userRepository, passwordEncoder, modelMapper, roleServiceImpl,
+        userService = new UserServiceImpl(userRepository, passwordEncoder, modelMapper, roleServiceImpl,
                 profileService, securityUtils, tokenService, tokenBlacklistService, refreshTokenService);
 
-        userRequest = UserRequest.builder().username("password").build();
-        userResponse = UserResponse.builder().id(1L).build();
-        user = new User();
+        userRequest = UserRequest.builder().username("user").password("password").build();
+        userResponse = UserResponse.builder().id(1L).username("user").build();
+        user = User.builder().id(1L).username("user").salt("randomSalt").password("encodedPassword").build();
 
         role = new Role(1L,"ROLE_STUDENT");
 
@@ -82,12 +86,93 @@ class UserServiceImplTests {
     }
 
     @Test
+    void register_UserAlreadyExists_ThrowsIllegalArgumentException() {
+        // Arrange
+        when(userRepository.findByUsername("user")).thenReturn(Optional.of(user));
+
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> userService.register(userRequest)
+        );
+        assertEquals("User already exists", exception.getMessage());
+    }
+
+    @Test
+    void authenticate_ValidPassword_ReturnsRoles() {
+        // Arrange
+        String username = "user";
+        String password = "password";
+        LoginRequest loginRequest = LoginRequest.builder().username(username).password(password).build();
+
+        user.setSalt("randomSalt");
+        user.setPassword(password + "randomSalt");
+
+        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches(password + "randomSalt", user.getPassword())).thenReturn(true);
+        when(tokenService.generateRefreshToken(anyString(), anyBoolean())).thenReturn("token");
+
+        // Act
+        var roles = userService.login(loginRequest, false);
+
+        // Assert
+        assertNotNull(roles);
+        verify(refreshTokenService).saveRefreshToken(eq(username), anyString(), anyLong());
+        verify(tokenService).generateAccessToken(eq(username), anyLong(), anyList());
+    }
+
+    @Test
+    void authenticate_InvalidPassword_ThrowsUsernameNotFoundException() {
+        // Arrange
+        String username = "user";
+        String password = "wrongPassword";
+        LoginRequest loginRequest = LoginRequest.builder().username(username).password(password).build();
+
+        user.setSalt("randomSalt");
+        user.setPassword(passwordEncoder.encode("correctPassword" + "randomSalt"));
+
+        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches(password + "randomSalt", user.getPassword())).thenReturn(false);
+
+        // Act & Assert
+        assertThrows(UsernameNotFoundException.class, () -> userService.login(loginRequest, false));
+    }
+
+
+
+    @Test
+    void getUserById_UserExists_ReturnsUserResponse() {
+        // Arrange
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
+        // Act
+        UserResponse result = userService.getUserById(1L);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(1L, result.getId());
+    }
+
+    @Test
+    void getUserById_UserDoesNotExist_ThrowsResourceNotFoundException() {
+        // Arrange
+        when(userRepository.findById(1L)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        ResourceNotFoundException exception = assertThrows(
+                ResourceNotFoundException.class,
+                () -> userService.getUserById(1L)
+        );
+        assertEquals("User not found with id: 1", exception.getMessage());
+    }
+
+    @Test
     void register_ValidUserDTO_UserSavedWithRole() {
         when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
         when(roleServiceImpl.getRoleByName("ROLE_STUDENT")).thenReturn(role);
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        UserResponse result = userServiceImpl.register(userRequest);
+        UserResponse result = userService.register(userRequest);
 
         assertEquals(1, result.getRoles().size());
         verify(userRepository).save(any(User.class));
@@ -95,9 +180,9 @@ class UserServiceImplTests {
 
     @Test
     void register_InvalidRole_ThrowsException() {
-        when(roleServiceImpl.getRoleByName("ROLE_STUDENT")).thenThrow(new RuntimeException("Role not found"));
+        when(roleServiceImpl.getRoleByName("ROLE_STUDENT")).thenThrow(ResourceNotFoundException.class);
 
-        assertThrows(RuntimeException.class, () -> userServiceImpl.register(userRequest));
+        assertThrows(ResourceNotFoundException.class, () -> userService.register(userRequest));
         verify(userRepository, never()).save(any(User.class));
     }
 
@@ -105,7 +190,7 @@ class UserServiceImplTests {
     void fetchUserById_UserExists_ReturnsUser() {
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
-        User result = userServiceImpl.fetchUserById(1L);
+        User result = userService.fetchUserById(1L);
 
         assertEquals(user, result);
     }
@@ -114,7 +199,7 @@ class UserServiceImplTests {
     void fetchUserById_UserDoesNotExist_ThrowsResourceNotFoundException() {
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> userServiceImpl.fetchUserById(1L));
+        assertThrows(ResourceNotFoundException.class, () -> userService.fetchUserById(1L));
     }
 
     @Test
@@ -122,7 +207,7 @@ class UserServiceImplTests {
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(userRepository.save(user)).thenReturn(user);
 
-        UserResponse result = userServiceImpl.updateUser(userRequest, 1L);
+        UserResponse result = userService.updateUser(userRequest, 1L);
 
         assertNotNull(result);
         verify(userRepository).save(user);
@@ -132,14 +217,14 @@ class UserServiceImplTests {
     void updateUser_NonExistingUser_ThrowsResourceNotFoundException() {
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> userServiceImpl.updateUser(userRequest, 1L));
+        assertThrows(ResourceNotFoundException.class, () -> userService.updateUser(userRequest, 1L));
     }
 
     @Test
     void deleteUserById_UserExists_DeletesUser() {
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
-        long deletedUserId = userServiceImpl.deleteUserById(1L);
+        long deletedUserId = userService.deleteUserById(1L);
 
         assertEquals(1L, deletedUserId);
         verify(userRepository).deleteById(1L);
@@ -149,7 +234,7 @@ class UserServiceImplTests {
     void deleteUserById_UserDoesNotExist_ThrowsResourceNotFoundException() {
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> userServiceImpl.deleteUserById(1L));
+        assertThrows(ResourceNotFoundException.class, () -> userService.deleteUserById(1L));
         verify(userRepository, never()).deleteById(anyLong());
     }
 
@@ -159,7 +244,7 @@ class UserServiceImplTests {
         when(profileService.createProfile(profileRequest)).thenReturn(profile);
         when(userRepository.save(user)).thenReturn(user);
 
-        UserResponse result = userServiceImpl.createUserProfile(profileRequest);
+        UserResponse result = userService.createUserProfile(profileRequest);
 
         assertNotNull(result);
         verify(userRepository).save(user);
@@ -170,7 +255,7 @@ class UserServiceImplTests {
         user.setProfile(profile);
         when(securityUtils.getCurrentUser()).thenReturn(user);
 
-        assertThrows(RuntimeException.class, () -> userServiceImpl.createUserProfile(profileRequest));
+        assertThrows(RuntimeException.class, () -> userService.createUserProfile(profileRequest));
         verify(userRepository, never()).save(user);
     }
 
@@ -179,7 +264,7 @@ class UserServiceImplTests {
         List<User> users = List.of(user, user);
         when(userRepository.findAll()).thenReturn(users);
 
-        List<UserResponse> result = userServiceImpl.getAllUsers();
+        List<UserResponse> result = userService.getAllUsers();
 
         assertNotNull(result);
         assertEquals(2, result.size());
@@ -190,7 +275,7 @@ class UserServiceImplTests {
     void getUserByUsername_UserExists_ReturnsUser() {
         when(userRepository.findByUsername("username")).thenReturn(Optional.of(user));
 
-        User result = userServiceImpl.getUserByUsername("username");
+        User result = userService.getUserByUsername("username");
 
         assertEquals(user, result);
     }
@@ -199,14 +284,14 @@ class UserServiceImplTests {
     void getUserByUsername_UserDoesNotExist_ThrowsUsernameNotFoundException() {
         when(userRepository.findByUsername("username")).thenReturn(Optional.empty());
 
-        assertThrows(UsernameNotFoundException.class, () -> userServiceImpl.getUserByUsername("username"));
+        assertThrows(UsernameNotFoundException.class, () -> userService.getUserByUsername("username"));
     }
 
     @Test
     void getCurrentUser_ReturnsCurrentCurrentUser() {
         when(securityUtils.getCurrentUser()).thenReturn(user);
 
-        UserResponse result = userServiceImpl.getCurrentUser();
+        UserResponse result = userService.getCurrentUser();
 
         assertNotNull(result);
         verify(securityUtils).getCurrentUser();
@@ -219,7 +304,7 @@ class UserServiceImplTests {
         when(profileService.updateProfile(profileRequest, profile)).thenReturn(profile);
         when(userRepository.save(user)).thenReturn(user);
 
-        UserResponse result = userServiceImpl.updateUserProfile(profileRequest);
+        UserResponse result = userService.updateUserProfile(profileRequest);
 
         assertNotNull(result);
         verify(userRepository).save(user);
