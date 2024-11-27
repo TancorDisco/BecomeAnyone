@@ -22,9 +22,14 @@ public class TokenService {
     @Value("${jwt.secret}")
     private String jwtSecret;
 
-    private final long ACCESS_TOKEN_VALIDITY = 3_600_000; // 1 час
-    private final long REFRESH_TOKEN_VALIDITY = 604_800_000; // 7 дней
-    private final long REFRESH_TOKEN_REMEMBER_ME_VALIDITY = 2_592_000_000L; // 30 дней
+    @Value("${validity.token.access}")
+    private long ACCESS_TOKEN_VALIDITY;
+
+    @Value("${validity.token.refresh}")
+    private long REFRESH_TOKEN_VALIDITY;
+
+    @Value("${validity.token.refresh.remember-me}")
+    private long REFRESH_TOKEN_REMEMBER_ME_VALIDITY;
 
     public String generateAccessToken(String username, Long userId, List<String> roles) {
         log.info("Generating token for user: {} with roles: {}", username, roles);
@@ -78,9 +83,14 @@ public class TokenService {
     }
 
     public long getExpirationTimeInMills(String token) {
-        DecodedJWT decodedJWT = getVerifier().verify(token);
-        Date exporationDate = decodedJWT.getExpiresAt();
-        return exporationDate.getTime() - new Date().getTime();
+        try {
+            DecodedJWT decodedJWT = getVerifier().verify(token);
+            Date exporationDate = decodedJWT.getExpiresAt();
+            return exporationDate.getTime() - new Date().getTime();
+        } catch (JWTVerificationException e) {
+            log.error("Token verification failed: {}", e.getMessage());
+            throw new JWTVerificationException(e.getMessage());
+        }
     }
 
     public List<GrantedAuthority> getAuthoritiesFromToken(String token) {
