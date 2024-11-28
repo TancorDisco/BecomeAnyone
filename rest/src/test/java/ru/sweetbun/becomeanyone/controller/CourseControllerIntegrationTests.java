@@ -14,26 +14,36 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+import ru.sweetbun.becomeanyone.aop.AccessControlAspect;
 import ru.sweetbun.becomeanyone.config.AuthorizationFilter;
 import ru.sweetbun.becomeanyone.contract.CourseService;
 import ru.sweetbun.becomeanyone.dto.course.CourseRequest;
 import ru.sweetbun.becomeanyone.dto.lesson.request.CreateLessonRequest;
+import ru.sweetbun.becomeanyone.dto.lesson.request.UpdateLessonInCourseRequest;
 import ru.sweetbun.becomeanyone.dto.module.request.CreateModuleRequest;
 import ru.sweetbun.becomeanyone.dto.module.request.ModuleRequest;
+import ru.sweetbun.becomeanyone.dto.module.request.UpdateModuleInCourseRequest;
 import ru.sweetbun.becomeanyone.entity.Course;
+import ru.sweetbun.becomeanyone.entity.Lesson;
 import ru.sweetbun.becomeanyone.entity.Module;
 import ru.sweetbun.becomeanyone.repository.CourseRepository;
 import ru.sweetbun.becomeanyone.repository.LessonRepository;
 import ru.sweetbun.becomeanyone.repository.ModuleRepository;
 import ru.sweetbun.becomeanyone.repository.UserRepository;
+import ru.sweetbun.becomeanyone.service.CourseServiceImpl;
 import ru.sweetbun.becomeanyone.service.ModuleServiceImpl;
 import ru.sweetbun.becomeanyone.service.UserServiceImpl;
 import ru.sweetbun.becomeanyone.util.SecurityUtils;
 
+import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -75,6 +85,9 @@ public class CourseControllerIntegrationTests extends BaseIntegrationTests{
     @MockBean
     private AuthorizationFilter filter;
 
+    @MockBean
+    private AccessControlAspect aspect;
+
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @BeforeEach
@@ -83,7 +96,7 @@ public class CourseControllerIntegrationTests extends BaseIntegrationTests{
     }
 
     @ParameterizedTest
-    @MethodSource("courseTestData")
+    @MethodSource("createCourse")
     @WithMockUser(username = "teacher", roles = "TEACHER")
     void shouldCreateCourseWithVariousModuleAndLessonCombinations(
             CourseRequest<ModuleRequest> courseRequest,
@@ -122,7 +135,7 @@ public class CourseControllerIntegrationTests extends BaseIntegrationTests{
         }
     }
 
-    static Stream<Arguments> courseTestData() {
+    static Stream<Arguments> createCourse() {
         return Stream.of(
                 // Один модуль с уроками
                 Arguments.of(
@@ -195,64 +208,192 @@ public class CourseControllerIntegrationTests extends BaseIntegrationTests{
                         2, 1, 1, "Module 1", "Module 2")
         );
     }
-}
 
-/*
+    @ParameterizedTest
+    @MethodSource("updateCourse")
+    @WithMockUser(username = "teacher", roles = "TEACHER")
+    void shouldUpdateCourseWithDifferentScenarios(
+            String testCase,
+            CourseRequest<UpdateModuleInCourseRequest> updateRequest,
+            Consumer<Course> assertions) throws Exception {
 
-    @Test
-    void shouldCreateCourse() throws Exception {
-        String createCourseJson = """
-        {
-            "title": "Test Course",
-            "description": "Integration testing course",
-            "modules": []
-        }
-        """;
+        Course savedCourse = Course.builder()
+                .title("Original Course Title")
+                .description("Original Description")
+                .modules(List.of(
+                        Module.builder()
+                                .title("Original Module 1")
+                                .orderNum(1)
+                                .lessons(List.of(
+                                        Lesson.builder()
+                                                .title("Original Lesson 1")
+                                                .orderNum(1)
+                                                .build()
+                                ))
+                                .build(),
+                        Module.builder()
+                                .title("Original Module 2")
+                                .orderNum(2)
+                                .lessons(Collections.emptyList())
+                                .build()
+                ))
+                .createdAt(LocalDate.now())
+                .build();
 
-        mockMvc.perform(post("/courses")
+        courseRepository.save(savedCourse);
+
+        // Act
+        mockMvc.perform(patch("/courses/" + savedCourse.getId())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(createCourseJson))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.title").value("Test Course"));
-    }
-
-    @Test
-    void shouldGetAllCourses() throws Exception {
-        mockMvc.perform(get("/courses"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isArray());
-    }
-
-    @Test
-    void shouldGetCourseById() throws Exception {
-        // Предполагаем, что в базе уже есть курс с ID = 1
-        mockMvc.perform(get("/courses/1"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1));
-    }
-
-    @Test
-    void shouldUpdateCourse() throws Exception {
-        String updateCourseJson = """
-        {
-            "title": "Updated Test Course",
-            "description": "Updated description",
-            "modules": []
-        }
-        """;
-
-        mockMvc.perform(patch("/courses/1")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(updateCourseJson))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.title").value("Updated Test Course"));
-    }
-
-    @Test
-    void shouldDeleteCourse() throws Exception {
-        // Предполагаем, что в базе уже есть курс с ID = 1
-        mockMvc.perform(delete("/courses/1"))
+                        .content(objectMapper.writeValueAsString(updateRequest)))
                 .andExpect(status().isOk());
+
+        // Assert
+        Course updatedCourse = courseRepository.findById(savedCourse.getId()).orElseThrow();
+        assertions.accept(updatedCourse);
+    }
+
+    static Stream<Arguments> updateCourse() {
+        return Stream.of(
+                // Сценарий 1: Все модули удалены
+                Arguments.of(
+                        "All modules deleted",
+                        CourseRequest.<UpdateModuleInCourseRequest>builder()
+                                .title("Course With No Modules")
+                                .description("Description After Deletion")
+                                .modules(Collections.emptyList())
+                                .build(),
+                        (Consumer<Course>) course -> {
+                            assertThat(course.getModules()).isEmpty();
+                            assertThat(course.getTitle()).isEqualTo("Course With No Modules");
+                            assertThat(course.getDescription()).isEqualTo("Description After Deletion");
+                        }
+                ),
+                // Сценарий 2: Все уроки удалены из модулей
+                Arguments.of(
+                        "All lessons deleted from modules",
+                        CourseRequest.<UpdateModuleInCourseRequest>builder()
+                                .title("Course With Empty Modules")
+                                .description("Modules have no lessons")
+                                .modules(List.of(
+                                        UpdateModuleInCourseRequest.builder()
+                                                .id(1L)
+                                                .title("Updated Module 1")
+                                                .orderNum(1)
+                                                .lessons(Collections.emptyList())
+                                                .build(),
+                                        UpdateModuleInCourseRequest.builder()
+                                                .id(2L)
+                                                .title("Updated Module 2")
+                                                .orderNum(2)
+                                                .lessons(Collections.emptyList())
+                                                .build()
+                                ))
+                                .build(),
+                        (Consumer<Course>) course -> {
+                            assertThat(course.getModules()).hasSize(2);
+                            assertThat(course.getModules().get(0).getLessons()).isEmpty();
+                            assertThat(course.getModules().get(1).getLessons()).isEmpty();
+                        }
+                ),
+                // Сценарий 3: Добавлен новый модуль с уроками
+                Arguments.of(
+                        "New module added with lessons",
+                        CourseRequest.<UpdateModuleInCourseRequest>builder()
+                                .title("Course With New Module")
+                                .description("Description After Adding Module")
+                                .modules(List.of(
+                                        UpdateModuleInCourseRequest.builder()
+                                                .id(1L)
+                                                .title("Existing Module")
+                                                .orderNum(1)
+                                                .lessons(List.of(
+                                                        UpdateLessonInCourseRequest.builder()
+                                                                .id(1L)
+                                                                .title("Existing Lesson 1")
+                                                                .orderNum(1)
+                                                                .build()
+                                                ))
+                                                .build(),
+                                        UpdateModuleInCourseRequest.builder()
+                                                .title("New Module")
+                                                .orderNum(2)
+                                                .lessons(List.of(
+                                                        UpdateLessonInCourseRequest.builder()
+                                                                .title("New Lesson")
+                                                                .orderNum(1)
+                                                                .build()
+                                                ))
+                                                .build()
+                                ))
+                                .build(),
+                        (Consumer<Course>) course -> {
+                            assertThat(course.getModules()).hasSize(2);
+                            assertThat(course.getModules().get(1).getTitle()).isEqualTo("New Module");
+                            assertThat(course.getModules().get(1).getLessons()).hasSize(1);
+                            assertThat(course.getModules().get(1).getLessons().get(0).getTitle()).isEqualTo("New Lesson");
+                        }
+                ),
+                // Сценарий 4: Изменён существующий модуль и уроки
+                Arguments.of(
+                        "Existing module and lessons updated",
+                        CourseRequest.<UpdateModuleInCourseRequest>builder()
+                                .title("Course With Updated Content")
+                                .description("Description After Updates")
+                                .modules(List.of(
+                                        UpdateModuleInCourseRequest.builder()
+                                                .id(1L)
+                                                .title("Updated Module 1")
+                                                .orderNum(1)
+                                                .lessons(List.of(
+                                                        UpdateLessonInCourseRequest.builder()
+                                                                .id(1L)
+                                                                .title("Updated Lesson 1")
+                                                                .orderNum(1)
+                                                                .build()
+                                                ))
+                                                .build()
+                                ))
+                                .build(),
+                        (Consumer<Course>) course -> {
+                            assertThat(course.getModules()).hasSize(1);
+                            assertThat(course.getModules().get(0).getTitle()).isEqualTo("Updated Module 1");
+                            assertThat(course.getModules().get(0).getLessons()).hasSize(1);
+                            assertThat(course.getModules().get(0).getLessons().get(0).getTitle()).isEqualTo("Updated Lesson 1");
+                        }
+                ),
+                // Сценарий 5
+                Arguments.of(
+                        "Combination of updates and deletions",
+                        CourseRequest.<UpdateModuleInCourseRequest>builder()
+                                .title("Complex Update")
+                                .description("Complex Scenario")
+                                .modules(List.of(
+                                        UpdateModuleInCourseRequest.builder()
+                                                .id(1L)
+                                                .title("Updated Module 1")
+                                                .orderNum(1)
+                                                .lessons(Collections.emptyList())
+                                                .build(),
+                                        UpdateModuleInCourseRequest.builder()
+                                                .title("New Module Added")
+                                                .orderNum(2)
+                                                .lessons(List.of(
+                                                        UpdateLessonInCourseRequest.builder()
+                                                                .title("New Lesson in New Module")
+                                                                .orderNum(1)
+                                                                .build()
+                                                ))
+                                                .build()
+                                ))
+                                .build(),
+                        (Consumer<Course>) course -> {
+                            assertThat(course.getModules()).hasSize(2);
+                            assertThat(course.getModules().get(0).getLessons()).isEmpty();
+                            assertThat(course.getModules().get(1).getTitle()).isEqualTo("New Module Added");
+                            assertThat(course.getModules().get(1).getLessons()).hasSize(1);
+                        }
+                )
+        );
     }
 }
-*/
