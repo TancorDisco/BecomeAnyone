@@ -1,9 +1,10 @@
 package ru.sweetbun.becomeanyone.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -19,22 +20,24 @@ import ru.sweetbun.becomeanyone.dto.course.CourseRequest;
 import ru.sweetbun.becomeanyone.dto.lesson.request.CreateLessonRequest;
 import ru.sweetbun.becomeanyone.dto.module.request.CreateModuleRequest;
 import ru.sweetbun.becomeanyone.dto.module.request.ModuleRequest;
+import ru.sweetbun.becomeanyone.entity.Course;
 import ru.sweetbun.becomeanyone.entity.Module;
-import ru.sweetbun.becomeanyone.entity.*;
-import ru.sweetbun.becomeanyone.repository.*;
+import ru.sweetbun.becomeanyone.repository.CourseRepository;
+import ru.sweetbun.becomeanyone.repository.LessonRepository;
+import ru.sweetbun.becomeanyone.repository.ModuleRepository;
+import ru.sweetbun.becomeanyone.repository.UserRepository;
 import ru.sweetbun.becomeanyone.service.ModuleServiceImpl;
 import ru.sweetbun.becomeanyone.service.UserServiceImpl;
 import ru.sweetbun.becomeanyone.util.SecurityUtils;
 
 import java.util.List;
-import java.util.Set;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.lenient;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@Transactional
 @ActiveProfiles("test")
 @AutoConfigureMockMvc(addFilters = false)
 public class CourseControllerIntegrationTests extends BaseIntegrationTests{
@@ -63,9 +66,6 @@ public class CourseControllerIntegrationTests extends BaseIntegrationTests{
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private RoleRepository roleRepository;
-
     @MockBean
     private SecurityUtils securityUtils;
 
@@ -79,25 +79,19 @@ public class CourseControllerIntegrationTests extends BaseIntegrationTests{
 
     @BeforeEach
     void setUp() {
-        Role role = new Role(1L, "ROLE_TEACHER");
-        User mockUser = User.builder()
-                .username("teacher").password("teacher").salt("salt").email("teacher@mail.ru").roles(Set.of(role)).build();
-        roleRepository.save(role);
-        userRepository.save(mockUser);
-        lenient().when(securityUtils.getCurrentUser()).thenReturn(mockUser);
+
     }
 
-    @Test
-    @Transactional
-    @WithMockUser(roles = "TEACHER")
-    void shouldCreateCourseWithModulesAndLessons() throws Exception {
-        // Arrange
-        CreateLessonRequest lessonRequest = CreateLessonRequest.builder().title("Lesson 1").orderNum(1).build();
-        CreateModuleRequest moduleRequest = CreateModuleRequest.builder()
-                .title("Module 1").orderNum(1).lessons(List.of(lessonRequest)).build();
-        CourseRequest<ModuleRequest> courseRequest = CourseRequest.builder()
-                .title("Test Course").description("Test")
-                .modules(List.of(moduleRequest)).build();
+    @ParameterizedTest
+    @MethodSource("courseTestData")
+    @WithMockUser(username = "teacher", roles = "TEACHER")
+    void shouldCreateCourseWithVariousModuleAndLessonCombinations(
+            CourseRequest<ModuleRequest> courseRequest,
+            int expectedModulesCount,
+            int expectedModule1LessonsCount,
+            int expectedModule2LessonsCount,
+            String expectedModule1Title,
+            String expectedModule2Title) throws Exception {
 
         // Act
         mockMvc.perform(post("/courses")
@@ -110,13 +104,96 @@ public class CourseControllerIntegrationTests extends BaseIntegrationTests{
         assertThat(courses).hasSize(1);
 
         Course savedCourse = courses.get(0);
-        assertThat(savedCourse.getModules()).hasSize(1);
-        Module savedModule = savedCourse.getModules().get(0);
-        assertThat(savedModule.getLessons()).hasSize(1);
-        Lesson savedLesson = savedModule.getLessons().get(0);
 
-        assertThat(savedLesson.getTitle()).isEqualTo("Lesson 1");
-        assertEquals(savedLesson.getOrderNum(), 1);
+        // Проверка на количество модулей
+        assertThat(savedCourse.getModules()).hasSize(expectedModulesCount);
+
+        if (expectedModulesCount > 0) {
+            Module module1 = savedCourse.getModules().get(0);
+            assertThat(module1.getLessons()).hasSize(expectedModule1LessonsCount);
+            assertThat(module1.getTitle()).isEqualTo(expectedModule1Title);
+
+            // Если есть второй модуль
+            if (expectedModulesCount > 1) {
+                Module module2 = savedCourse.getModules().get(1);
+                assertThat(module2.getLessons()).hasSize(expectedModule2LessonsCount);
+                assertThat(module2.getTitle()).isEqualTo(expectedModule2Title);
+            }
+        }
+    }
+
+    static Stream<Arguments> courseTestData() {
+        return Stream.of(
+                // Один модуль с уроками
+                Arguments.of(
+                        CourseRequest.<ModuleRequest>builder()
+                                .title("Course 1")
+                                .modules(List.of(
+                                        CreateModuleRequest.builder()
+                                                .title("Module 1")
+                                                .orderNum(1)
+                                                .lessons(List.of(CreateLessonRequest.builder().title("Lesson 1").orderNum(1).build()))
+                                                .build()))
+                                .build(),
+                        1, 1, 0, "Module 1", null),
+
+                // Один модуль без уроков
+                Arguments.of(
+                        CourseRequest.<ModuleRequest>builder()
+                                .title("Course 2")
+                                .modules(List.of(
+                                        CreateModuleRequest.builder()
+                                                .title("Module 1")
+                                                .orderNum(1)
+                                                .lessons(List.of())  // Без уроков
+                                                .build()))
+                                .build(),
+                        1, 0, 0, "Module 1", null),
+
+                // Несколько модулей: один с уроками, второй без
+                Arguments.of(
+                        CourseRequest.<ModuleRequest>builder()
+                                .title("Course 3")
+                                .modules(List.of(
+                                        CreateModuleRequest.builder()
+                                                .title("Module 1")
+                                                .orderNum(1)
+                                                .lessons(List.of(CreateLessonRequest.builder().title("Lesson 1").orderNum(1).build()))
+                                                .build(),
+                                        CreateModuleRequest.builder()
+                                                .title("Module 2")
+                                                .orderNum(2)
+                                                .lessons(List.of())  // Без уроков
+                                                .build()))
+                                .build(),
+                        2, 1, 0, "Module 1", "Module 2"),
+
+                // Курс без модулей
+                Arguments.of(
+                        CourseRequest.<ModuleRequest>builder()
+                                .title("Course 4")
+                                .modules(List.of())  // Без модулей
+                                .build(),
+                        0, 0, 0, null, null),
+
+                // Несколько модулей, оба с уроками
+                Arguments.of(
+                        CourseRequest.<ModuleRequest>builder()
+                                .title("Course 5")
+                                .modules(List.of(
+                                        CreateModuleRequest.builder()
+                                                .title("Module 1")
+                                                .orderNum(1)
+                                                .lessons(List.of(CreateLessonRequest.builder().title("Lesson 1").orderNum(1).build()))
+                                                .build(),
+                                        CreateModuleRequest.builder()
+                                                .title("Module 2")
+                                                .orderNum(2)
+                                                .lessons(List.of(CreateLessonRequest.builder().title("Lesson 2").orderNum(1).build()))
+                                                .build()))
+                                .build(),
+                        2, 1, 1, "Module 1", "Module 2")
+        );
     }
 }
 
