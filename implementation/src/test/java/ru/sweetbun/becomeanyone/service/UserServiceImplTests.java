@@ -3,17 +3,17 @@ package ru.sweetbun.becomeanyone.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import ru.sweetbun.becomeanyone.config.ModelMapperConfig;
 import ru.sweetbun.becomeanyone.dto.auth.LoginRequest;
 import ru.sweetbun.becomeanyone.dto.profile.ProfileRequest;
+import ru.sweetbun.becomeanyone.dto.token.RefreshTokenRequest;
 import ru.sweetbun.becomeanyone.dto.user.request.UserRequest;
 import ru.sweetbun.becomeanyone.dto.user.response.UserResponse;
 import ru.sweetbun.becomeanyone.entity.Profile;
@@ -24,8 +24,8 @@ import ru.sweetbun.becomeanyone.repository.UserRepository;
 import ru.sweetbun.becomeanyone.util.SecurityUtils;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -96,6 +96,79 @@ class UserServiceImplTests {
                 () -> userService.register(userRequest)
         );
         assertEquals("User already exists", exception.getMessage());
+    }
+
+    @Test
+    void logout_ValidToken_LogsOutSuccessfully() {
+        // Arrange
+        String token = "validAccessToken";
+        String authHeader = "Bearer " + token;
+        long expirationTime = 3600000L;
+        String username = "user";
+
+        when(tokenService.getExpirationTimeInMills(token)).thenReturn(expirationTime);
+        when(tokenService.getUsernameFromToken(token)).thenReturn(username);
+
+        // Act
+        String result = userService.logout(authHeader);
+
+        // Assert
+        assertEquals("Logged out successfully", result);
+        verify(tokenService).getExpirationTimeInMills(token);
+        verify(tokenService).getUsernameFromToken(token);
+        verify(tokenBlacklistService).addTokenToBlacklist(eq(token), eq(expirationTime));
+        verify(refreshTokenService).deleteAllRefreshTokensForUser(username);
+    }
+
+    @Test
+    void refreshAccessToken_ValidTokens_ReturnsNewAccessToken() {
+        // Arrange
+        String accessToken = "validAccessToken";
+        String refreshToken = "validRefreshToken";
+        String authHeader = "Bearer " + accessToken;
+        String username = "user";
+        Long userId = 1L;
+        List<String> roles = List.of("ROLE_USER");
+        String newAccessToken = "newAccessToken";
+        RefreshTokenRequest request = new RefreshTokenRequest(refreshToken);
+
+        when(tokenService.getUsernameFromToken(refreshToken)).thenReturn(username);
+        when(tokenService.getUserIdFromToken(accessToken)).thenReturn(userId);
+        when(tokenService.getAuthoritiesFromToken(accessToken)).thenReturn(
+                roles.stream().map(role -> (GrantedAuthority) () -> role).toList()
+        );
+        when(tokenService.generateAccessToken(username, userId, roles)).thenReturn(newAccessToken);
+        when(refreshTokenService.isRefreshTokenValid(refreshToken)).thenReturn(true);
+
+        // Act
+        Map<String, String> tokens = userService.refreshAccessToken(request, authHeader);
+
+        // Assert
+        assertEquals("Bearer " + newAccessToken, tokens.get("accessToken"));
+        assertEquals(refreshToken, tokens.get("refreshToken"));
+
+        verify(tokenService).getUsernameFromToken(refreshToken);
+        verify(tokenService).getUserIdFromToken(accessToken);
+        verify(tokenService).getAuthoritiesFromToken(accessToken);
+        verify(tokenService).generateAccessToken(username, userId, roles);
+        verify(refreshTokenService).isRefreshTokenValid(refreshToken);
+    }
+
+    @Test
+    void refreshAccessToken_InvalidRefreshToken_ThrowsException() {
+        // Arrange
+        String accessToken = "validAccessToken";
+        String refreshToken = "invalidRefreshToken";
+        String authHeader = "Bearer " + accessToken;
+
+        RefreshTokenRequest request = new RefreshTokenRequest(refreshToken);
+
+        doThrow(new IllegalArgumentException("Invalid refresh token"))
+                .when(refreshTokenService).isRefreshTokenValid(refreshToken);
+
+        // Act & Assert
+        assertThrows(IllegalArgumentException.class, () -> userService.refreshAccessToken(request, authHeader));
+        verify(refreshTokenService).isRefreshTokenValid(refreshToken);
     }
 
     @Test
