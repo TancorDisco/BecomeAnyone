@@ -32,19 +32,19 @@ public class FileServiceImpl implements FileService {
 
     private final S3Client s3Client;
     private final S3Presigner s3Presigner;
-    private final String bucketName;
+    private final String BUCKET_NAME;
     private final LessonServiceImpl lessonService;
     private final FileRepository fileRepository;
     private final Long MAX_FILE_SIZE;
 
     @Autowired
     public FileServiceImpl(S3Client s3Client, S3Presigner s3Presigner,
-                           @Value("${vk-cloud.storage.bucket-name}") String bucketName, LessonServiceImpl lessonService,
+                           @Value("${vk-cloud.storage.bucket-name}") String BUCKET_NAME, LessonServiceImpl lessonService,
                            FileRepository fileRepository,
                            @Value("${vk-cloud.storage.max-file-size}") Long maxFileSize) {
         this.s3Client = s3Client;
         this.s3Presigner = s3Presigner;
-        this.bucketName = bucketName;
+        this.BUCKET_NAME = BUCKET_NAME;
         this.lessonService = lessonService;
         this.fileRepository = fileRepository;
         this.MAX_FILE_SIZE = maxFileSize;
@@ -61,7 +61,7 @@ public class FileServiceImpl implements FileService {
 
         s3Client.putObject(
                 PutObjectRequest.builder()
-                        .bucket(bucketName)
+                        .bucket(BUCKET_NAME)
                         .key(key)
                         .build(),
                 tempFile
@@ -111,7 +111,7 @@ public class FileServiceImpl implements FileService {
 
     private String generateDownloadUrl(String key) {
         GetObjectRequest getObjectRequest = GetObjectRequest.builder()
-                .bucket(bucketName)
+                .bucket(BUCKET_NAME)
                 .key(key)
                 .build();
         GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
@@ -131,7 +131,7 @@ public class FileServiceImpl implements FileService {
     public Long deleteFile(Long id) {
         AttachmentFile file = fetchFileById(id);
         s3Client.deleteObject(DeleteObjectRequest.builder()
-                .bucket(bucketName)
+                .bucket(BUCKET_NAME)
                 .key(file.getKey())
                 .build());
         fileRepository.delete(file);
