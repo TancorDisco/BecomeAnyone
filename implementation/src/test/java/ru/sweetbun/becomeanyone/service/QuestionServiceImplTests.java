@@ -55,7 +55,7 @@ class QuestionServiceImplTests {
 
     @Test
     void createQuestion_ValidInputs_QuestionCreated() {
-        List<CreateAnswerRequest> answers = List.of(CreateAnswerRequest.builder().build());
+        List<CreateAnswerRequest> answers = List.of(CreateAnswerRequest.builder().correct(true).build());
         QuestionRequest<CreateAnswerRequest> questionRequest = new QuestionRequest<>();
         questionRequest.setAnswers(answers);
         Long testId = 1L;
@@ -120,7 +120,7 @@ class QuestionServiceImplTests {
     void updateQuestion_ValidInputs_QuestionUpdated() {
         Long id = 1L;
         QuestionRequest<UpdateAnswerRequest> questionRequest = new QuestionRequest<>();
-        List<UpdateAnswerRequest> answers = List.of(UpdateAnswerRequest.builder().build());
+        List<UpdateAnswerRequest> answers = List.of(UpdateAnswerRequest.builder().correct(true).build());
         questionRequest.setAnswers(answers);
 
         when(questionRepository.findById(id)).thenReturn(Optional.of(question));

@@ -86,9 +86,13 @@ public class QuestionServiceImpl implements QuestionService {
         return id;
     }
 
-    private void validateAnswers(List<? extends AnswerRequest> createAnswerDTOS) {
-        if (createAnswerDTOS == null || createAnswerDTOS.isEmpty())
+    private void validateAnswers(List<? extends AnswerRequest> answerDTOS) {
+        if (answerDTOS == null || answerDTOS.isEmpty())
             throw new ObjectMustContainException(Question.class.getSimpleName(), Answer.class.getSimpleName());
+        boolean hasCorrectAnswer = answerDTOS.stream()
+                .anyMatch(AnswerRequest::correct);
+        if (!hasCorrectAnswer)
+            throw new IllegalArgumentException("The question must have at least one correct answer");
     }
 
     public List<Question> checkQuestions(List<QuestionToCheckRequest> questionDTOS, List<Question> questions) {

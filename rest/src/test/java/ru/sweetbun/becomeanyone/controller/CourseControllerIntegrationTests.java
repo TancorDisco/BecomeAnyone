@@ -11,12 +11,12 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 import ru.sweetbun.becomeanyone.aop.AccessControlAspect;
 import ru.sweetbun.becomeanyone.config.AuthorizationFilter;
-import ru.sweetbun.becomeanyone.contract.CourseService;
 import ru.sweetbun.becomeanyone.dto.course.CourseRequest;
 import ru.sweetbun.becomeanyone.dto.lesson.request.CreateLessonRequest;
 import ru.sweetbun.becomeanyone.dto.lesson.request.UpdateLessonInCourseRequest;
@@ -29,9 +29,6 @@ import ru.sweetbun.becomeanyone.entity.Module;
 import ru.sweetbun.becomeanyone.repository.CourseRepository;
 import ru.sweetbun.becomeanyone.repository.LessonRepository;
 import ru.sweetbun.becomeanyone.repository.ModuleRepository;
-import ru.sweetbun.becomeanyone.repository.UserRepository;
-import ru.sweetbun.becomeanyone.service.CourseServiceImpl;
-import ru.sweetbun.becomeanyone.service.ModuleServiceImpl;
 import ru.sweetbun.becomeanyone.service.UserServiceImpl;
 import ru.sweetbun.becomeanyone.util.SecurityUtils;
 
@@ -42,7 +39,6 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -50,13 +46,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Transactional
 @ActiveProfiles("test")
 @AutoConfigureMockMvc(addFilters = false)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class CourseControllerIntegrationTests extends BaseIntegrationTests{
 
     @Autowired
     private MockMvc mockMvc;
-
-    @Autowired
-    private CourseService courseService;
 
     @Autowired
     private CourseRepository courseRepository;
@@ -69,12 +63,6 @@ public class CourseControllerIntegrationTests extends BaseIntegrationTests{
 
     @Autowired
     private ModelMapper modelMapper;
-
-    @Autowired
-    private ModuleServiceImpl moduleServiceImpl;
-
-    @Autowired
-    private UserRepository userRepository;
 
     @MockBean
     private SecurityUtils securityUtils;
@@ -139,7 +127,7 @@ public class CourseControllerIntegrationTests extends BaseIntegrationTests{
         return Stream.of(
                 // Один модуль с уроками
                 Arguments.of(
-                        CourseRequest.<ModuleRequest>builder()
+                        CourseRequest.builder()
                                 .title("Course 1")
                                 .modules(List.of(
                                         CreateModuleRequest.builder()
@@ -152,7 +140,7 @@ public class CourseControllerIntegrationTests extends BaseIntegrationTests{
 
                 // Один модуль без уроков
                 Arguments.of(
-                        CourseRequest.<ModuleRequest>builder()
+                        CourseRequest.builder()
                                 .title("Course 2")
                                 .modules(List.of(
                                         CreateModuleRequest.builder()
@@ -165,7 +153,7 @@ public class CourseControllerIntegrationTests extends BaseIntegrationTests{
 
                 // Несколько модулей: один с уроками, второй без
                 Arguments.of(
-                        CourseRequest.<ModuleRequest>builder()
+                        CourseRequest.builder()
                                 .title("Course 3")
                                 .modules(List.of(
                                         CreateModuleRequest.builder()
@@ -176,22 +164,22 @@ public class CourseControllerIntegrationTests extends BaseIntegrationTests{
                                         CreateModuleRequest.builder()
                                                 .title("Module 2")
                                                 .orderNum(2)
-                                                .lessons(List.of())  // Без уроков
+                                                .lessons(List.of())
                                                 .build()))
                                 .build(),
                         2, 1, 0, "Module 1", "Module 2"),
 
                 // Курс без модулей
                 Arguments.of(
-                        CourseRequest.<ModuleRequest>builder()
+                        CourseRequest.builder()
                                 .title("Course 4")
-                                .modules(List.of())  // Без модулей
+                                .modules(List.of())
                                 .build(),
                         0, 0, 0, null, null),
 
                 // Несколько модулей, оба с уроками
                 Arguments.of(
-                        CourseRequest.<ModuleRequest>builder()
+                        CourseRequest.builder()
                                 .title("Course 5")
                                 .modules(List.of(
                                         CreateModuleRequest.builder()
@@ -213,7 +201,6 @@ public class CourseControllerIntegrationTests extends BaseIntegrationTests{
     @MethodSource("updateCourse")
     @WithMockUser(username = "teacher", roles = "TEACHER")
     void shouldUpdateCourseWithDifferentScenarios(
-            String testCase,
             CourseRequest<UpdateModuleInCourseRequest> updateRequest,
             Consumer<Course> assertions) throws Exception {
 
@@ -257,7 +244,6 @@ public class CourseControllerIntegrationTests extends BaseIntegrationTests{
         return Stream.of(
                 // Сценарий 1: Все модули удалены
                 Arguments.of(
-                        "All modules deleted",
                         CourseRequest.<UpdateModuleInCourseRequest>builder()
                                 .title("Course With No Modules")
                                 .description("Description After Deletion")
@@ -271,7 +257,6 @@ public class CourseControllerIntegrationTests extends BaseIntegrationTests{
                 ),
                 // Сценарий 2: Все уроки удалены из модулей
                 Arguments.of(
-                        "All lessons deleted from modules",
                         CourseRequest.<UpdateModuleInCourseRequest>builder()
                                 .title("Course With Empty Modules")
                                 .description("Modules have no lessons")
@@ -298,7 +283,6 @@ public class CourseControllerIntegrationTests extends BaseIntegrationTests{
                 ),
                 // Сценарий 3: Добавлен новый модуль с уроками
                 Arguments.of(
-                        "New module added with lessons",
                         CourseRequest.<UpdateModuleInCourseRequest>builder()
                                 .title("Course With New Module")
                                 .description("Description After Adding Module")
@@ -336,7 +320,6 @@ public class CourseControllerIntegrationTests extends BaseIntegrationTests{
                 ),
                 // Сценарий 4: Изменён существующий модуль и уроки
                 Arguments.of(
-                        "Existing module and lessons updated",
                         CourseRequest.<UpdateModuleInCourseRequest>builder()
                                 .title("Course With Updated Content")
                                 .description("Description After Updates")
@@ -364,7 +347,6 @@ public class CourseControllerIntegrationTests extends BaseIntegrationTests{
                 ),
                 // Сценарий 5
                 Arguments.of(
-                        "Combination of updates and deletions",
                         CourseRequest.<UpdateModuleInCourseRequest>builder()
                                 .title("Complex Update")
                                 .description("Complex Scenario")
