@@ -14,6 +14,7 @@ import ru.sweetbun.becomeanyone.config.ModelMapperConfig;
 import ru.sweetbun.becomeanyone.dto.content.ContentRequest;
 import ru.sweetbun.becomeanyone.entity.Content;
 import ru.sweetbun.becomeanyone.entity.Video;
+import ru.sweetbun.becomeanyone.repository.ContentRepository;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -26,6 +27,11 @@ class ContentServiceTests {
     @Mock
     private VideoService videoService;
 
+    @Mock
+    private FileServiceImpl fileService;
+
+    private ContentRepository contentRepository;
+
     @InjectMocks
     private ContentService contentService;
 
@@ -35,7 +41,7 @@ class ContentServiceTests {
 
     @BeforeEach
     void setUp() {
-        contentService = new ContentService(modelMapper, videoService);
+        contentService = new ContentService(modelMapper, videoService, fileService, contentRepository);
 
         contentRequest = new ContentRequest();
         content = new Content();

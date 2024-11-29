@@ -9,12 +9,14 @@ import ru.sweetbun.becomeanyone.contract.LessonService;
 import ru.sweetbun.becomeanyone.dto.lesson.request.CreateLessonRequest;
 import ru.sweetbun.becomeanyone.dto.lesson.request.UpdateLessonRequest;
 import ru.sweetbun.becomeanyone.dto.lesson.request.UpdateLessonInCourseRequest;
+import ru.sweetbun.becomeanyone.entity.AttachmentFile;
 import ru.sweetbun.becomeanyone.entity.Content;
 import ru.sweetbun.becomeanyone.entity.Lesson;
 import ru.sweetbun.becomeanyone.entity.Module;
 import ru.sweetbun.becomeanyone.dto.lesson.response.LessonResponse;
 import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
 import ru.sweetbun.becomeanyone.repository.LessonRepository;
+import ru.sweetbun.becomeanyone.repository.ModuleRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,8 +34,12 @@ public class LessonServiceImpl implements LessonService {
     private final ModelMapper modelMapper;
     @Lazy
     private final ModuleServiceImpl moduleServiceImpl;
-
+    @Lazy
     private final ContentService contentService;
+
+    private final CacheService cacheService;
+
+    private final ModuleRepository moduleRepository;
 
     @Transactional
     public List<Lesson> updateLessons(List<UpdateLessonInCourseRequest> lessonDTOS, Module module) {
@@ -42,8 +48,10 @@ public class LessonServiceImpl implements LessonService {
 
         List<Lesson> updatedLessons = mergeLessons(lessonDTOS, currentLessonsMap, module);
 
-        if (!currentLessonsMap.isEmpty())
+        if (!currentLessonsMap.isEmpty()) {
+            currentLessonsMap.values().forEach(lesson -> deleteFilesInContent(lesson.getContent()));
             lessonRepository.deleteAll(new ArrayList<>(currentLessonsMap.values()));
+        }
         return updatedLessons;
     }
 
@@ -69,6 +77,8 @@ public class LessonServiceImpl implements LessonService {
     public LessonResponse createLesson(CreateLessonRequest lessonDTO, Long moduleId) {
         Module module = moduleServiceImpl.fetchModuleById(moduleId);
         Lesson lesson = lessonRepository.save(createLesson(lessonDTO, module));
+        Long courseId = moduleRepository.findCourseIdByModuleId(moduleId);
+        cacheService.evictCourseCache(courseId);
         return modelMapper.map(lesson, LessonResponse.class);
     }
 
@@ -84,6 +94,7 @@ public class LessonServiceImpl implements LessonService {
         Lesson lesson = modelMapper.map(lessonDTO, Lesson.class);
         lesson.setModule(module);
         module.getLessons().add(lesson);
+        lesson.setContent(contentService.createContent(lesson));
         return lesson;
     }
 
@@ -124,6 +135,7 @@ public class LessonServiceImpl implements LessonService {
     public long deleteLessonById(Long id) {
         Lesson lessonToDelete = fetchLessonById(id);
         int orderNum = lessonToDelete.getOrderNum();
+        deleteFilesInContent(lessonToDelete.getContent());
         lessonRepository.deleteById(id);
 
         List<Lesson> lessonsToUpdate = lessonRepository.findByOrderNumGreaterThan(orderNum);
@@ -132,5 +144,10 @@ public class LessonServiceImpl implements LessonService {
         return id;
     }
 
-
+    private void deleteFilesInContent(Content content) {
+        List<AttachmentFile> files = content.getFiles();
+        if (!files.isEmpty()) {
+            contentService.deleteAllFiles(files);
+        }
+    }
 }

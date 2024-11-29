@@ -1,7 +1,9 @@
 package ru.sweetbun.becomeanyone.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,6 +28,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+@Slf4j
 @Transactional(readOnly = true)
 @Service
 public class FileServiceImpl implements FileService {
@@ -33,6 +36,7 @@ public class FileServiceImpl implements FileService {
     private final S3Client s3Client;
     private final S3Presigner s3Presigner;
     private final String BUCKET_NAME;
+    @Lazy
     private final LessonServiceImpl lessonService;
     private final FileRepository fileRepository;
     private final Long MAX_FILE_SIZE;
@@ -135,6 +139,7 @@ public class FileServiceImpl implements FileService {
                 .key(file.getKey())
                 .build());
         fileRepository.delete(file);
+        log.info("File has been deleted with id: {}", id);
         return id;
     }
 }

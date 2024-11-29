@@ -44,6 +44,9 @@ class LessonServiceImplTests {
     @Mock
     private ContentService contentService;
 
+    @Mock
+    private CacheService cacheService;
+
     @InjectMocks
     private LessonServiceImpl lessonServiceImpl;
 
@@ -53,7 +56,8 @@ class LessonServiceImplTests {
 
     @BeforeEach
     public void setUp() {
-        lessonServiceImpl = new LessonServiceImpl(lessonRepository, modelMapper, moduleServiceImpl, contentService);
+        lessonServiceImpl = new LessonServiceImpl(lessonRepository, modelMapper, moduleServiceImpl, contentService,
+                cacheService);
 
         module = Module.builder().id(1L).title("Module 1").build();
         lessonResponse = new LessonResponse();
