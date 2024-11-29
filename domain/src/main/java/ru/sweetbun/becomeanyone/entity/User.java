@@ -23,16 +23,16 @@ public class User{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "username", unique = true)
-    @NotEmpty
+    @Column(unique = true, nullable = false)
     private String username;
 
-    @Column(name = "email", unique = true)
-    @NotEmpty
+    @Column(unique = true, nullable = false)
     private String email;
 
-    @Column(name = "password")
-    @NotEmpty
+    @Column(nullable = false)
+    private String salt;
+
+    @Column(nullable = false)
     private String password;
 
     @Builder.Default

@@ -110,9 +110,11 @@ public class LessonServiceImpl implements LessonService {
     public LessonResponse updateLesson(UpdateLessonRequest updateLessonRequest, Long id) {
         Lesson lesson = fetchLessonById(id);
         lesson.setTitle(updateLessonRequest.title());
-        Content content = contentService.updateContent(updateLessonRequest.content(), lesson.getContent());
-        lesson.setContent(content);
-        content.setLesson(lesson);
+        if (updateLessonRequest.content() != null) {
+            Content content = contentService.updateContent(updateLessonRequest.content(), lesson.getContent());
+            lesson.setContent(content);
+            content.setLesson(lesson);
+        }
         Lesson savedLesson = lessonRepository.save(lesson);
         return modelMapper.map(savedLesson, LessonResponse.class);
     }

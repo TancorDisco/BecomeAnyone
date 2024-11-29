@@ -4,7 +4,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import ru.sweetbun.becomeanyone.aop.CheckCourseOwner;
 import ru.sweetbun.becomeanyone.contract.QuestionService;
 import ru.sweetbun.becomeanyone.dto.answer.request.CreateAnswerRequest;
 import ru.sweetbun.becomeanyone.dto.answer.request.UpdateAnswerRequest;
@@ -20,6 +22,8 @@ public class QuestionController {
 
     private final QuestionService questionService;
 
+    @PreAuthorize("hasRole('TEACHER')")
+    @CheckCourseOwner
     @PostMapping
     @Operation(summary = "Создать вопрос", description = "Создает новый вопрос c вариантами ответа для теста")
     public ResponseEntity<?> createQuestion(@PathVariable("testId") Long testId,
@@ -39,6 +43,8 @@ public class QuestionController {
         return ok(questionService.getQuestionById(id));
     }
 
+    @PreAuthorize("hasRole('TEACHER')")
+    @CheckCourseOwner
     @PatchMapping("{id}")
     @Operation(summary = "Обновить вопрос", description = "Обновляет вопрос с вариантами ответа по его ID")
     public ResponseEntity<?> updateQuestion(@PathVariable("id") Long id,
@@ -46,6 +52,8 @@ public class QuestionController {
         return ok(questionService.updateQuestion(request, id));
     }
 
+    @PreAuthorize("hasRole('TEACHER')")
+    @CheckCourseOwner
     @DeleteMapping("{id}")
     @Operation(summary = "Удалить вопрос", description = "Удаляет вопрос по его ID")
     public ResponseEntity<?> deleteQuestion(@PathVariable("id") Long id) {

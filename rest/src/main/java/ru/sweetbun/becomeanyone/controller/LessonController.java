@@ -1,11 +1,12 @@
 package ru.sweetbun.becomeanyone.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import ru.sweetbun.becomeanyone.aop.CheckCourseOwner;
 import ru.sweetbun.becomeanyone.contract.LessonService;
 import ru.sweetbun.becomeanyone.dto.lesson.request.CreateLessonRequest;
 import ru.sweetbun.becomeanyone.dto.lesson.request.UpdateLessonRequest;
@@ -20,6 +21,8 @@ public class LessonController {
 
     private final LessonService lessonService;
 
+    @PreAuthorize("hasRole('TEACHER')")
+    @CheckCourseOwner
     @Operation(summary = "Создать урок", description = "Создание нового урока в указанном модуле")
     @PostMapping
     public ResponseEntity<?> createLesson(@PathVariable("moduleId") Long moduleId, @RequestBody CreateLessonRequest request) {
@@ -38,12 +41,16 @@ public class LessonController {
         return ok(lessonService.getLessonById(id));
     }
 
+    @PreAuthorize("hasRole('TEACHER')")
+    @CheckCourseOwner
     @Operation(summary = "Обновить урок", description = "Обновление данных существующего урока")
     @PatchMapping("{id}")
     public ResponseEntity<?> updateLesson(@PathVariable("id") Long id, @RequestBody UpdateLessonRequest request) {
         return ok(lessonService.updateLesson(request, id));
     }
 
+    @PreAuthorize("hasRole('TEACHER')")
+    @CheckCourseOwner
     @Operation(summary = "Удалить урок", description = "Удаление урока по его идентификатору")
     @DeleteMapping("{id}")
     public ResponseEntity<?> deleteLesson(@PathVariable("id") Long id) {

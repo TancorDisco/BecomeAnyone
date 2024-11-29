@@ -96,4 +96,9 @@ public class CourseServiceImpl implements CourseService {
         courseRepository.deleteById(id);
         return id;
     }
+
+    public boolean isCourseOwner(Long courseId, String username) {
+        Course course = fetchCourseById(courseId);
+        return course.getTeacher().getUsername().equals(username);
+    }
 }

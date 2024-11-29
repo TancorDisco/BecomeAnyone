@@ -7,6 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
+import ru.sweetbun.becomeanyone.contract.UserService;
 import ru.sweetbun.becomeanyone.dto.role.RoleRequest;
 import ru.sweetbun.becomeanyone.config.ModelMapperConfig;
 import ru.sweetbun.becomeanyone.entity.Role;
@@ -22,21 +23,24 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class RoleServiceTests {
+class RoleServiceImplTests {
 
     @Mock
     private RoleRepository roleRepository;
 
     private final ModelMapper modelMapper = ModelMapperConfig.createConfiguredModelMapper();
 
+    @Mock
+    private UserServiceImpl userService;
+
     @InjectMocks
-    private RoleService roleService;
+    private RoleServiceImpl roleServiceImpl;
 
     private Role role;
 
     @BeforeEach
     void setUp() {
-        roleService = new RoleService(roleRepository, modelMapper);
+        roleServiceImpl = new RoleServiceImpl(userService, roleRepository, modelMapper);
 
         role = new Role();
     }
@@ -46,7 +50,7 @@ class RoleServiceTests {
         RoleRequest roleRequest = new RoleRequest("ROLE_ADMIN");
         when(roleRepository.save(any(Role.class))).thenReturn(role);
 
-        Role savedRole = roleService.createRole(roleRequest);
+        Role savedRole = roleServiceImpl.createRole(roleRequest);
 
         assertNotNull(savedRole);
         verify(roleRepository, times(1)).save(any(Role.class));
@@ -56,7 +60,7 @@ class RoleServiceTests {
     void getRoleById_ExistingId_ShouldReturnRole() {
         when(roleRepository.findById(anyLong())).thenReturn(Optional.of(role));
 
-        Role foundRole = roleService.getRoleById(1L);
+        Role foundRole = roleServiceImpl.getRoleById(1L);
 
         assertNotNull(foundRole);
         assertEquals(role, foundRole);
@@ -66,7 +70,7 @@ class RoleServiceTests {
     void getRoleById_NonExistingId_ShouldThrowException() {
         when(roleRepository.findById(anyLong())).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> roleService.getRoleById(1L));
+        assertThrows(ResourceNotFoundException.class, () -> roleServiceImpl.getRoleById(1L));
     }
 
     @Test
@@ -74,7 +78,7 @@ class RoleServiceTests {
         List<Role> roles = List.of(role, role);
         when(roleRepository.findAll()).thenReturn(roles);
 
-        List<Role> foundRoles = roleService.getAllRoles();
+        List<Role> foundRoles = roleServiceImpl.getAllRoles();
 
         assertNotNull(foundRoles);
         assertEquals(2, foundRoles.size());
@@ -87,7 +91,7 @@ class RoleServiceTests {
         when(roleRepository.findById(anyLong())).thenReturn(Optional.of(role));
         when(roleRepository.save(role)).thenReturn(role);
 
-        Role updatedRole = roleService.updateRole(roleRequest, 1L);
+        Role updatedRole = roleServiceImpl.updateRole(roleRequest, 1L);
 
         assertNotNull(updatedRole);
         verify(roleRepository, times(1)).save(role);
@@ -98,7 +102,7 @@ class RoleServiceTests {
         RoleRequest roleRequest = new RoleRequest("");
         when(roleRepository.findById(anyLong())).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> roleService.updateRole(roleRequest, 1L));
+        assertThrows(ResourceNotFoundException.class, () -> roleServiceImpl.updateRole(roleRequest, 1L));
     }
 
     @Test
@@ -106,7 +110,7 @@ class RoleServiceTests {
         when(roleRepository.findById(anyLong())).thenReturn(Optional.of(role));
         doNothing().when(roleRepository).deleteById(anyLong());
 
-        long deletedId = roleService.deleteRoleById(1L);
+        long deletedId = roleServiceImpl.deleteRoleById(1L);
 
         assertEquals(1L, deletedId);
         verify(roleRepository, times(1)).deleteById(1L);
@@ -116,7 +120,7 @@ class RoleServiceTests {
     void deleteRoleById_NonExistingId_ShouldThrowException() {
         when(roleRepository.findById(anyLong())).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> roleService.deleteRoleById(1L));
+        assertThrows(ResourceNotFoundException.class, () -> roleServiceImpl.deleteRoleById(1L));
     }
 
     @Test
@@ -124,7 +128,7 @@ class RoleServiceTests {
         String roleName = "ROLE_ADMIN";
         when(roleRepository.findByName(roleName)).thenReturn(Optional.of(role));
 
-        Role foundRole = roleService.getRoleByName(roleName);
+        Role foundRole = roleServiceImpl.getRoleByName(roleName);
 
         assertNotNull(foundRole);
         assertEquals(role, foundRole);
@@ -134,6 +138,6 @@ class RoleServiceTests {
     void getRoleByName_NonExistingName_ShouldThrowException() {
         when(roleRepository.findByName(anyString())).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> roleService.getRoleByName("ROLE_UNKNOWN"));
+        assertThrows(ResourceNotFoundException.class, () -> roleServiceImpl.getRoleByName("ROLE_UNKNOWN"));
     }
 }
