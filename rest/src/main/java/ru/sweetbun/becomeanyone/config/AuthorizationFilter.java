@@ -41,45 +41,42 @@ public class AuthorizationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        String header = request.getHeader(HttpHeaders.AUTHORIZATION);
-        String requestPath = request.getRequestURI();
-        log.info("Processing request to {}", requestPath);
+        try {
+            String header = request.getHeader(HttpHeaders.AUTHORIZATION);
+            String requestPath = request.getRequestURI();
+            log.info("Processing request to {}", requestPath);
 
-        if (header == null || header.isBlank()) {
-            String message = "Authorization header is missing or blank.";
-            log.warn(message);
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            throw new IllegalStateException(message);
-        }
-        if (!checkAuthorization(header)) {
-            String message = "Authorization header is invalid or token is not valid.";
-            log.warn(message);
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            throw new AccessDeniedException(message);
-        }
-        String token = header.substring(7);
-        if (tokenBlacklistService.isTokenBlacklisted(token)) {
-            String message = "Token is blacklisted.";
-            log.warn(message);
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            throw new IllegalStateException(message);
-        }
+            if (header == null || header.isBlank()) {
+                throw new IllegalStateException("Authorization header is missing or blank.");
+            }
+            if (!checkAuthorization(header)) {
+                throw new AccessDeniedException("Authorization header is invalid or token is not valid.");
+            }
+            String token = header.substring(7);
+            if (tokenBlacklistService.isTokenBlacklisted(token)) {
+                throw new IllegalStateException("Token is blacklisted.");
+            }
 
-        String username = tokenService.getUsernameFromToken(token);
-        Long userId = tokenService.getUserIdFromToken(token);
-        List<GrantedAuthority> authorities = tokenService.getAuthoritiesFromToken(token);
+            String username = tokenService.getUsernameFromToken(token);
+            Long userId = tokenService.getUserIdFromToken(token);
+            List<GrantedAuthority> authorities = tokenService.getAuthoritiesFromToken(token);
 
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                    new CustomUserPrincipal(userId, username),
-                    null,
-                    authorities
-            );
-            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                        new CustomUserPrincipal(userId, username),
+                        null,
+                        authorities
+                );
+                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
+
+            filterChain.doFilter(request, response);
+        } catch (IllegalStateException | AccessDeniedException ex) {
+            log.error("Error during authorization: {}", ex.getMessage());
+            response.setStatus(ex instanceof AccessDeniedException ? HttpServletResponse.SC_FORBIDDEN : HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write(ex.getMessage());
         }
-
-        filterChain.doFilter(request, response);
     }
 
     private boolean checkAuthorization(String auth) {
