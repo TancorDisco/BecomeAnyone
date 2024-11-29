@@ -10,15 +10,14 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 @ActiveProfiles("test")
 @Testcontainers
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest
 public class BaseIntegrationTests {
 
     @Container
     public static PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres")
             .withDatabaseName("test_db")
             .withUsername("test_user")
-            .withPassword("test_pass")
-            .withReuse(true);
+            .withPassword("test_pass");
 
     @DynamicPropertySource
     static void configureTestProperties(DynamicPropertyRegistry registry) {
