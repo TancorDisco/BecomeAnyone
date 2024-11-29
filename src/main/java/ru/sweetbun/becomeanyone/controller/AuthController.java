@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.sweetbun.becomeanyone.DTO.UserDTO;
+import ru.sweetbun.becomeanyone.dto.UserDTO;
 import ru.sweetbun.becomeanyone.service.UserService;
 
 import static org.springframework.http.ResponseEntity.ok;

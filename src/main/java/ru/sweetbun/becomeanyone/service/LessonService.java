@@ -5,9 +5,10 @@ import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.sweetbun.becomeanyone.DTO.CreateLessonDTO;
-import ru.sweetbun.becomeanyone.DTO.UpdateLessonDTO;
-import ru.sweetbun.becomeanyone.DTO.UpdateLessonInCourseDTO;
+import ru.sweetbun.becomeanyone.dto.CreateLessonDTO;
+import ru.sweetbun.becomeanyone.dto.UpdateLessonDTO;
+import ru.sweetbun.becomeanyone.dto.UpdateLessonInCourseDTO;
+import ru.sweetbun.becomeanyone.entity.Content;
 import ru.sweetbun.becomeanyone.entity.Lesson;
 import ru.sweetbun.becomeanyone.entity.Module;
 import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
@@ -29,6 +30,8 @@ public class LessonService {
     private final ModelMapper modelMapper;
     @Lazy
     private final ModuleService moduleService;
+
+    private final ContentService contentService;
 
     @Transactional
     public List<Lesson> updateLessons(List<UpdateLessonInCourseDTO> lessonDTOS, Module module) {
@@ -92,7 +95,10 @@ public class LessonService {
     @Transactional
     public Lesson updateLesson(UpdateLessonDTO updateLessonDTO, Long id) {
         Lesson lesson = getLessonById(id);
-        modelMapper.map(updateLessonDTO, lesson);
+        lesson.setTitle(updateLessonDTO.title());
+        Content content = contentService.updateContent(updateLessonDTO.content(), lesson.getContent());
+        lesson.setContent(content);
+        content.setLesson(lesson);
         return lessonRepository.save(lesson);
     }
 

@@ -5,7 +5,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.sweetbun.becomeanyone.DTO.*;
+import ru.sweetbun.becomeanyone.dto.*;
 import ru.sweetbun.becomeanyone.entity.Course;
 import ru.sweetbun.becomeanyone.entity.Module;
 import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;

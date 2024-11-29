@@ -3,7 +3,7 @@ package ru.sweetbun.becomeanyone.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.sweetbun.becomeanyone.DTO.ProfileDTO;
+import ru.sweetbun.becomeanyone.dto.ProfileDTO;
 import ru.sweetbun.becomeanyone.service.UserService;
 
 import static org.springframework.http.ResponseEntity.ok;

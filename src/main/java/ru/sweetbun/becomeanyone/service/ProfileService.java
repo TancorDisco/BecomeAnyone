@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.sweetbun.becomeanyone.DTO.ProfileDTO;
+import ru.sweetbun.becomeanyone.dto.ProfileDTO;
 import ru.sweetbun.becomeanyone.entity.Profile;
 import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
 import ru.sweetbun.becomeanyone.repository.ProfileRepository;

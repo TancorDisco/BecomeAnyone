@@ -5,36 +5,30 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Entity
-@Table(name = "tests")
+@Table(name = "contents")
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Test {
+public class Content {
 
     @Id
-    @Column(name = "test_id")
+    @Column(name = "content_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @JsonBackReference
-    @ManyToOne(fetch = FetchType.EAGER)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "lesson_id")
     private Lesson lesson;
 
-    @Column(name = "title", nullable = false)
-    private String title;
-
-    @Column(name = "description")
-    private String description;
+    @Column
+    private String text;
 
     @Builder.Default
     @JsonManagedReference
-    @OneToMany(mappedBy = "test", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Question> questions = new ArrayList<>();
+    @OneToOne(mappedBy = "content", cascade = CascadeType.ALL)
+    private Video video = null;
 }

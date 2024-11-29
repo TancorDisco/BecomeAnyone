@@ -1,4 +1,4 @@
-package ru.sweetbun.becomeanyone.DTO.toCheck;
+package ru.sweetbun.becomeanyone.dto.toCheck;
 
 import lombok.Builder;
 

@@ -9,7 +9,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
-import ru.sweetbun.becomeanyone.DTO.ProfileDTO;
+import ru.sweetbun.becomeanyone.dto.ProfileDTO;
 import ru.sweetbun.becomeanyone.config.ModelMapperConfig;
 import ru.sweetbun.becomeanyone.entity.Profile;
 import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
