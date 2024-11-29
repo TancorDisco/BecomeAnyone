@@ -18,6 +18,7 @@ import ru.sweetbun.becomeanyone.service.TokenBlacklistService;
 import ru.sweetbun.becomeanyone.service.TokenService;
 
 import java.io.IOException;
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 
 @Profile("!test")
@@ -45,20 +46,23 @@ public class AuthorizationFilter extends OncePerRequestFilter {
         log.info("Processing request to {}", requestPath);
 
         if (header == null || header.isBlank()) {
-            log.warn("Authorization header is missing or blank.");
+            String message = "Authorization header is missing or blank.";
+            log.warn(message);
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            return;
+            throw new IllegalStateException(message);
         }
         if (!checkAuthorization(header)) {
-            log.warn("Authorization header is invalid or token is not valid.");
+            String message = "Authorization header is invalid or token is not valid.";
+            log.warn(message);
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            return;
+            throw new AccessDeniedException(message);
         }
         String token = header.substring(7);
         if (tokenBlacklistService.isTokenBlacklisted(token)) {
-            log.warn("Token is blacklisted.");
+            String message = "Token is blacklisted.";
+            log.warn(message);
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            return;
+            throw new IllegalStateException(message);
         }
 
         String username = tokenService.getUsernameFromToken(token);

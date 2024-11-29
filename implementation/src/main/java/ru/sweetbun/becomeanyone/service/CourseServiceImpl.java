@@ -2,6 +2,8 @@ package ru.sweetbun.becomeanyone.service;
 
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -53,6 +55,7 @@ public class CourseServiceImpl implements CourseService {
         return modelMapper.map(savedCourse, CourseResponse.class);
     }
 
+    @Cacheable(value = "courses", key = "#id")
     @Override
     public CourseResponse getCourseById(Long id) {
         Course course = fetchCourseById(id);
@@ -78,6 +81,7 @@ public class CourseServiceImpl implements CourseService {
                 .toList();
     }
 
+    @CacheEvict(value = "courses", key = "#id")
     @Override
     @Transactional
     public CourseResponse updateCourseById(Long id, CourseRequest<UpdateModuleInCourseRequest> courseRequest) {
@@ -89,6 +93,7 @@ public class CourseServiceImpl implements CourseService {
         return modelMapper.map(course, CourseResponse.class);
     }
 
+    @CacheEvict(value = "courses", key = "#id")
     @Override
     @Transactional
     public long deleteCourseById(Long id) {
