@@ -1,16 +1,15 @@
 package ru.sweetbun.becomeanyone.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.sweetbun.becomeanyone.contract.AuthService;
 import ru.sweetbun.becomeanyone.dto.auth.LoginRequest;
 import ru.sweetbun.becomeanyone.dto.token.RefreshTokenRequest;
 import ru.sweetbun.becomeanyone.dto.user.request.UserRequest;
-import ru.sweetbun.becomeanyone.contract.AuthService;
 
 import static org.springframework.http.ResponseEntity.ok;
 
