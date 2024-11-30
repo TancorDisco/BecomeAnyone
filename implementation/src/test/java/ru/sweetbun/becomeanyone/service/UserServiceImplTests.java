@@ -21,6 +21,7 @@ import ru.sweetbun.becomeanyone.entity.Role;
 import ru.sweetbun.becomeanyone.entity.User;
 import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
 import ru.sweetbun.becomeanyone.repository.UserRepository;
+import ru.sweetbun.becomeanyone.util.CacheServiceProvider;
 import ru.sweetbun.becomeanyone.util.SecurityUtils;
 
 import java.util.List;
@@ -60,6 +61,9 @@ class UserServiceImplTests {
     @Mock
     private RefreshTokenService refreshTokenService;
 
+    @Mock
+    private CacheServiceProvider cacheServiceProvider;
+
     @InjectMocks
     private UserServiceImpl userService;
 
@@ -73,7 +77,7 @@ class UserServiceImplTests {
     @BeforeEach
     void setUp() {
         userService = new UserServiceImpl(userRepository, passwordEncoder, modelMapper, roleServiceImpl,
-                profileService, securityUtils, tokenService, tokenBlacklistService, refreshTokenService);
+                profileService, securityUtils, tokenService, tokenBlacklistService, refreshTokenService, cacheServiceProvider);
 
         userRequest = UserRequest.builder().username("user").password("password").build();
         userResponse = UserResponse.builder().id(1L).username("user").build();

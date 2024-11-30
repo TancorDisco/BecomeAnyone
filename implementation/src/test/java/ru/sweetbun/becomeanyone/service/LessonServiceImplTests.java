@@ -22,6 +22,7 @@ import ru.sweetbun.becomeanyone.entity.Module;
 import ru.sweetbun.becomeanyone.dto.lesson.response.LessonResponse;
 import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
 import ru.sweetbun.becomeanyone.repository.LessonRepository;
+import ru.sweetbun.becomeanyone.util.CacheServiceProvider;
 
 import java.util.*;
 import java.util.stream.Stream;
@@ -45,7 +46,7 @@ class LessonServiceImplTests {
     private ContentService contentService;
 
     @Mock
-    private CacheService cacheService;
+    private CacheServiceProvider cacheServiceProvider;
 
     @InjectMocks
     private LessonServiceImpl lessonServiceImpl;
@@ -57,14 +58,14 @@ class LessonServiceImplTests {
     @BeforeEach
     public void setUp() {
         lessonServiceImpl = new LessonServiceImpl(lessonRepository, modelMapper, moduleServiceImpl, contentService,
-                cacheService);
+                cacheServiceProvider);
 
         module = Module.builder().id(1L).title("Module 1").build();
         lessonResponse = new LessonResponse();
 
-        Lesson lesson1 = Lesson.builder().id(1L).title("Lesson 1").orderNum(1).module(module).build();
-        Lesson lesson2 = Lesson.builder().id(2L).title("Lesson 2").orderNum(2).module(module).build();
-        Lesson lesson3 = Lesson.builder().id(3L).title("Lesson 3").orderNum(3).module(module).build();
+        Lesson lesson1 = Lesson.builder().id(1L).title("Lesson 1").orderNum(1).module(module).content(new Content()).build();
+        Lesson lesson2 = Lesson.builder().id(2L).title("Lesson 2").orderNum(2).module(module).content(new Content()).build();
+        Lesson lesson3 = Lesson.builder().id(3L).title("Lesson 3").orderNum(3).module(module).content(new Content()).build();
 
         currentLessonsMap = new HashMap<>();
         currentLessonsMap.put(1L, lesson1);

@@ -20,6 +20,7 @@ import ru.sweetbun.becomeanyone.entity.Module;
 import ru.sweetbun.becomeanyone.dto.module.response.ModuleResponse;
 import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
 import ru.sweetbun.becomeanyone.repository.ModuleRepository;
+import ru.sweetbun.becomeanyone.util.CacheServiceProvider;
 
 import java.util.*;
 import java.util.stream.Stream;
@@ -44,6 +45,9 @@ class ModuleServiceImplTests {
     @Mock
     private CourseServiceImpl courseServiceImpl;
 
+    @Mock
+    private CacheServiceProvider cacheServiceProvider;
+
     @InjectMocks
     private ModuleServiceImpl moduleServiceImpl;
 
@@ -52,7 +56,8 @@ class ModuleServiceImplTests {
 
     @BeforeEach
     public void setUp() {
-        moduleServiceImpl = new ModuleServiceImpl(moduleRepository, lessonServiceImpl, modelMapper, courseServiceImpl);
+        moduleServiceImpl = new ModuleServiceImpl(moduleRepository, lessonServiceImpl, modelMapper, courseServiceImpl,
+                cacheServiceProvider);
 
         course = Course.builder().id(1L).build();
         currentModulesMap = new HashMap<>();
