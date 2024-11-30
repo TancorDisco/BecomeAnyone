@@ -17,6 +17,7 @@ import ru.sweetbun.becomeanyone.dto.lesson.response.LessonResponse;
 import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
 import ru.sweetbun.becomeanyone.repository.LessonRepository;
 import ru.sweetbun.becomeanyone.repository.ModuleRepository;
+import ru.sweetbun.becomeanyone.util.CacheServiceProvider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,9 +38,7 @@ public class LessonServiceImpl implements LessonService {
     @Lazy
     private final ContentService contentService;
 
-    private final CacheService cacheService;
-
-    private final ModuleRepository moduleRepository;
+    private final CacheServiceProvider cacheServiceProvider;
 
     @Transactional
     public List<Lesson> updateLessons(List<UpdateLessonInCourseRequest> lessonDTOS, Module module) {
@@ -75,10 +74,10 @@ public class LessonServiceImpl implements LessonService {
     @Override
     @Transactional
     public LessonResponse createLesson(CreateLessonRequest lessonDTO, Long moduleId) {
+        cacheServiceProvider.evictCourseCacheByModuleId(moduleId);
+
         Module module = moduleServiceImpl.fetchModuleById(moduleId);
         Lesson lesson = lessonRepository.save(createLesson(lessonDTO, module));
-        Long courseId = moduleRepository.findCourseIdByModuleId(moduleId);
-        cacheService.evictCourseCache(courseId);
         return modelMapper.map(lesson, LessonResponse.class);
     }
 
@@ -120,6 +119,8 @@ public class LessonServiceImpl implements LessonService {
     @Transactional
     public LessonResponse updateLesson(UpdateLessonRequest updateLessonRequest, Long id) {
         Lesson lesson = fetchLessonById(id);
+        cacheServiceProvider.evictCourseCacheByLesson(lesson);
+
         lesson.setTitle(updateLessonRequest.title());
         if (updateLessonRequest.content() != null) {
             Content content = contentService.updateContent(updateLessonRequest.content(), lesson.getContent());
@@ -134,6 +135,8 @@ public class LessonServiceImpl implements LessonService {
     @Transactional
     public long deleteLessonById(Long id) {
         Lesson lessonToDelete = fetchLessonById(id);
+        cacheServiceProvider.evictCourseCacheByLesson(lessonToDelete);
+
         int orderNum = lessonToDelete.getOrderNum();
         deleteFilesInContent(lessonToDelete.getContent());
         lessonRepository.deleteById(id);

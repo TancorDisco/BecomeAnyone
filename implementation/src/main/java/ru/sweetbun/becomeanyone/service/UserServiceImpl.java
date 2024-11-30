@@ -22,6 +22,7 @@ import ru.sweetbun.becomeanyone.entity.Role;
 import ru.sweetbun.becomeanyone.entity.User;
 import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
 import ru.sweetbun.becomeanyone.repository.UserRepository;
+import ru.sweetbun.becomeanyone.util.CacheServiceProvider;
 import ru.sweetbun.becomeanyone.util.SecurityUtils;
 
 import java.security.SecureRandom;
@@ -55,6 +56,8 @@ public class UserServiceImpl implements UserService, ProfileService, AuthService
     private final TokenBlacklistService tokenBlacklistService;
 
     private final RefreshTokenService refreshTokenService;
+
+    private final CacheServiceProvider cacheServiceProvider;
 
     @Override
     @Transactional
@@ -196,6 +199,8 @@ public class UserServiceImpl implements UserService, ProfileService, AuthService
     @Transactional
     public UserResponse createUserProfile(ProfileRequest profileRequest) {
         User user = securityUtils.getCurrentUser();
+        cacheServiceProvider.evictCourseCacheByUser(user);
+
         if (user.getProfile() != null)
             throw new IllegalArgumentException("Profile already exists for this user");
 
@@ -210,6 +215,8 @@ public class UserServiceImpl implements UserService, ProfileService, AuthService
     @Transactional
     public UserResponse updateUserProfile(ProfileRequest profileRequest) {
         User user = securityUtils.getCurrentUser();
+        cacheServiceProvider.evictCourseCacheByUser(user);
+
         Profile profile = profileService.updateProfile(profileRequest, user.getProfile());
         user.setProfile(profile);
         profile.setUser(user);

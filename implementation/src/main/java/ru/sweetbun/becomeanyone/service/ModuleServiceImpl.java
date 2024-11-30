@@ -14,6 +14,7 @@ import ru.sweetbun.becomeanyone.entity.Module;
 import ru.sweetbun.becomeanyone.dto.module.response.ModuleResponse;
 import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
 import ru.sweetbun.becomeanyone.repository.ModuleRepository;
+import ru.sweetbun.becomeanyone.util.CacheServiceProvider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,9 +35,13 @@ public class ModuleServiceImpl implements ModuleService {
     @Lazy
     private final CourseServiceImpl courseServiceImpl;
 
+    private final CacheServiceProvider cacheServiceProvider;
+
     @Override
     @Transactional
     public ModuleResponse createModule(CreateModuleRequest moduleDTO, Long courseId) {
+        cacheServiceProvider.evictCourseCacheById(courseId);
+
         Course course = courseServiceImpl.fetchCourseById(courseId);
         Module module = moduleRepository.save(createModule(moduleDTO, course));
         return modelMapper.map(module, ModuleResponse.class);
@@ -78,6 +83,8 @@ public class ModuleServiceImpl implements ModuleService {
     @Override
     @Transactional
     public ModuleResponse updateModule(UpdateModuleRequest updateModuleDTO, Long id) {
+        cacheServiceProvider.evictCourseCacheByModuleId(id);
+
         Module module = fetchModuleById(id);
         modelMapper.map(updateModuleDTO, module);
         Module savedModule = moduleRepository.save(module);
@@ -116,6 +123,8 @@ public class ModuleServiceImpl implements ModuleService {
     @Override
     @Transactional
     public long deleteModuleById(Long id) {
+        cacheServiceProvider.evictCourseCacheByModuleId(id);
+
         Module moduleToDelete = fetchModuleById(id);
         int orderNum = moduleToDelete.getOrderNum();
         moduleRepository.deleteById(id);
