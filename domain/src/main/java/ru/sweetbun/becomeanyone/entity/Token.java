@@ -1,12 +1,13 @@
 package ru.sweetbun.becomeanyone.entity;
 
 import jakarta.persistence.Id;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 import org.springframework.data.redis.core.RedisHash;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @RedisHash("Token")
 public class Token {
     @Id
