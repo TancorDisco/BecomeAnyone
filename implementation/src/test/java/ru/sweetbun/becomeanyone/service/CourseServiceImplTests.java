@@ -45,6 +45,9 @@ class CourseServiceImplTests {
     @Mock
     private UserServiceImpl userServiceImpl;
 
+    @Mock
+    private NotificationService notificationService;
+
     @InjectMocks
     private CourseServiceImpl courseServiceImpl;
 
@@ -52,7 +55,8 @@ class CourseServiceImplTests {
 
     @BeforeEach
     void setUp() {
-        courseServiceImpl = new CourseServiceImpl(courseRepository, modelMapper, moduleServiceImpl, securityUtils, userServiceImpl);
+        courseServiceImpl = new CourseServiceImpl(courseRepository, modelMapper, moduleServiceImpl, securityUtils,
+                userServiceImpl, notificationService);
 
         course = new Course();
     }

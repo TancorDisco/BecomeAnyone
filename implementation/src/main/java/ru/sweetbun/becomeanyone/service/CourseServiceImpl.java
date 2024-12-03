@@ -41,6 +41,8 @@ public class CourseServiceImpl implements CourseService {
 
     private final UserServiceImpl userServiceImpl;
 
+    private final NotificationService notificationService;
+
     @Override
     @Transactional
     public CourseResponse createCourse(CourseRequest<CreateModuleRequest> courseRequest) {
@@ -52,6 +54,8 @@ public class CourseServiceImpl implements CourseService {
 
         Course savedCourse = courseRepository.save(course);
         moduleServiceImpl.createModules(courseRequest.getModules(), savedCourse);
+
+        notificationService.notifyAboutNewCourse(course);
         return modelMapper.map(savedCourse, CourseResponse.class);
     }
 
