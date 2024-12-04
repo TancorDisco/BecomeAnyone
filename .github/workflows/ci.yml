@@ -1,7 +1,7 @@
 name: CI Pipeline
+
 on:
   push:
-  workflow_dispatch:
 
 jobs:
   build:
@@ -47,20 +47,26 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
-      - name: Cache Maven dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
+      - name: Start dependencies
+        run: docker-compose up -d
+
+      - name: Wait for PostgreSQL
+        run: |
+          until nc -z localhost 5432; do
+            echo "Waiting for PostgreSQL..."
+            sleep 1
+          done
 
       - name: Build and Test
-        run: mvn clean install
+        run: mvn clean install -Dspring.profiles.active=test
         env:
-          POSTGRES_USER: test
-          POSTGRES_PASSWORD: test
-          POSTGRES_DB: test-db
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/become_anyone_db
+          SPRING_DATASOURCE_USERNAME: postgres
+          SPRING_DATASOURCE_PASSWORD: 4096
+          SPRING_REDIS_HOST: localhost
+          SPRING_REDIS_PORT: 6379
+          RABBITMQ_HOST: localhost
+          RABBITMQ_PORT: 5672
 
       - name: Upload Coverage Report
         uses: actions/upload-artifact@v4
