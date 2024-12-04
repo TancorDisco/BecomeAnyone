@@ -47,16 +47,6 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
-      - name: Start dependencies
-        run: docker compose up -d
-
-      - name: Wait for PostgreSQL
-        run: |
-          until nc -z localhost 5432; do
-            echo "Waiting for PostgreSQL..."
-            sleep 1
-          done
-
       - name: Build and Test
         run: mvn clean install -Dspring.profiles.active=test
         env:
