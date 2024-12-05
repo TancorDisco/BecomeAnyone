@@ -28,8 +28,6 @@ class ContentServiceTests {
     private VideoService videoService;
 
     @Mock
-    private FileServiceImpl fileService;
-
     private ContentRepository contentRepository;
 
     @InjectMocks
@@ -41,7 +39,7 @@ class ContentServiceTests {
 
     @BeforeEach
     void setUp() {
-        contentService = new ContentService(modelMapper, videoService, fileService, contentRepository);
+        contentService = new ContentService(modelMapper, videoService, contentRepository);
 
         contentRequest = new ContentRequest();
         content = new Content();

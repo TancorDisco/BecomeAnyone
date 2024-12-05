@@ -28,7 +28,8 @@
 		<module>rest</module>
 		<module>client</module>
 		<module>coverage</module>
-	</modules>
+        <module>rabbitmq</module>
+    </modules>
 	<scm>
 		<connection/>
 		<developerConnection/>

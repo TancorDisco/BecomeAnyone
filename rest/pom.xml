@@ -23,6 +23,11 @@
             <artifactId>implementation</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ru.sweetbun</groupId>
+            <artifactId>rabbitmq</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>

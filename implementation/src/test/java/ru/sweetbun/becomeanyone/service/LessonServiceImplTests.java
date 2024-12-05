@@ -11,6 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
+import ru.sweetbun.becomeanyone.contract.FileDeletionEventPublisher;
 import ru.sweetbun.becomeanyone.dto.content.ContentRequest;
 import ru.sweetbun.becomeanyone.dto.lesson.request.CreateLessonRequest;
 import ru.sweetbun.becomeanyone.dto.lesson.request.UpdateLessonRequest;
@@ -48,6 +49,12 @@ class LessonServiceImplTests {
     @Mock
     private CacheServiceProvider cacheServiceProvider;
 
+    @Mock
+    private FileDeletionEventPublisher fileDeletionEventPublisher;
+
+    @Mock
+    private FileServiceImpl fileService;
+
     @InjectMocks
     private LessonServiceImpl lessonServiceImpl;
 
@@ -58,7 +65,7 @@ class LessonServiceImplTests {
     @BeforeEach
     public void setUp() {
         lessonServiceImpl = new LessonServiceImpl(lessonRepository, modelMapper, moduleServiceImpl, contentService,
-                cacheServiceProvider);
+                cacheServiceProvider, fileDeletionEventPublisher, fileService);
 
         module = Module.builder().id(1L).title("Module 1").build();
         lessonResponse = new LessonResponse();
