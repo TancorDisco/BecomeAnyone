@@ -211,17 +211,13 @@ public class CourseControllerIntegrationTests extends BaseIntegrationTests{
             Consumer<Course> assertions) throws Exception {
 
         Course savedCourse = Course.builder()
-                .title("Original Course Title")
-                .description("Original Description")
+                .title("Original Course Title").description("Original Description")
                 .modules(List.of(
                         Module.builder()
-                                .title("Original Module 1")
-                                .orderNum(1)
+                                .title("Original Module 1").orderNum(1)
                                 .lessons(List.of(
                                         Lesson.builder()
-                                                .title("Original Lesson 1")
-                                                .orderNum(1)
-                                                .build()
+                                                .title("Original Lesson 1").orderNum(1).build()
                                 ))
                                 .build(),
                         Module.builder()

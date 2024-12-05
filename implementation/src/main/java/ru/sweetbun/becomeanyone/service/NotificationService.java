@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 import ru.sweetbun.becomeanyone.entity.Course;
-import ru.sweetbun.becomeanyone.entity.Notification;
+import ru.sweetbun.becomeanyone.model.Notification;
 import ru.sweetbun.becomeanyone.entity.User;
 import ru.sweetbun.becomeanyone.repository.CourseRepository;
 import ru.sweetbun.becomeanyone.repository.EnrollmentRepository;

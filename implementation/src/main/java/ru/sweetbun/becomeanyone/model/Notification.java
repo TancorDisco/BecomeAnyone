@@ -1,4 +1,4 @@
-package ru.sweetbun.becomeanyone.entity;
+package ru.sweetbun.becomeanyone.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
