@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 import ru.sweetbun.becomeanyone.contract.FileServiceRabbitMq;
-import ru.sweetbun.becomeanyone.dto.rabbitmq.FileDeletionMessage;
+import ru.sweetbun.becomeanyone.dto.message.FileDeletionMessage;
 
 @RequiredArgsConstructor
 @Component

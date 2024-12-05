@@ -3,8 +3,8 @@ package ru.sweetbun.becomeanyone.event;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Component;
-import ru.sweetbun.becomeanyone.contract.FileDeletionEventPublisher;
-import ru.sweetbun.becomeanyone.dto.rabbitmq.FileDeletionMessage;
+import ru.sweetbun.becomeanyone.contract.eventpublisher.FileDeletionEventPublisher;
+import ru.sweetbun.becomeanyone.dto.message.FileDeletionMessage;
 
 @RequiredArgsConstructor
 @Component

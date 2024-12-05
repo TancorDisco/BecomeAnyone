@@ -1,4 +1,4 @@
-package ru.sweetbun.becomeanyone.contract;
+package ru.sweetbun.becomeanyone.contract.eventpublisher;
 
 public interface FileDeletionEventPublisher {
 

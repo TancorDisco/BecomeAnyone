@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import ru.sweetbun.becomeanyone.contract.FileDeletionEventPublisher;
+import ru.sweetbun.becomeanyone.contract.eventpublisher.FileDeletionEventPublisher;
 import ru.sweetbun.becomeanyone.contract.FileService;
 import ru.sweetbun.becomeanyone.contract.FileServiceRabbitMq;
 import ru.sweetbun.becomeanyone.entity.AttachmentFile;

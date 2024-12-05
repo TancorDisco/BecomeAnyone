@@ -1,4 +1,4 @@
-package ru.sweetbun.becomeanyone.dto.rabbitmq;
+package ru.sweetbun.becomeanyone.dto.message;
 
 import lombok.*;
 
