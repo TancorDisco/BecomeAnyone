@@ -12,6 +12,11 @@
     <packaging>jar</packaging>
     <name>BecomeAnyone Coverage</name>
 
+    <properties>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>ru.sweetbun</groupId>
