@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import ru.sweetbun.becomeanyone.contract.eventpublisher.FileDeletionEventPublisher;
 import ru.sweetbun.becomeanyone.contract.FileService;
-import ru.sweetbun.becomeanyone.contract.FileServiceRabbitMq;
+import ru.sweetbun.becomeanyone.contract.FileServiceDeletionEvent;
 import ru.sweetbun.becomeanyone.entity.AttachmentFile;
 import ru.sweetbun.becomeanyone.entity.Content;
 import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
@@ -33,7 +33,7 @@ import java.util.UUID;
 @Slf4j
 @Transactional(readOnly = true)
 @Service
-public class FileServiceImpl implements FileService, FileServiceRabbitMq {
+public class FileServiceImpl implements FileService, FileServiceDeletionEvent {
 
     private final S3Client s3Client;
     private final S3Presigner s3Presigner;
@@ -145,6 +145,7 @@ public class FileServiceImpl implements FileService, FileServiceRabbitMq {
         return id;
     }
 
+    @Override
     public void deleteFileFromCloud(String fileKey) {
         s3Client.deleteObject(DeleteObjectRequest.builder()
                 .bucket(BUCKET_NAME)

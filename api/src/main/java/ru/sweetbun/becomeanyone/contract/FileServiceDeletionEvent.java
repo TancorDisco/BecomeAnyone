@@ -1,6 +1,6 @@
 package ru.sweetbun.becomeanyone.contract;
 
-public interface FileServiceRabbitMq {
+public interface FileServiceDeletionEvent {
 
     void deleteFileFromCloud(String fileKey);
 }
