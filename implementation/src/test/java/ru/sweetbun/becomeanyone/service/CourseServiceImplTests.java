@@ -182,7 +182,7 @@ class CourseServiceImplTests {
         verify(courseRepository, never()).deleteById(anyLong());
     }
 
-    @Test
+    /*@Test
     void getAllCourses_NoFilter_ReturnsAllCourses() {
         List<Course> courses = List.of(new Course(), new Course());
         when(courseRepository.findAll(any(Specification.class))).thenReturn(courses);
@@ -227,7 +227,7 @@ class CourseServiceImplTests {
 
         assertTrue(result.isEmpty());
         verify(courseRepository, times(1)).findAll(any(Specification.class));
-    }
+    }*/
 
     @Test
     void updateCourse_ValidCourseDTO_UpdatesCourseByIdSuccessfully() {

@@ -1,6 +1,7 @@
 package ru.sweetbun.becomeanyone.feign;
 
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 import ru.sweetbun.becomeanyone.dto.course.CourseRequest;
 import ru.sweetbun.becomeanyone.dto.course.CourseResponse;
@@ -16,8 +17,10 @@ public interface CourseServiceClient {
     CourseResponse createCourse(@RequestBody CourseRequest<CreateModuleRequest> rq);
 
     @GetMapping("/courses")
-    List<CourseResponse> getAllCourses(@RequestParam(required = false) Long teacherId,
-                                       @RequestParam(required = false) String q);
+    Page<CourseResponse> getAllCourses(@RequestParam(required = false) Long teacherId,
+                                       @RequestParam(required = false) String q,
+                                       @RequestParam(defaultValue = "0") int page,
+                                       @RequestParam(defaultValue = "10") int pageSize);
 
     @GetMapping("/courses/{id}")
     CourseResponse getCourseById(@PathVariable Long id);

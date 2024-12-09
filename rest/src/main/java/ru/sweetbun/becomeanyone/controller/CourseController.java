@@ -33,8 +33,10 @@ public class CourseController {
     @GetMapping
     public ResponseEntity<?> getAllCourses(
             @Parameter(description = "ID учителя для фильтрации") @RequestParam(required = false) Long teacherId,
-            @Parameter(description = "Текст для поиска курсов") @RequestParam(required = false) String q) {
-        return ResponseEntity.ok(courseService.getAllCourses(teacherId, q));
+            @Parameter(description = "Текст для поиска курсов") @RequestParam(required = false) String q,
+            @Parameter(description = "Страница") @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "Размер страницы") @RequestParam(defaultValue = "10") int pageSize) {
+        return ResponseEntity.ok(courseService.getAllCourses(teacherId, q, page, pageSize));
     }
 
     @Operation(summary = "Получить курс по ID", description = "Получение подробной информации о курсе по его идентификатору")
