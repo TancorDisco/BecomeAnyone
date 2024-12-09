@@ -7,6 +7,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import ru.sweetbun.becomeanyone.config.ModelMapperConfig;
 import ru.sweetbun.becomeanyone.entity.Course;
@@ -182,15 +185,16 @@ class CourseServiceImplTests {
         verify(courseRepository, never()).deleteById(anyLong());
     }
 
-    /*@Test
+    @Test
     void getAllCourses_NoFilter_ReturnsAllCourses() {
         List<Course> courses = List.of(new Course(), new Course());
-        when(courseRepository.findAll(any(Specification.class))).thenReturn(courses);
+        Page<Course> page = new PageImpl<>(courses);
+        when(courseRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(page);
 
-        List<CourseResponse> result = courseServiceImpl.getAllCourses(null, null);
+        Page<CourseResponse> result = courseServiceImpl.getAllCourses(null, null, 0, 10);
 
-        assertEquals(2, result.size());
-        verify(courseRepository, times(1)).findAll(any(Specification.class));
+        assertEquals(2, result.getContent().size());
+        verify(courseRepository, times(1)).findAll(any(Specification.class), any(Pageable.class));
     }
 
     @Test
@@ -198,36 +202,39 @@ class CourseServiceImplTests {
         Long teacherId = 1L;
         User user = new User();
         List<Course> courses = List.of(course);
+        Page<Course> page = new PageImpl<>(courses);
         when(userServiceImpl.fetchUserById(teacherId)).thenReturn(user);
-        when(courseRepository.findAll(any(Specification.class))).thenReturn(courses);
+        when(courseRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(page);
 
-        List<CourseResponse> result = courseServiceImpl.getAllCourses(teacherId, null);
+        Page<CourseResponse> result = courseServiceImpl.getAllCourses(teacherId, null, 0, 10);
 
-        assertEquals(1, result.size());
-        verify(courseRepository, times(1)).findAll(any(Specification.class));
+        assertEquals(1, result.getContent().size());
+        verify(courseRepository, times(1)).findAll(any(Specification.class), any(Pageable.class));
     }
 
     @Test
     void getAllCourses_WithTitleQuery_ReturnsFilteredCourses() {
         String query = "Programming";
         List<Course> courses = List.of(course);
-        when(courseRepository.findAll(any(Specification.class))).thenReturn(courses);
+        Page<Course> page = new PageImpl<>(courses);
+        when(courseRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(page);
 
-        List<CourseResponse> result = courseServiceImpl.getAllCourses(null, query);
+        Page<CourseResponse> result = courseServiceImpl.getAllCourses(null, query, 0, 10);
 
-        assertEquals(1, result.size());
-        verify(courseRepository, times(1)).findAll(any(Specification.class));
+        assertEquals(1, result.getContent().size());
+        verify(courseRepository, times(1)).findAll(any(Specification.class), any(Pageable.class));
     }
 
     @Test
     void getAllCourses_NoCoursesFound_ReturnsEmptyList() {
-        when(courseRepository.findAll(any(Specification.class))).thenReturn(List.of());
+        Page<Course> page = Page.empty();
+        when(courseRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(page);
 
-        List<CourseResponse> result = courseServiceImpl.getAllCourses(1L, "Not exist");
+        Page<CourseResponse> result = courseServiceImpl.getAllCourses(1L, "Not exist", 0, 10);
 
-        assertTrue(result.isEmpty());
-        verify(courseRepository, times(1)).findAll(any(Specification.class));
-    }*/
+        assertTrue(result.getContent().isEmpty());
+        verify(courseRepository, times(1)).findAll(any(Specification.class), any(Pageable.class));
+    }
 
     @Test
     void updateCourse_ValidCourseDTO_UpdatesCourseByIdSuccessfully() {
