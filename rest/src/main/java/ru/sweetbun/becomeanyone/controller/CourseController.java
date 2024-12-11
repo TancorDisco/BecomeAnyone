@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -13,6 +12,7 @@ import ru.sweetbun.becomeanyone.contract.CourseService;
 import ru.sweetbun.becomeanyone.dto.course.CourseRequest;
 import ru.sweetbun.becomeanyone.dto.module.request.CreateModuleRequest;
 import ru.sweetbun.becomeanyone.dto.module.request.UpdateModuleInCourseRequest;
+import ru.sweetbun.becomeanyone.metric.CourseMetrics;
 
 @Tag(name = "Course Management", description = "API для управления курсами")
 @RequiredArgsConstructor
@@ -21,6 +21,7 @@ import ru.sweetbun.becomeanyone.dto.module.request.UpdateModuleInCourseRequest;
 public class CourseController {
 
     private final CourseService courseService;
+    private final CourseMetrics courseMetrics;
 
     @PreAuthorize("hasRole('TEACHER')")
     @Operation(summary = "Создать курс", description = "Создание нового курса с модулями")
@@ -42,6 +43,7 @@ public class CourseController {
     @Operation(summary = "Получить курс по ID", description = "Получение подробной информации о курсе по его идентификатору")
     @GetMapping("/{id}")
     public ResponseEntity<?> getCourseById(@PathVariable Long id) {
+        courseMetrics.incrementCourseView(id);
         return ResponseEntity.ok(courseService.getCourseById(id));
     }
 
