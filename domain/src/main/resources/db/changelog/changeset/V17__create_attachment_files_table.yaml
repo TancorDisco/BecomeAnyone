@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: V17__create_attachment_files_table
+      author: sweetbun
+      changes:
+        - sql:
+            sql: |
+              CREATE TABLE attachment_files (
+                file_id BIGSERIAL PRIMARY KEY,
+                content_id BIGINT REFERENCES contents(content_id),
+                key TEXT NOT NULL,
+                original_file_name TEXT NOT NULL,
+                content_type TEXT NOT NULL,
+                size BIGINT NOT NULL
+              );

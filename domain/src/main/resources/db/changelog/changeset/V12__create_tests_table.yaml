@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: V12__create_tests_table
+      author: sweetbun
+      changes:
+        - sql:
+            sql: |
+              CREATE TABLE tests (
+                test_id BIGSERIAL PRIMARY KEY,
+                lesson_id BIGINT REFERENCES lessons(lesson_id),
+                title TEXT NOT NULL,
+                description TEXT
+              );

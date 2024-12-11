@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: V7__create_courses_table
+      author: sweetbun
+      changes:
+        - sql:
+            sql: |
+              CREATE TABLE courses (
+                course_id BIGSERIAL PRIMARY KEY,
+                teacher_id BIGINT REFERENCES users(user_id),
+                title TEXT NOT NULL,
+                description TEXT,
+                requirements TEXT,
+                course_plan TEXT,
+                created_at DATE NOT NULL,
+                updated_at DATE
+              );
