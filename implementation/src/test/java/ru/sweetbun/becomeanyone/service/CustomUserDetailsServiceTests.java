@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import ru.sweetbun.becomeanyone.entity.Role;
 import ru.sweetbun.becomeanyone.entity.User;
+import ru.sweetbun.becomeanyone.util.CustomUserDetailsService;
 
 import java.util.Collections;
 import java.util.Set;
