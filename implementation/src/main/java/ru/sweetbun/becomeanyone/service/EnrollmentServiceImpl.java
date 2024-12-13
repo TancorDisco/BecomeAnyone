@@ -16,6 +16,7 @@ import ru.sweetbun.becomeanyone.repository.EnrollmentRepository;
 import ru.sweetbun.becomeanyone.util.SecurityUtils;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static ru.sweetbun.becomeanyone.entity.enums.EnrollmentStatus.*;
@@ -65,10 +66,12 @@ public class EnrollmentServiceImpl implements EnrollmentService {
 
     @Transactional
     public Enrollment updateEnrollmentStatus(double completionPercent, Enrollment enrollment) {
-        if (enrollment.getStatus() == NOT_STARTED && completionPercent > 0.0) {
-            enrollment.setStatus(IN_PROGRESS);
-        } else if (enrollment.getStatus() != COMPLETED && completionPercent == 100.0) {
+        if (enrollment.getStatus() != COMPLETED && completionPercent == 100.0) {
             enrollment.setStatus(COMPLETED);
+            Progress progress = enrollment.getProgress();
+            progress.setCompletionDate(LocalDateTime.now());
+        } else if (enrollment.getStatus() == NOT_STARTED && completionPercent > 0.0) {
+            enrollment.setStatus(IN_PROGRESS);
         }
         return enrollmentRepository.save(enrollment);
     }

@@ -19,7 +19,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class NotificationServiceTest {
+class NotificationServiceTests {
 
     @Mock
     private SendNotificationEventPublisher sendNotificationEventPublisher;
