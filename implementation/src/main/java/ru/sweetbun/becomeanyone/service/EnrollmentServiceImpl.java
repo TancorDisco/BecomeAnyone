@@ -42,10 +42,15 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     @Override
     @Transactional
     public EnrollmentResponse createEnrollment(Long courseId) {
+        User student = securityUtils.getCurrentUser();
+        Course course = courseServiceImpl.fetchCourseById(courseId);
+        if (enrollmentRepository.findByStudentAndCourse(student, course).isPresent()) {
+            throw new IllegalArgumentException("You're already enrolled");
+        }
         Progress progress = progressService.createProgress();
         Enrollment enrollment = Enrollment.builder()
-                .student(securityUtils.getCurrentUser())
-                .course(courseServiceImpl.fetchCourseById(courseId))
+                .student(student)
+                .course(course)
                 .enrollmentDate(LocalDate.now())
                 .progress(progress)
                 .status(NOT_STARTED)
