@@ -1,5 +1,7 @@
 package ru.sweetbun.becomeanyone.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -15,6 +17,8 @@ import java.util.Optional;
 public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
 
     List<Enrollment> findAllByStudent(User student);
+
+    Page<Enrollment> findAllByCourseId(Long courseId, Pageable pageable);
 
     void deleteByStudentAndCourse(User student, Course courses);
 

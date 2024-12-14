@@ -3,6 +3,9 @@ package ru.sweetbun.becomeanyone.service;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.sweetbun.becomeanyone.contract.EnrollmentService;
@@ -62,6 +65,13 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         return enrollmentRepository.findAllByStudent(securityUtils.getCurrentUser()).stream()
                 .map(enrollment -> modelMapper.map(enrollment, EnrollmentResponse.class))
                 .toList();
+    }
+
+    @Override
+    public Page<EnrollmentResponse> getAllEnrollmentsByCourse(Long courseId, int page, int pageSize) {
+        Pageable pageable = PageRequest.of(page, pageSize);
+        return enrollmentRepository.findAllByCourseId(courseId, pageable)
+                .map(enrollment -> modelMapper.map(enrollment, EnrollmentResponse.class));
     }
 
     @Transactional
