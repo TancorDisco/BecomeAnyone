@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: V6__create_social_links_table
+      author: sweetbun
+      changes:
+        - sql:
+            sql: |
+              CREATE TABLE social_links (
+                link_id BIGSERIAL PRIMARY KEY,
+                profile_id BIGINT REFERENCES profiles(profile_id),
+                platform TEXT NOT NULL,
+                url TEXT NOT NULL
+              );

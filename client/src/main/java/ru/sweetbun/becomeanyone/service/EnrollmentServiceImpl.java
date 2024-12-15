@@ -1,6 +1,7 @@
 package ru.sweetbun.becomeanyone.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import ru.sweetbun.becomeanyone.contract.EnrollmentService;
 import ru.sweetbun.becomeanyone.dto.enrollment.EnrollmentResponse;
@@ -27,5 +28,10 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     @Override
     public List<EnrollmentResponse> getAllEnrollmentsByCurrentStudent() {
         return enrollmentServiceClient.getAllEnrollmentsByCurrentStudent();
+    }
+
+    @Override
+    public Page<EnrollmentResponse> getAllEnrollmentsByCourse(Long courseId, int page, int pageSize) {
+        return enrollmentServiceClient.getAllEnrollmentsByCourse(courseId, page, pageSize);
     }
 }

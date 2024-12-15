@@ -26,9 +26,11 @@ import ru.sweetbun.becomeanyone.dto.module.request.UpdateModuleInCourseRequest;
 import ru.sweetbun.becomeanyone.entity.Course;
 import ru.sweetbun.becomeanyone.entity.Lesson;
 import ru.sweetbun.becomeanyone.entity.Module;
+import ru.sweetbun.becomeanyone.entity.User;
 import ru.sweetbun.becomeanyone.repository.CourseRepository;
 import ru.sweetbun.becomeanyone.repository.LessonRepository;
 import ru.sweetbun.becomeanyone.repository.ModuleRepository;
+import ru.sweetbun.becomeanyone.service.NotificationService;
 import ru.sweetbun.becomeanyone.service.UserServiceImpl;
 import ru.sweetbun.becomeanyone.util.SecurityUtils;
 
@@ -42,6 +44,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static reactor.core.publisher.Mono.when;
 
 @Transactional
 @ActiveProfiles("test")
@@ -75,6 +78,9 @@ public class CourseControllerIntegrationTests extends BaseIntegrationTests{
 
     @MockBean
     private AccessControlAspect aspect;
+
+    @MockBean
+    private NotificationService notificationService;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -205,17 +211,13 @@ public class CourseControllerIntegrationTests extends BaseIntegrationTests{
             Consumer<Course> assertions) throws Exception {
 
         Course savedCourse = Course.builder()
-                .title("Original Course Title")
-                .description("Original Description")
+                .title("Original Course Title").description("Original Description")
                 .modules(List.of(
                         Module.builder()
-                                .title("Original Module 1")
-                                .orderNum(1)
+                                .title("Original Module 1").orderNum(1)
                                 .lessons(List.of(
                                         Lesson.builder()
-                                                .title("Original Lesson 1")
-                                                .orderNum(1)
-                                                .build()
+                                                .title("Original Lesson 1").orderNum(1).build()
                                 ))
                                 .build(),
                         Module.builder()

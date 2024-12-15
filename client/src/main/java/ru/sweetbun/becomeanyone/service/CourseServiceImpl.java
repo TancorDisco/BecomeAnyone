@@ -2,6 +2,7 @@ package ru.sweetbun.becomeanyone.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import ru.sweetbun.becomeanyone.contract.CourseService;
 import ru.sweetbun.becomeanyone.dto.course.CourseRequest;
@@ -24,8 +25,8 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public List<CourseResponse> getAllCourses(Long teacherId, String q) {
-        return courseServiceClient.getAllCourses(teacherId, q);
+    public Page<CourseResponse> getAllCourses(Long teacherId, String q, int page, int pageSize) {
+        return courseServiceClient.getAllCourses(teacherId, q, page, pageSize);
     }
 
     @Override

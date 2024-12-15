@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: V15__create_answers_table
+      author: sweetbun
+      changes:
+        - sql:
+            sql: |
+              CREATE TABLE answers (
+                answer_id BIGSERIAL PRIMARY KEY,
+                question_id BIGINT REFERENCES questions(question_id),
+                answer_text TEXT NOT NULL,
+                correct BOOLEAN NOT NULL
+              );

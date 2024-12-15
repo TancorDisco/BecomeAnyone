@@ -37,7 +37,7 @@ public class VKCloudConfig {
         return S3Presigner.builder()
                 .region(Region.of(region))
                 .credentialsProvider(StaticCredentialsProvider.create(credentials))
-                .endpointOverride(URI.create(endpointUrl)) // Указываем endpoint для VK Cloud
+                .endpointOverride(URI.create(endpointUrl))
                 .build();
     }
 }
