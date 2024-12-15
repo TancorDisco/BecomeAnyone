@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ru.sweetbun.becomeanyone.aop.CheckCourseOwner;
+import ru.sweetbun.becomeanyone.aop.EnrolledStudentOnly;
 import ru.sweetbun.becomeanyone.contract.TestService;
 import ru.sweetbun.becomeanyone.dto.test.request.TestRequest;
 import ru.sweetbun.becomeanyone.dto.test.request.TestToCheckRequest;
@@ -57,6 +58,7 @@ public class TestController {
         return ok(testService.deleteTestById(id));
     }
 
+    @EnrolledStudentOnly
     @PostMapping("{id}/check")
     @Operation(summary = "Проверить тест", description = "Проверяет тест по ID, возвращает вопросы где допущена ошибка" +
             " и результаты теста")

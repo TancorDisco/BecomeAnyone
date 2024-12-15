@@ -1,11 +1,15 @@
 package ru.sweetbun.becomeanyone.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import ru.sweetbun.becomeanyone.contract.eventpublisher.FileDeletionEventPublisher;
 import ru.sweetbun.becomeanyone.contract.FileService;
+import ru.sweetbun.becomeanyone.contract.FileServiceDeletionEvent;
 import ru.sweetbun.becomeanyone.entity.AttachmentFile;
 import ru.sweetbun.becomeanyone.entity.Content;
 import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
@@ -26,28 +30,33 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+@Slf4j
 @Transactional(readOnly = true)
 @Service
-public class FileServiceImpl implements FileService {
+public class FileServiceImpl implements FileService, FileServiceDeletionEvent {
 
     private final S3Client s3Client;
     private final S3Presigner s3Presigner;
-    private final String bucketName;
+    private final String BUCKET_NAME;
+    @Lazy
     private final LessonServiceImpl lessonService;
     private final FileRepository fileRepository;
     private final Long MAX_FILE_SIZE;
 
+    private final FileDeletionEventPublisher fileDeletionEventPublisher;
+
     @Autowired
     public FileServiceImpl(S3Client s3Client, S3Presigner s3Presigner,
-                           @Value("${vk-cloud.storage.bucket-name}") String bucketName, LessonServiceImpl lessonService,
+                           @Value("${vk-cloud.storage.bucket-name}") String BUCKET_NAME, LessonServiceImpl lessonService,
                            FileRepository fileRepository,
-                           @Value("${vk-cloud.storage.max-file-size}") Long maxFileSize) {
+                           @Value("${vk-cloud.storage.max-file-size}") Long maxFileSize, FileDeletionEventPublisher fileDeletionEventPublisher) {
         this.s3Client = s3Client;
         this.s3Presigner = s3Presigner;
-        this.bucketName = bucketName;
+        this.BUCKET_NAME = BUCKET_NAME;
         this.lessonService = lessonService;
         this.fileRepository = fileRepository;
         this.MAX_FILE_SIZE = maxFileSize;
+        this.fileDeletionEventPublisher = fileDeletionEventPublisher;
     }
 
     @Transactional
@@ -61,7 +70,7 @@ public class FileServiceImpl implements FileService {
 
         s3Client.putObject(
                 PutObjectRequest.builder()
-                        .bucket(bucketName)
+                        .bucket(BUCKET_NAME)
                         .key(key)
                         .build(),
                 tempFile
@@ -111,7 +120,7 @@ public class FileServiceImpl implements FileService {
 
     private String generateDownloadUrl(String key) {
         GetObjectRequest getObjectRequest = GetObjectRequest.builder()
-                .bucket(bucketName)
+                .bucket(BUCKET_NAME)
                 .key(key)
                 .build();
         GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
@@ -130,11 +139,22 @@ public class FileServiceImpl implements FileService {
     @Override
     public Long deleteFile(Long id) {
         AttachmentFile file = fetchFileById(id);
-        s3Client.deleteObject(DeleteObjectRequest.builder()
-                .bucket(bucketName)
-                .key(file.getKey())
-                .build());
-        fileRepository.delete(file);
+        fileDeletionEventPublisher.publishFileDeletionEvent(file.getKey());
+        fileRepository.deleteById(id);
+        log.info("File deleted from db with id: {}", id);
         return id;
+    }
+
+    @Override
+    public void deleteFileFromCloud(String fileKey) {
+        s3Client.deleteObject(DeleteObjectRequest.builder()
+                .bucket(BUCKET_NAME)
+                .key(fileKey)
+                .build());
+        log.info("File deleted from cloud with key: {}", fileKey);
+    }
+
+    public List<String> getFileKeysByContentId(Long contentId) {
+        return fileRepository.findFileKeysByContentId(contentId);
     }
 }

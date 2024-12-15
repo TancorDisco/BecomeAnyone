@@ -5,6 +5,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.sweetbun.becomeanyone.contract.eventpublisher.FileDeletionEventPublisher;
 import ru.sweetbun.becomeanyone.contract.LessonService;
 import ru.sweetbun.becomeanyone.dto.lesson.request.CreateLessonRequest;
 import ru.sweetbun.becomeanyone.dto.lesson.request.UpdateLessonRequest;
@@ -15,6 +16,7 @@ import ru.sweetbun.becomeanyone.entity.Module;
 import ru.sweetbun.becomeanyone.dto.lesson.response.LessonResponse;
 import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
 import ru.sweetbun.becomeanyone.repository.LessonRepository;
+import ru.sweetbun.becomeanyone.util.CacheServiceProvider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,8 +34,14 @@ public class LessonServiceImpl implements LessonService {
     private final ModelMapper modelMapper;
     @Lazy
     private final ModuleServiceImpl moduleServiceImpl;
-
+    @Lazy
     private final ContentService contentService;
+
+    private final CacheServiceProvider cacheServiceProvider;
+
+    private final FileDeletionEventPublisher fileDeletionEventPublisher;
+    @Lazy
+    private final FileServiceImpl fileService;
 
     @Transactional
     public List<Lesson> updateLessons(List<UpdateLessonInCourseRequest> lessonDTOS, Module module) {
@@ -42,8 +50,10 @@ public class LessonServiceImpl implements LessonService {
 
         List<Lesson> updatedLessons = mergeLessons(lessonDTOS, currentLessonsMap, module);
 
-        if (!currentLessonsMap.isEmpty())
+        if (!currentLessonsMap.isEmpty()) {
+            currentLessonsMap.values().forEach(lesson -> deleteFilesInContent(lesson.getContent().getId()));
             lessonRepository.deleteAll(new ArrayList<>(currentLessonsMap.values()));
+        }
         return updatedLessons;
     }
 
@@ -67,6 +77,8 @@ public class LessonServiceImpl implements LessonService {
     @Override
     @Transactional
     public LessonResponse createLesson(CreateLessonRequest lessonDTO, Long moduleId) {
+        cacheServiceProvider.evictCourseCacheByModuleId(moduleId);
+
         Module module = moduleServiceImpl.fetchModuleById(moduleId);
         Lesson lesson = lessonRepository.save(createLesson(lessonDTO, module));
         return modelMapper.map(lesson, LessonResponse.class);
@@ -84,6 +96,7 @@ public class LessonServiceImpl implements LessonService {
         Lesson lesson = modelMapper.map(lessonDTO, Lesson.class);
         lesson.setModule(module);
         module.getLessons().add(lesson);
+        lesson.setContent(contentService.createContent(lesson));
         return lesson;
     }
 
@@ -109,6 +122,8 @@ public class LessonServiceImpl implements LessonService {
     @Transactional
     public LessonResponse updateLesson(UpdateLessonRequest updateLessonRequest, Long id) {
         Lesson lesson = fetchLessonById(id);
+        cacheServiceProvider.evictCourseCacheByLesson(lesson);
+
         lesson.setTitle(updateLessonRequest.title());
         if (updateLessonRequest.content() != null) {
             Content content = contentService.updateContent(updateLessonRequest.content(), lesson.getContent());
@@ -123,6 +138,8 @@ public class LessonServiceImpl implements LessonService {
     @Transactional
     public long deleteLessonById(Long id) {
         Lesson lessonToDelete = fetchLessonById(id);
+        cacheServiceProvider.evictCourseCacheByLesson(lessonToDelete);
+        deleteFilesInContent(lessonToDelete.getContent().getId());
         int orderNum = lessonToDelete.getOrderNum();
         lessonRepository.deleteById(id);
 
@@ -132,5 +149,8 @@ public class LessonServiceImpl implements LessonService {
         return id;
     }
 
-
+    private void deleteFilesInContent(Long contentId) {
+        List<String> fileKeys = fileService.getFileKeysByContentId(contentId);
+        fileKeys.forEach(fileDeletionEventPublisher::publishFileDeletionEvent);
+    }
 }

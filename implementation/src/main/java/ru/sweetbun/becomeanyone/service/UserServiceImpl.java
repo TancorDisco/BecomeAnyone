@@ -22,6 +22,7 @@ import ru.sweetbun.becomeanyone.entity.Role;
 import ru.sweetbun.becomeanyone.entity.User;
 import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
 import ru.sweetbun.becomeanyone.repository.UserRepository;
+import ru.sweetbun.becomeanyone.util.CacheServiceProvider;
 import ru.sweetbun.becomeanyone.util.SecurityUtils;
 
 import java.security.SecureRandom;
@@ -56,6 +57,8 @@ public class UserServiceImpl implements UserService, ProfileService, AuthService
 
     private final RefreshTokenService refreshTokenService;
 
+    private final CacheServiceProvider cacheServiceProvider;
+
     @Override
     @Transactional
     public UserResponse register(UserRequest userRequest) {
@@ -89,7 +92,7 @@ public class UserServiceImpl implements UserService, ProfileService, AuthService
             log.warn("No roles found for user: {}", username);
 
         Long userId = getUserByUsername(username).getId();
-        String accessKey = tokenService.generateAccessToken(username, userId,roles);
+        String accessKey = tokenService.generateAccessToken(username, userId, roles);
         String refreshToken = tokenService.generateRefreshToken(username, rememberMe);
         refreshTokenService.saveRefreshToken(username, refreshToken, tokenService.getExpirationTimeInMills(refreshToken));
 
@@ -196,6 +199,8 @@ public class UserServiceImpl implements UserService, ProfileService, AuthService
     @Transactional
     public UserResponse createUserProfile(ProfileRequest profileRequest) {
         User user = securityUtils.getCurrentUser();
+        cacheServiceProvider.evictCourseCacheByUser(user);
+
         if (user.getProfile() != null)
             throw new IllegalArgumentException("Profile already exists for this user");
 
@@ -210,6 +215,8 @@ public class UserServiceImpl implements UserService, ProfileService, AuthService
     @Transactional
     public UserResponse updateUserProfile(ProfileRequest profileRequest) {
         User user = securityUtils.getCurrentUser();
+        cacheServiceProvider.evictCourseCacheByUser(user);
+
         Profile profile = profileService.updateProfile(profileRequest, user.getProfile());
         user.setProfile(profile);
         profile.setUser(user);

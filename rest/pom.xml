@@ -12,6 +12,11 @@
     <packaging>jar</packaging>
     <name>BecomeAnyone REST</name>
 
+    <properties>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>ru.sweetbun</groupId>
@@ -21,6 +26,11 @@
         <dependency>
             <groupId>ru.sweetbun</groupId>
             <artifactId>implementation</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ru.sweetbun</groupId>
+            <artifactId>rabbitmq</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -60,6 +70,31 @@
             <artifactId>s3</artifactId>
             <version>2.29.17</version>
         </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>1.20.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>1.20.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.logstash.logback</groupId>
+            <artifactId>logstash-logback-encoder</artifactId>
+            <version>8.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <finalName>rest</finalName>
@@ -97,19 +132,16 @@
                                         <include>**/*</include>
                                     </includes>
                                 </resource>
+                                <resource>
+                                    <directory>../rabbitmq/target/classes</directory>
+                                    <includes>
+                                        <include>**/*</include>
+                                    </includes>
+                                </resource>
                             </resources>
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.5.2</version>
-                <configuration>
-                    <parallel>classesAndMethods</parallel>
-                    <threadCount>2</threadCount>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>
@@ -127,12 +159,6 @@
                         <goals>
                             <goal>report</goal>
                         </goals>
-                        <configuration>
-                            <excludes>
-                                <exclude>ru/sweetbun/becomeanyone/entity/**</exclude>
-                                <exclude>ru/sweetbun/becomeanyone/dto/**</exclude>
-                            </excludes>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>

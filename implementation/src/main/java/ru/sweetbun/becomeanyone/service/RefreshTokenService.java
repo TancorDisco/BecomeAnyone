@@ -22,6 +22,7 @@ public class RefreshTokenService {
                 .expirationTime(System.currentTimeMillis() + expirationTime)
                 .build();
         tokenRepository.save(tokenEntity);
+
     }
 
     public boolean isRefreshTokenValid(String refreshToken) {

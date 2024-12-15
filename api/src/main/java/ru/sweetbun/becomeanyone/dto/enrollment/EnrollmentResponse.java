@@ -1,6 +1,7 @@
 package ru.sweetbun.becomeanyone.dto.enrollment;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.*;
 import ru.sweetbun.becomeanyone.dto.course.CourseResponse;
 import ru.sweetbun.becomeanyone.dto.progress.ProgressResponse;
@@ -16,7 +17,7 @@ import java.time.LocalDate;
 public class EnrollmentResponse {
 
     private Long id;
-    @JsonManagedReference
+    @JsonIdentityInfo(generator= ObjectIdGenerators.PropertyGenerator.class, property="id")
     private UserResponse student;
     private CourseResponse course;
     private LocalDate enrollmentDate;

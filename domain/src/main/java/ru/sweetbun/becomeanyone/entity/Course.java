@@ -1,5 +1,10 @@
 package ru.sweetbun.becomeanyone.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -37,9 +42,15 @@ public class Course {
     @Column(name = "course_plan")
     private String coursePlan;
 
+    @JsonProperty("created_at")
+    @JsonSerialize(using = LocalDateSerializer.class)
+    @JsonDeserialize(using = LocalDateDeserializer.class)
     @Column(nullable = false)
     private LocalDate createdAt;
 
+    @JsonProperty("updated_at")
+    @JsonSerialize(using = LocalDateSerializer.class)
+    @JsonDeserialize(using = LocalDateDeserializer.class)
     @Column
     private LocalDate updatedAt;
 

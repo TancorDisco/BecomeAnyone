@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: V13__create_test_results_table
+      author: sweetbun
+      changes:
+        - sql:
+            sql: |
+              CREATE TABLE test_results (
+                test_result_id BIGSERIAL PRIMARY KEY,
+                progress_id BIGINT REFERENCES progress(progress_id),
+                test_id BIGINT REFERENCES tests(test_id),
+                percent DOUBLE PRECISION NOT NULL
+              );

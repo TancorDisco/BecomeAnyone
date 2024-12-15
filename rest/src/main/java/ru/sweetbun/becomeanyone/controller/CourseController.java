@@ -12,6 +12,7 @@ import ru.sweetbun.becomeanyone.contract.CourseService;
 import ru.sweetbun.becomeanyone.dto.course.CourseRequest;
 import ru.sweetbun.becomeanyone.dto.module.request.CreateModuleRequest;
 import ru.sweetbun.becomeanyone.dto.module.request.UpdateModuleInCourseRequest;
+import ru.sweetbun.becomeanyone.metric.CourseMetrics;
 
 @Tag(name = "Course Management", description = "API для управления курсами")
 @RequiredArgsConstructor
@@ -20,6 +21,7 @@ import ru.sweetbun.becomeanyone.dto.module.request.UpdateModuleInCourseRequest;
 public class CourseController {
 
     private final CourseService courseService;
+    private final CourseMetrics courseMetrics;
 
     @PreAuthorize("hasRole('TEACHER')")
     @Operation(summary = "Создать курс", description = "Создание нового курса с модулями")
@@ -32,13 +34,16 @@ public class CourseController {
     @GetMapping
     public ResponseEntity<?> getAllCourses(
             @Parameter(description = "ID учителя для фильтрации") @RequestParam(required = false) Long teacherId,
-            @Parameter(description = "Текст для поиска курсов") @RequestParam(required = false) String q) {
-        return ResponseEntity.ok(courseService.getAllCourses(teacherId, q));
+            @Parameter(description = "Текст для поиска курсов") @RequestParam(required = false) String q,
+            @Parameter(description = "Страница") @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "Размер страницы") @RequestParam(defaultValue = "10") int pageSize) {
+        return ResponseEntity.ok(courseService.getAllCourses(teacherId, q, page, pageSize));
     }
 
     @Operation(summary = "Получить курс по ID", description = "Получение подробной информации о курсе по его идентификатору")
     @GetMapping("/{id}")
     public ResponseEntity<?> getCourseById(@PathVariable Long id) {
+        courseMetrics.incrementCourseView(id);
         return ResponseEntity.ok(courseService.getCourseById(id));
     }
 

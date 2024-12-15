@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: V2__insert_roles.yaml
+      author: sweetbun
+      changes:
+        - sql:
+            sql: |
+              INSERT INTO roles (role_name) VALUES ('ROLE_STUDENT');
+              INSERT INTO roles (role_name) VALUES ('ROLE_TEACHER');
+              INSERT INTO roles (role_name) VALUES ('ROLE_ADMIN');
