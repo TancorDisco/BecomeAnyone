@@ -21,8 +21,6 @@ public class ContentService {
     private final ModelMapper modelMapper;
 
     private final VideoService videoService;
-    @Lazy
-    private final FileServiceImpl fileService;
 
     private final ContentRepository contentRepository;
 
@@ -48,9 +46,5 @@ public class ContentService {
             content.setVideo(null);
         }
         return content;
-    }
-
-    public void deleteAllFiles(List<AttachmentFile> files) {
-        files.forEach(file -> fileService.deleteFile(file.getId()));
     }
 }

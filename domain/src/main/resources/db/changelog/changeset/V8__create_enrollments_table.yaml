@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: V8__create_enrollments_table
+      author: sweetbun
+      changes:
+        - sql:
+            sql: |
+              CREATE TABLE enrollments (
+                enrollment_id BIGSERIAL PRIMARY KEY,
+                student_id BIGINT REFERENCES users(user_id),
+                course_id BIGINT REFERENCES courses(course_id),
+                enrollment_date DATE,
+                status TEXT
+              );

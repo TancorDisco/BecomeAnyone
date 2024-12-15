@@ -1,4 +1,4 @@
-package ru.sweetbun.becomeanyone.config;
+package ru.sweetbun.becomeanyone.model;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

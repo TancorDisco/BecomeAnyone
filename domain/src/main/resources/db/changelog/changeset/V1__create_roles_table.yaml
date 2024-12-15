@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: V1__create_roles_table
+      author: sweetbun
+      changes:
+        - sql:
+            sql: |
+              CREATE TABLE roles (
+                role_id BIGSERIAL PRIMARY KEY,
+                role_name TEXT NOT NULL UNIQUE
+              );

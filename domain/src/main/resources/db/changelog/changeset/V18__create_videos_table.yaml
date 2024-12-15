@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: V18__create_videos_table
+      author: sweetbun
+      changes:
+        - sql:
+            sql: |
+              CREATE TABLE videos (
+                id BIGSERIAL PRIMARY KEY,
+                content_id BIGINT REFERENCES contents(content_id),
+                video_id TEXT NOT NULL,
+                platform TEXT NOT NULL,
+                access_key TEXT
+              );

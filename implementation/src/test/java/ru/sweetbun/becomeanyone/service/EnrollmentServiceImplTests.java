@@ -61,7 +61,7 @@ class EnrollmentServiceImplTests {
         currentUser = new User();
         course = new Course();
         enrollment = Enrollment.builder().student(currentUser).course(course).enrollmentDate(LocalDate.now())
-                .status(EnrollmentStatus.NOT_STARTED).build();
+                .status(EnrollmentStatus.NOT_STARTED).progress(new Progress()).build();
 
         lenient().when(securityUtils.getCurrentUser()).thenReturn(currentUser);
         lenient().when(courseServiceImpl.fetchCourseById(anyLong())).thenReturn(course);
@@ -112,10 +112,13 @@ class EnrollmentServiceImplTests {
     @CsvSource({
             "NOT_STARTED, 0.0, NOT_STARTED",
             "NOT_STARTED, 50.0, IN_PROGRESS",
+            "NOT_STARTED, 100.0, COMPLETED",
+            "IN_PROGRESS, 50.0, IN_PROGRESS",
             "IN_PROGRESS, 50.0, IN_PROGRESS",
             "IN_PROGRESS, 100.0, COMPLETED",
             "COMPLETED, 100.0, COMPLETED",
-            "COMPLETED, 50.0, COMPLETED"
+            "COMPLETED, 50.0, COMPLETED",
+            "COMPLETED, 0.0, COMPLETED"
     })
     void updateEnrollmentStatus_VariousCompletionPercentagesAndStatuses_ReturnsExpectedStatus(
             EnrollmentStatus initialStatus,

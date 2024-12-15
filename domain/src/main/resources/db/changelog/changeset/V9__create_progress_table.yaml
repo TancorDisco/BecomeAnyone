@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: V9__create_progress_table
+      author: sweetbun
+      changes:
+        - sql:
+            sql: |
+              CREATE TABLE progress (
+                progress_id BIGSERIAL PRIMARY KEY,
+                enrollment_id BIGINT UNIQUE REFERENCES enrollments(enrollment_id),
+                completion_percentage DOUBLE PRECISION NOT NULL,
+                completed_tests INT,
+                completion_date TIMESTAMP
+              );

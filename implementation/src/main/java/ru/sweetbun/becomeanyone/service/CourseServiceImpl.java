@@ -5,18 +5,21 @@ import org.modelmapper.ModelMapper;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.sweetbun.becomeanyone.contract.CourseService;
-import ru.sweetbun.becomeanyone.entity.Course;
-import ru.sweetbun.becomeanyone.entity.User;
-import ru.sweetbun.becomeanyone.repository.CourseRepository;
 import ru.sweetbun.becomeanyone.dto.course.CourseRequest;
 import ru.sweetbun.becomeanyone.dto.course.CourseResponse;
 import ru.sweetbun.becomeanyone.dto.module.request.CreateModuleRequest;
 import ru.sweetbun.becomeanyone.dto.module.request.UpdateModuleInCourseRequest;
+import ru.sweetbun.becomeanyone.entity.Course;
+import ru.sweetbun.becomeanyone.entity.User;
 import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
+import ru.sweetbun.becomeanyone.repository.CourseRepository;
 import ru.sweetbun.becomeanyone.util.SecurityUtils;
 
 import java.util.List;
@@ -41,6 +44,8 @@ public class CourseServiceImpl implements CourseService {
 
     private final UserServiceImpl userServiceImpl;
 
+    private final NotificationService notificationService;
+
     @Override
     @Transactional
     public CourseResponse createCourse(CourseRequest<CreateModuleRequest> courseRequest) {
@@ -52,6 +57,8 @@ public class CourseServiceImpl implements CourseService {
 
         Course savedCourse = courseRepository.save(course);
         moduleServiceImpl.createModules(courseRequest.getModules(), savedCourse);
+
+        notificationService.notifyAboutNewCourse(course);
         return modelMapper.map(savedCourse, CourseResponse.class);
     }
 
@@ -68,7 +75,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public List<CourseResponse> getAllCourses(Long teacherId, String q) {
+    public Page<CourseResponse> getAllCourses(Long teacherId, String q, int page, int pageSize) {
         Specification<Course> spec = Stream.of(
                 ofNullable(teacherId).map(id -> CourseRepository.hasTeacher(userServiceImpl.fetchUserById(teacherId))),
                 ofNullable(q).filter(title -> !title.isEmpty()).map(CourseRepository::hasTitle)
@@ -76,9 +83,10 @@ public class CourseServiceImpl implements CourseService {
                 .flatMap(Optional::stream)
                 .reduce(Specification::and)
                 .orElse(Specification.where(null));
-        return courseRepository.findAll(spec).stream()
-                .map(course -> modelMapper.map(course, CourseResponse.class))
-                .toList();
+
+        Pageable pageable = PageRequest.of(page, pageSize);
+        return courseRepository.findAll(spec, pageable)
+                .map(course -> modelMapper.map(course, CourseResponse.class));
     }
 
     @CacheEvict(value = "courses", key = "#id")

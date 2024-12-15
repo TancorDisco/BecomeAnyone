@@ -92,7 +92,7 @@ public class UserServiceImpl implements UserService, ProfileService, AuthService
             log.warn("No roles found for user: {}", username);
 
         Long userId = getUserByUsername(username).getId();
-        String accessKey = tokenService.generateAccessToken(username, userId,roles);
+        String accessKey = tokenService.generateAccessToken(username, userId, roles);
         String refreshToken = tokenService.generateRefreshToken(username, rememberMe);
         refreshTokenService.saveRefreshToken(username, refreshToken, tokenService.getExpirationTimeInMills(refreshToken));
 

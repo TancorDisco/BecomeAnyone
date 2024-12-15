@@ -32,6 +32,6 @@ public class Content {
     private Video video = null;
 
     @Builder.Default
-    @OneToMany(mappedBy = "content")
+    @OneToMany(mappedBy = "content", cascade = CascadeType.ALL)
     private List<AttachmentFile> files = new ArrayList<>();
 }

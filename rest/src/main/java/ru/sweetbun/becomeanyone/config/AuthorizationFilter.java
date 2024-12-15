@@ -14,6 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import ru.sweetbun.becomeanyone.model.CustomUserPrincipal;
 import ru.sweetbun.becomeanyone.service.TokenBlacklistService;
 import ru.sweetbun.becomeanyone.service.TokenService;
 
@@ -34,8 +35,9 @@ public class AuthorizationFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
-        return path.startsWith("/auth/login") || path.startsWith("/auth/register") || path.startsWith("/swagger")
-                || path.startsWith("/v3/api-docs");
+        return path.startsWith("/auth/login") || path.startsWith("/auth/register")
+                || path.startsWith("/swagger-ui") || path.startsWith("/v3/api-docs")
+                || path.startsWith("/actuator") || path.startsWith("/favicon.ico");
     }
 
     @Override

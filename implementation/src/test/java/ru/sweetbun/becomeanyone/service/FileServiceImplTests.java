@@ -8,6 +8,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.multipart.MultipartFile;
+import ru.sweetbun.becomeanyone.contract.eventpublisher.FileDeletionEventPublisher;
 import ru.sweetbun.becomeanyone.entity.AttachmentFile;
 import ru.sweetbun.becomeanyone.entity.Content;
 import ru.sweetbun.becomeanyone.entity.Lesson;
@@ -43,6 +44,9 @@ class FileServiceImplTests {
 
     @Mock
     private LessonServiceImpl lessonService;
+
+    @Mock
+    private FileDeletionEventPublisher fileDeletionEventPublisher;
 
     @InjectMocks
     private FileServiceImpl fileService;
@@ -150,8 +154,8 @@ class FileServiceImplTests {
 
         // Assert
         assertEquals(1L, result);
-        verify(s3Client).deleteObject(any(DeleteObjectRequest.class));
-        verify(fileRepository).delete(file);
+        verify(fileDeletionEventPublisher).publishFileDeletionEvent(anyString());
+        verify(fileRepository).deleteById(1L);
     }
 
     @Test
