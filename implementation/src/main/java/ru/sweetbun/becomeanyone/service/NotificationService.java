@@ -27,7 +27,8 @@ public class NotificationService {
         NotificationMessage notification = NotificationMessage.builder()
                 .subject("Новый курс от вашего преподавателя")
                 .text(teacher.getUsername() + " выпустил новый курс!\n" +
-                        "Скорее приступай к учёбе!")
+                        "Скорее приступай к учёбе!\n" +
+                        "http://217.71.129.139:5148/courses/" + course.getId())
                 .build();
         List<Long> courseIds = courseRepository.findCourseIdsByTeacherId(teacher.getId());
         List<User> students = enrollmentRepository.findStudentsByCourseIds(courseIds);

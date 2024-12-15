@@ -6,7 +6,6 @@ import ru.sweetbun.becomeanyone.entity.Lesson;
 import ru.sweetbun.becomeanyone.entity.User;
 import ru.sweetbun.becomeanyone.repository.CourseRepository;
 import ru.sweetbun.becomeanyone.repository.ModuleRepository;
-import ru.sweetbun.becomeanyone.service.CacheService;
 
 import java.util.List;
 

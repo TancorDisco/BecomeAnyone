@@ -1,0 +1,12 @@
+databaseChangeLog:
+  - changeSet:
+      id: V16__create_contents_table
+      author: sweetbun
+      changes:
+        - sql:
+            sql: |
+              CREATE TABLE contents (
+                content_id BIGSERIAL PRIMARY KEY,
+                lesson_id BIGINT REFERENCES lessons(lesson_id),
+                text TEXT
+              );

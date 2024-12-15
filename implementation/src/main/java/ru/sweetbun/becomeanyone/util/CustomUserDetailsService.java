@@ -1,4 +1,4 @@
-package ru.sweetbun.becomeanyone.service;
+package ru.sweetbun.becomeanyone.util;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.sweetbun.becomeanyone.entity.User;
+import ru.sweetbun.becomeanyone.service.UserServiceImpl;
 
 import java.util.Set;
 import java.util.stream.Collectors;
