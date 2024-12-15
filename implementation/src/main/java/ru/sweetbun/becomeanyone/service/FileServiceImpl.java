@@ -7,7 +7,9 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import ru.sweetbun.becomeanyone.contract.eventpublisher.FileDeletionEventPublisher;
 import ru.sweetbun.becomeanyone.contract.FileService;
+import ru.sweetbun.becomeanyone.contract.FileServiceDeletionEvent;
 import ru.sweetbun.becomeanyone.entity.AttachmentFile;
 import ru.sweetbun.becomeanyone.entity.Content;
 import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
@@ -31,7 +33,7 @@ import java.util.UUID;
 @Slf4j
 @Transactional(readOnly = true)
 @Service
-public class FileServiceImpl implements FileService {
+public class FileServiceImpl implements FileService, FileServiceDeletionEvent {
 
     private final S3Client s3Client;
     private final S3Presigner s3Presigner;
@@ -41,17 +43,20 @@ public class FileServiceImpl implements FileService {
     private final FileRepository fileRepository;
     private final Long MAX_FILE_SIZE;
 
+    private final FileDeletionEventPublisher fileDeletionEventPublisher;
+
     @Autowired
     public FileServiceImpl(S3Client s3Client, S3Presigner s3Presigner,
                            @Value("${vk-cloud.storage.bucket-name}") String BUCKET_NAME, LessonServiceImpl lessonService,
                            FileRepository fileRepository,
-                           @Value("${vk-cloud.storage.max-file-size}") Long maxFileSize) {
+                           @Value("${vk-cloud.storage.max-file-size}") Long maxFileSize, FileDeletionEventPublisher fileDeletionEventPublisher) {
         this.s3Client = s3Client;
         this.s3Presigner = s3Presigner;
         this.BUCKET_NAME = BUCKET_NAME;
         this.lessonService = lessonService;
         this.fileRepository = fileRepository;
         this.MAX_FILE_SIZE = maxFileSize;
+        this.fileDeletionEventPublisher = fileDeletionEventPublisher;
     }
 
     @Transactional
@@ -134,12 +139,22 @@ public class FileServiceImpl implements FileService {
     @Override
     public Long deleteFile(Long id) {
         AttachmentFile file = fetchFileById(id);
+        fileDeletionEventPublisher.publishFileDeletionEvent(file.getKey());
+        fileRepository.deleteById(id);
+        log.info("File deleted from db with id: {}", id);
+        return id;
+    }
+
+    @Override
+    public void deleteFileFromCloud(String fileKey) {
         s3Client.deleteObject(DeleteObjectRequest.builder()
                 .bucket(BUCKET_NAME)
-                .key(file.getKey())
+                .key(fileKey)
                 .build());
-        fileRepository.delete(file);
-        log.info("File has been deleted with id: {}", id);
-        return id;
+        log.info("File deleted from cloud with key: {}", fileKey);
+    }
+
+    public List<String> getFileKeysByContentId(Long contentId) {
+        return fileRepository.findFileKeysByContentId(contentId);
     }
 }

@@ -12,6 +12,11 @@ import org.springframework.context.annotation.Configuration;
 public class RabbitMQConfig {
 
     @Bean
+    public Queue fileDeletionQueue() {
+        return new Queue("fileDeletionQueue");
+    }
+
+    @Bean
     public Queue notificationQueue() {
         return new Queue("notificationQueue");
     }

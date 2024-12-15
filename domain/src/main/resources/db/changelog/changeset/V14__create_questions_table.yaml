@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: V14__create_questions_table
+      author: sweetbun
+      changes:
+        - sql:
+            sql: |
+              CREATE TABLE questions (
+                question_id BIGSERIAL PRIMARY KEY,
+                test_id BIGINT REFERENCES tests(test_id),
+                question_text TEXT NOT NULL,
+                has_several_correct_answers BOOLEAN NOT NULL,
+                explanation TEXT,
+                image_url TEXT
+              );

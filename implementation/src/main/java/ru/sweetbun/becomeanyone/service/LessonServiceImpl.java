@@ -5,18 +5,17 @@ import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.sweetbun.becomeanyone.contract.eventpublisher.FileDeletionEventPublisher;
 import ru.sweetbun.becomeanyone.contract.LessonService;
 import ru.sweetbun.becomeanyone.dto.lesson.request.CreateLessonRequest;
 import ru.sweetbun.becomeanyone.dto.lesson.request.UpdateLessonRequest;
 import ru.sweetbun.becomeanyone.dto.lesson.request.UpdateLessonInCourseRequest;
-import ru.sweetbun.becomeanyone.entity.AttachmentFile;
 import ru.sweetbun.becomeanyone.entity.Content;
 import ru.sweetbun.becomeanyone.entity.Lesson;
 import ru.sweetbun.becomeanyone.entity.Module;
 import ru.sweetbun.becomeanyone.dto.lesson.response.LessonResponse;
 import ru.sweetbun.becomeanyone.exception.ResourceNotFoundException;
 import ru.sweetbun.becomeanyone.repository.LessonRepository;
-import ru.sweetbun.becomeanyone.repository.ModuleRepository;
 import ru.sweetbun.becomeanyone.util.CacheServiceProvider;
 
 import java.util.ArrayList;
@@ -40,6 +39,10 @@ public class LessonServiceImpl implements LessonService {
 
     private final CacheServiceProvider cacheServiceProvider;
 
+    private final FileDeletionEventPublisher fileDeletionEventPublisher;
+    @Lazy
+    private final FileServiceImpl fileService;
+
     @Transactional
     public List<Lesson> updateLessons(List<UpdateLessonInCourseRequest> lessonDTOS, Module module) {
         Map<Long, Lesson> currentLessonsMap = module.getLessons().stream()
@@ -48,7 +51,7 @@ public class LessonServiceImpl implements LessonService {
         List<Lesson> updatedLessons = mergeLessons(lessonDTOS, currentLessonsMap, module);
 
         if (!currentLessonsMap.isEmpty()) {
-            currentLessonsMap.values().forEach(lesson -> deleteFilesInContent(lesson.getContent()));
+            currentLessonsMap.values().forEach(lesson -> deleteFilesInContent(lesson.getContent().getId()));
             lessonRepository.deleteAll(new ArrayList<>(currentLessonsMap.values()));
         }
         return updatedLessons;
@@ -136,9 +139,8 @@ public class LessonServiceImpl implements LessonService {
     public long deleteLessonById(Long id) {
         Lesson lessonToDelete = fetchLessonById(id);
         cacheServiceProvider.evictCourseCacheByLesson(lessonToDelete);
-
+        deleteFilesInContent(lessonToDelete.getContent().getId());
         int orderNum = lessonToDelete.getOrderNum();
-        deleteFilesInContent(lessonToDelete.getContent());
         lessonRepository.deleteById(id);
 
         List<Lesson> lessonsToUpdate = lessonRepository.findByOrderNumGreaterThan(orderNum);
@@ -147,10 +149,8 @@ public class LessonServiceImpl implements LessonService {
         return id;
     }
 
-    private void deleteFilesInContent(Content content) {
-        List<AttachmentFile> files = content.getFiles();
-        if (!files.isEmpty()) {
-            contentService.deleteAllFiles(files);
-        }
+    private void deleteFilesInContent(Long contentId) {
+        List<String> fileKeys = fileService.getFileKeysByContentId(contentId);
+        fileKeys.forEach(fileDeletionEventPublisher::publishFileDeletionEvent);
     }
 }

@@ -1,8 +1,12 @@
 package ru.sweetbun.becomeanyone.controller;
 
+
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -25,8 +29,11 @@ public class FileController {
 
     @PreAuthorize("hasRole('TEACHER')")
     @CheckCourseOwner
-    @Operation(summary = "Добавить файл", description = "Прикрепление файла к уроку")
-    @PostMapping
+    @Operation(
+            summary = "Добавить файл",
+            description = "Прикрепление файла к уроку"
+    )
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> uploadFile(@PathVariable("lessonId") Long lessonId,
                                         @RequestParam("file") MultipartFile file) throws IOException {
         return ok(fileService.uploadFile(file, lessonId));

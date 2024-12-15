@@ -35,8 +35,9 @@ public class AuthorizationFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
-        return path.startsWith("/auth/login") || path.startsWith("/auth/register") || path.startsWith("/swagger")
-                || path.startsWith("/v3/api-docs");
+        return path.startsWith("/auth/login") || path.startsWith("/auth/register")
+                || path.startsWith("/swagger-ui") || path.startsWith("/v3/api-docs")
+                || path.startsWith("/actuator") || path.startsWith("/favicon.ico");
     }
 
     @Override

@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: V10__create_modules_table
+      author: sweetbun
+      changes:
+        - sql:
+            sql: |
+              CREATE TABLE modules (
+                module_id BIGSERIAL PRIMARY KEY,
+                course_id BIGINT REFERENCES courses(course_id),
+                title TEXT NOT NULL,
+                description TEXT,
+                order_num INT
+              );

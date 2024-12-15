@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: V11__create_lessons_table
+      author: sweetbun
+      changes:
+        - sql:
+            sql: |
+              CREATE TABLE lessons (
+                lesson_id BIGSERIAL PRIMARY KEY,
+                module_id BIGINT REFERENCES modules(module_id),
+                title TEXT NOT NULL,
+                order_num INT
+              );

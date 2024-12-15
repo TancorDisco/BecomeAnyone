@@ -3,6 +3,9 @@ package ru.sweetbun.becomeanyone.service;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.sweetbun.becomeanyone.contract.EnrollmentService;
@@ -16,6 +19,7 @@ import ru.sweetbun.becomeanyone.repository.EnrollmentRepository;
 import ru.sweetbun.becomeanyone.util.SecurityUtils;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static ru.sweetbun.becomeanyone.entity.enums.EnrollmentStatus.*;
@@ -38,10 +42,15 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     @Override
     @Transactional
     public EnrollmentResponse createEnrollment(Long courseId) {
+        User student = securityUtils.getCurrentUser();
+        Course course = courseServiceImpl.fetchCourseById(courseId);
+        if (enrollmentRepository.findByStudentAndCourse(student, course).isPresent()) {
+            throw new IllegalArgumentException("You're already enrolled");
+        }
         Progress progress = progressService.createProgress();
         Enrollment enrollment = Enrollment.builder()
-                .student(securityUtils.getCurrentUser())
-                .course(courseServiceImpl.fetchCourseById(courseId))
+                .student(student)
+                .course(course)
                 .enrollmentDate(LocalDate.now())
                 .progress(progress)
                 .status(NOT_STARTED)
@@ -63,12 +72,21 @@ public class EnrollmentServiceImpl implements EnrollmentService {
                 .toList();
     }
 
+    @Override
+    public Page<EnrollmentResponse> getAllEnrollmentsByCourse(Long courseId, int page, int pageSize) {
+        Pageable pageable = PageRequest.of(page, pageSize);
+        return enrollmentRepository.findAllByCourseId(courseId, pageable)
+                .map(enrollment -> modelMapper.map(enrollment, EnrollmentResponse.class));
+    }
+
     @Transactional
     public Enrollment updateEnrollmentStatus(double completionPercent, Enrollment enrollment) {
-        if (enrollment.getStatus() == NOT_STARTED && completionPercent > 0.0) {
-            enrollment.setStatus(IN_PROGRESS);
-        } else if (enrollment.getStatus() != COMPLETED && completionPercent == 100.0) {
+        if (enrollment.getStatus() != COMPLETED && completionPercent == 100.0) {
             enrollment.setStatus(COMPLETED);
+            Progress progress = enrollment.getProgress();
+            progress.setCompletionDate(LocalDateTime.now());
+        } else if (enrollment.getStatus() == NOT_STARTED && completionPercent > 0.0) {
+            enrollment.setStatus(IN_PROGRESS);
         }
         return enrollmentRepository.save(enrollment);
     }

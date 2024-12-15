@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: V5__create_profiles_table
+      author: sweetbun
+      changes:
+        - sql:
+            sql: |
+              CREATE TABLE profiles (
+                profile_id BIGSERIAL PRIMARY KEY,
+                user_id BIGINT REFERENCES users(user_id),
+                bio TEXT,
+                photo_url TEXT
+              );
